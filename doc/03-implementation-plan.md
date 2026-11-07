@@ -17,7 +17,7 @@ We build the game in **12 steps**, from the inside out: rules first, then visual
 ```mermaid
 flowchart LR
     subgraph M1["Month 1–3 · Pre-production"]
-        S0["0 Bootstrap"] --> S1["1 Data schema"] --> S2["2 Battle model"] --> S3["3 Pathfinding"] --> S4["4 Commands & rules"] --> S5["5 AI + headless battles"] --> S6["6 Text-mode battle"]
+        S0["0 Bootstrap"] --> S1["1 Data schema"] --> S2["2 Battle model"] --> S3["3 Pathfinding"] --> S4["4 Commands & rules"] --> S5["5 AI + headless battles"] --> S6["6 Playable battle (text + 2D)"]
     end
     subgraph M2["Month 4–8 · Vertical slice"]
         S7["7 Campaign & saves"] --> S8["8 Progression"] --> S9["9 Scripting & town"] --> S10["10 Hardening"] --> S11["11 Slice content"]
@@ -35,7 +35,7 @@ flowchart LR
 | 3 | Pathfinding | 1 | Ranges correct in tests | |
 | 4 | Commands, events, rules | 2 | Scripted battle runs headless | |
 | 5 | AI and headless battles | 2 | AI vs AI finishes every map in CI | **A: rules core done** |
-| 6 | Playable battle, text mode (no GPU) | 1 | Play a 4v4 battle in the terminal | **B: first playable** |
+| 6 | Playable battle: text + 2D views | 1 | Play a 4v4 battle with the mouse (2D) or in the terminal | **B: first playable** |
 | 7 | Campaign, flow, saves | 2 | Title → camp → battle → results → save → load | |
 | 8 | Progression | 3 | Level-ups, promotion, bonds, shop | |
 | 9 | Scripting, dialogue, town | 3 | Reinforcements, boss lines, walkable town | |
@@ -237,7 +237,14 @@ A 44% win rate is fine for now: both sides use the same rules on a tiny map with
 
 **Goal:** a person can play a whole battle against the computer. **Gate B.**
 
-**Changed from the original plan:** we have no GPU, so the first playable view is a **text battle in the terminal**: an ASCII map plus typed commands, running headless, and also inside Docker. It is a normal View-layer client of the core (`view/terminal/`), so nothing in `core/` changes. The 3D grey-box view (camera rig, unit models, HUD) moves to *after the slice*, for when a GPU machine is available.
+**Changed from the original plan:** two views instead of the 3D grey-box, both normal View-layer clients of the core (nothing in `core/` changed):
+
+1. **Text battle** (`view/terminal/`): ASCII map plus typed commands. Headless, no GPU, works in Docker and over SSH.
+2. **2D top-down battle** (`view/battle2d/`, the main scene): tiles, units and UI drawn with simple shapes (no art yet). Uses Godot's lightweight Compatibility renderer, which runs on any built-in GPU (checked on an Apple M4).
+
+The 3D isometric view moves to *after the slice*.
+
+![2D battle screen](images/battle2d.png)
 
 **Tasks**
 
@@ -246,6 +253,9 @@ A 44% win rate is fine for now: both sides use the same rules on a tiny map with
 - [x] `TextView.parse(line)`: `m x y`, `a ID`, `i SLOT ID`, `e SLOT`, `w`, plus info commands `f ID` (forecast), `u ID` (unit details), `r`, `h`, `q`
 - [x] `TerminalGame`: turn loop. You command your units; enemy turns run through `AutoPlay`; it shows events and the victory/defeat banner. Input/output are injected so tests can script it
 - [x] `tools/play.gd` (`-- --seed=N`) and `tools/docker.sh play [seed]`
+- [x] **2D battle screen** `view/battle2d/battle_screen.tscn` (main scene): colored terrain tiles (forest, hill, height), unit tokens with HP bars, a star on leaders, a ring on the acting unit, a blue move range, red outlines on attackable enemies, a hover outline, floating damage numbers, animated moves, a unit panel (name, class, level, HP bar, stats, land effect), an attack forecast on hover, Wait/Herb buttons (W/I), a battle log, a VICTORY/DEFEAT banner, and R for a new battle
+- [x] Screenshot mode for checking visuals: `godot --path . -- --screenshot=out.png --demo-turns=3 --seed=11`
+- [x] Renderer switched to `gl_compatibility`; window opens at 1280×720 (scaled from 1920×1080)
 
 **Validation**
 
@@ -258,7 +268,9 @@ A 44% win rate is fine for now: both sides use the same rules on a tiny map with
 | Plays to the end | Scripted input: a whole battle finishes and shows the result | ✅ `test_game_loop_plays_to_the_end` |
 | Robust | Garbage input, illegal moves and quit leave a valid state | ✅ `test_game_loop_survives_bad_input` |
 | No logic in view | Layer check green; the view only calls `apply`, `legal`/`forecast`, `AutoPlay` | ✅ |
-| **Gate B review** | A teammate who didn't build it wins the fixture battle in text mode with no help in < 15 minutes and finds it fun (≥ 3.5/5) | ⏳ needs a human playtest: `tools/docker.sh play` |
+| 2D screen works | Starts on a player turn, click moves the unit, bad clicks do nothing, waiting plays to the end and shows the banner | ✅ `test_battle_screen.gd` (4 tests, headless) |
+| 2D renders | Screenshot on a real GPU looks right | ✅ Apple M4, see image above |
+| **Gate B review** | A teammate who didn't build it wins the fixture battle with no help in < 15 minutes and finds it fun (≥ 3.5/5) | ⏳ needs a human playtest: `godot --path .` (2D) or `tools/docker.sh play` (text) |
 
 ## Step 7 — Campaign, screen flow and saves
 
@@ -392,7 +404,7 @@ A 44% win rate is fine for now: both sides use the same rules on a tiny map with
 
 | Phase | Months | Engineering focus | Exit validation |
 | --- | --- | --- | --- |
-| Graphical view | when a GPU machine is available | 3D grey-box battle view (camera rig, unit models, HUD), using the same core and events as the text view | Same scripted battles play identically in both views |
+| 3D view | after the slice | 3D isometric battle view (height, rotating camera, sprites on the map), using the same core and events as the 2D/text views | Same scripted battles play identically in every view |
 | Production | 9–18 | Content tools, hard mode, remaining spells/items/classes, localization pipeline | All 12 chapters playable start to finish in CI (campaign e2e over every chapter) |
 | Alpha / beta | 19–22 | Bug fixing, performance, save migration tests for every released version | Crash-free ≥ 99.5%, 0 open save bugs |
 | Launch | 23–24 | Store builds, day-1 patch pipeline | Signed builds pass store review |
@@ -411,7 +423,7 @@ Each step becomes a GitHub milestone. Each task is an issue labeled with its ste
 | 3 Pathfinding | Claude | 2026-11-07 | ✅ Done |
 | 4 Commands & rules | Claude | 2026-11-07 | ✅ Done |
 | 5 AI + headless (Gate A) | Claude | 2026-11-07 | ✅ Done, Gate A awaiting sign-off |
-| 6 Text-mode battle (Gate B) | Claude | 2026-11-07 | ✅ Done, Gate B needs a human playtest |
+| 6 Playable battle (Gate B) | Claude | 2026-11-07 | ✅ Done, Gate B needs a human playtest |
 | 7 Campaign & saves | | | Not started |
 | 8 Progression | | | Not started |
 | 9 Scripting & town | | | Not started |
