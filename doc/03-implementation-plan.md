@@ -8,7 +8,7 @@ We build the game in **12 steps**, from the inside out: rules first, then visual
 | Based on | [02 Engineering Design](02-eng-design.md) (class and file names match it) |
 | Team assumed | 2 gameplay engineers + 1 tools engineer from month 2; art and design work in parallel |
 
-**Contents:** [Overview](#overview) · [Definition of done](#definition-of-done-every-step) · Steps [0](#step-0--project-bootstrap) · [1](#step-1--data-schema-and-fixtures) · [2](#step-2--battle-model) · [3](#step-3--pathfinding) · [4](#step-4--commands-events-and-combat-rules) · [5](#step-5--enemy-ai-and-headless-battles) · [6](#step-6--grey-box-battle-view) · [7](#step-7--campaign-screen-flow-and-saves) · [8](#step-8--progression-xp-promotion-bonds-items) · [9](#step-9--map-scripting-dialogue-and-town) · [10](#step-10--hardening-settings-export-and-performance) · [11](#step-11--vertical-slice-content) · [12](#step-12--design-round-1-closer-to-the-genre-reference) · [Presentation 13–17](#presentation-rounds-steps-1317-characters-battle-scenes-portraits) · [After the slice](#after-the-slice) · [Tracking](#tracking)
+**Contents:** [Overview](#overview) · [Definition of done](#definition-of-done-every-step) · Steps [0](#step-0--project-bootstrap) · [1](#step-1--data-schema-and-fixtures) · [2](#step-2--battle-model) · [3](#step-3--pathfinding) · [4](#step-4--commands-events-and-combat-rules) · [5](#step-5--enemy-ai-and-headless-battles) · [6](#step-6--grey-box-battle-view) · [7](#step-7--campaign-screen-flow-and-saves) · [8](#step-8--progression-xp-promotion-bonds-items) · [9](#step-9--map-scripting-dialogue-and-town) · [10](#step-10--hardening-settings-export-and-performance) · [11](#step-11--vertical-slice-content) · [12](#step-12--design-round-1-closer-to-the-genre-reference) · [Presentation 13–17](#presentation-rounds-steps-1317-characters-battle-scenes-portraits) · [UI round 18–22](#ui--design-round-steps-1822-fancier-production-ready) · [After the slice](#after-the-slice) · [Tracking](#tracking)
 
 ---
 
@@ -47,6 +47,11 @@ flowchart LR
 | 15 | Map sprites + head icons (2D) | 2 | Characters instead of circles on the battle map | |
 | 16 | Battle cut-in scene | 3 | Close-up attack/spell/heal scene with HP plates | |
 | 17 | 3D isometric map | 4–6 | Textured 3D map, sprite billboards, 4 camera angles | |
+| 18 | UI kit | 2 | Banner frame, fonts, theme, motion, focus, UI snapshots | Kit sign-off (owner) |
+| 19 | Portraits v2 + profile | 3 | Detailed portraits, character profile screen, artist brief | |
+| 20 | Screen redesigns | 3 | Title, camp, results, town, settings, credits | |
+| 21 | Battle HUD polish | 2 | Portrait unit card, forecast card, turn bar, command menu | |
+| 22 | Production readiness | 2 | Accessibility, resolutions, localization, stability | **D: looks finished** |
 
 ---
 
@@ -693,6 +698,199 @@ The owner asked for three things the reference genre does well (screenshots shar
 | Performance | ≥ 60 fps at 1080p on Apple M1 / Intel Iris Xe class, Compatibility renderer | ✅ 110 fps (vsync 120) on Apple M4, Compatibility renderer, 1920×1080 canvas in the 1280×720 window. ⏳ an M1 / Iris Xe machine and a full-screen 1080p run are still to do (owner) |
 | Look (human) | Owner approves the 3D look against doc/05 | ⏳ owner |
 
+## UI / design round (steps 18–22): fancier, production-ready
+
+The owner asked (2026-11-07) for a UI and design pass that makes the game look finished, with character ("role") profiles presented like a shared reference image. That image is a portrait from the genre reference and is **not to be copied**. `game-manager` planned this round from a review of every screen as it is today:
+
+![Every screen before this round: title, results, settings, camp, town, battle](images/ui_before_round.png)
+
+**What we take from the reference image (format only)** and what we don't:
+
+| Take: genre conventions | Don't take: that image's expression |
+| --- | --- |
+| A large, **detailed bust portrait**: head and shoulders filling the frame, expressive eyes with a highlight, several shading steps, light catching the hair | That character: spiky brown hair with a white streak, green eyes, green scarf, its face and pose |
+| A **layered frame**: an outer rim, a dark inner field, and depth (inner shadow), so the portrait reads as a framed card | Its frame: the bevelled dark-blue / silver border and its corner shape, colors and proportions |
+| The portrait as the **center of a character's identity** (dialogue, profile, HUD) | Its UI layout, fonts and any pixels from it. The image is never committed or traced |
+
+Our own direction (to be written into doc/05 in step 18): a **"Banner" frame**. A gold outer rim with a thin dark line inside it, a navy field, a soft inner shadow, and a small **pennant notch** at the top center as our motif (the game is called *Banner*). The team color shows as a ribbon on the frame, so every framed portrait says whose side it's on.
+
+### Review: top issues by role
+
+| Role | Top issues |
+| --- | --- |
+| `game-art-design` | Portraits are 64-px blocks with flat shading and dot eyes, not production quality. One flat frame style everywhere, with no depth or hierarchy. The title is plain text with no key art or wordmark. The engine's default font everywhere |
+| `game-ui-ux-designer` | Camp is rows of text, with no faces and no **character profile** to open. Results is a small text box (no portraits, no level-up moments). Settings and town are bare button lists. The battle unit panel is text only, with no portrait, and its stat line is cramped at 1280×720. No screen transitions, no hover or press motion, and focus (gamepad) is only partly visible |
+| `game-2d-3d-artist` | The portrait generator has reached its limit on a 64×64 grid (few colors, no hair strands or iris detail). "Production" portraits need either a higher-detail generator or a commissioned artist, with a brief that keeps them consistent |
+| `game-developer` | Styling is scattered: each screen builds its own panels in code, and there's no shared `Theme` resource, so a restyle touches every file. No font files. Screens swap with no transition hook |
+| `game-qa` | No UI scale or text-size setting, no colorblind check, 16:10 and ultrawide never tested, and gamepad focus navigation isn't tested on every screen. No visual regression check, so a restyle could break layouts silently |
+
+### Scoring (impact × confidence ÷ effort; S=1, M=2, L=3)
+
+| Step | Feature | Impact | Conf. | Effort | Score | Order |
+| --- | --- | --- | --- | --- | --- | --- |
+| 18 | UI kit: Banner frame, fonts, theme resource, motion, focus | 5 | 4 | M | **10** | 1st: everything else builds on it |
+| 19 | Portraits v2 + character profile screen | 5 | 3 | L | 5 | 2nd: the owner's main ask |
+| 20 | Screen redesigns: title, camp, results, town, settings | 4 | 4 | L | 5.3 | 3rd |
+| 21 | Battle HUD polish: portrait unit card, forecast card, turn order bar, command menu | 4 | 4 | M | 8 | 4th: needs 18 + 19 |
+| 22 | Production readiness: accessibility, resolutions, localization, credits, visual regression | 4 | 5 | M | 10 | Its visual-regression check lands *first*, inside 18. The rest runs last |
+
+**Who makes the art:** the same pattern as steps 11–17. Claude builds the system and **upgraded placeholders** (generated, original, consistent), so every screen works end to end. Final production portraits, key art and logo come from a **human artist** working from the brief in step 19 (⏳ owner), or from licensed assets recorded in `assets/CREDITS.md`. The file names and sizes stay the same, so swapping art needs no code change. If AI-generated art is considered, that's an owner decision: it needs a license check and the doc/04 IP review first.
+
+---
+
+## Step 18 — UI kit: the Banner frame, fonts, theme, motion
+
+**Goal:** one shared, good-looking UI kit that every screen uses. A restyle then happens in one place.
+
+**Tasks**
+
+- [ ] **Art direction v2** (`game-art-design`): rewrite doc/05 §6 "UI frames":
+    - The **Banner frame**: a 9-slice with a gold outer rim (2 px), a dark line, a navy field with a soft inner shadow, and a pennant notch at the top center
+    - Three weights: **card** (portraits, plates), **panel** (menus, side panel) and **chip** (tags, buttons)
+    - A team ribbon on cards
+    - A sketch of each, with Do / Don't next to the reference (format only)
+- [ ] **Fonts** (`game-art-design` + `game-developer`): a display font for titles and names, and a very readable body font. Both must be open-licensed (SIL OFL) and bundled in `assets/fonts/` with their license files. Pixel display + clean sans is recommended (candidates to evaluate: *Pixelify Sans* or *Silkscreen* for display, *Noto Sans* or *Inter* for body). Check legibility at 20 px / 1080p
+- [ ] **Theme resource** (`game-developer`):
+    - `tools/make_theme.gd` generates `assets/ui/banner_theme.tres`: buttons (normal / hover / pressed / disabled / **focus**), panels, labels, progress bars, option buttons, sliders, check boxes, scrollbars
+    - Frame textures for the 9-slices are generated by `tools/make_art.py`
+    - `UI.panel/button/label` and every screen use the theme; local `StyleBoxFlat`s are removed
+- [ ] **Motion** (`game-ui-ux-designer`):
+    - Screen transitions: a 0.25 s fade/slide through a `Transition` autoload hooked into `Game.goto`
+    - Button hover lift and press bounce, and panels that ease in on open
+    - All scaled by `Settings.anim_speed()`; *skip* means no motion
+- [ ] **Focus everywhere** (`game-ui-ux-designer`): every screen has a default focused control and a visible focus ring (gold, 2 px), and is fully usable with arrows / D-pad + A / B
+- [ ] **UI sound pass** (placeholder, `game-developer`): hover tick, confirm, cancel and open, generated by `make_audio.py`. Silent while debugging (step 16 rule)
+- [ ] **Visual regression check** (`game-qa`, pulled forward from step 22): `tools/ui_snapshots.sh` screenshots every screen at 1280×720 and 1920×1080 into `build/ui/` and compares them with approved images in `tests/ui_golden/` (≤ 1% of pixels changed, or the change gets reviewed). CI uploads the diffs
+
+**Validation**
+
+| Check | Pass when | Result |
+| --- | --- | --- |
+| One kit | `grep StyleBoxFlat view/screens view/battle2d view/dialogue view/battle_scene` finds none outside the theme generator | |
+| Fonts | Both fonts bundled with OFL license files; body text ≥ 20 px at 1080p; contrast ≥ 4.5:1 | |
+| Focus | A headless test tabs through every screen with `ui_focus_next` and finds a focused control each time | |
+| Motion | Transitions ≤ 0.3 s; none when animations are *skip*; tests unaffected (`animate = false`) | |
+| Snapshots | `ui_snapshots.sh` runs in CI; diffs uploaded as artifacts | |
+| Look (human) | Owner approves the frame and fonts on 3 sample screens | ⏳ owner |
+
+## Step 19 — Portraits v2 and the character profile ("role profile")
+
+**Goal:** characters feel like people. Detailed portraits in a framed card, and a profile screen for every recruit.
+
+**Tasks**
+
+- [ ] **Portrait style v2** (`game-art-design`): update doc/05 §5:
+    - A bust filling about 80% of the frame, eyes at about 40% height
+    - Irises in 2 tones with a highlight; 3–4 shading steps on skin and hair; hair drawn as strands with one highlight band; a rim light from the top left
+    - A background gradient band in the character's color
+    - **Moods** (neutral, happy, angry, hurt, determined) change eyes, brows and mouth only
+    - Original faces only. Each character gets a written one-line "look" (hair, eyes, outfit, one signature item) that's checked against the reference so none of them resembles it
+- [ ] **Generator upgrade** (`game-2d-3d-artist`): `tools/make_art.py` portraits on a **128×128 grid, exported 256×256**, with the v2 features (strands, 2-tone irises, shading ramps, rim light). Same names, so every screen updates by itself. Stays deterministic and standard library only
+- [ ] **Artist brief** (`game-2d-3d-artist`, for ⏳ owner to commission): `doc/06-art-brief.md`
+    - Per character: look line, class prop, palette swatches, 5 moods
+    - Technical: 512×512 master, delivered 256×256, transparent-free, Nearest-safe edges
+    - Frame-safe area; license terms (work-for-hire or exclusive license); file naming
+    - Reference policy: **genre conventions only**, never another game's characters or art
+- [ ] **Character profile screen** (`game-ui-ux-designer` + `game-developer`): Camp → click a portrait card → **Profile**:
+    - Large framed portrait (mood switches on hover), name, class and promotion path
+    - Level and XP bar; stats as bars with growth hints
+    - Equipment slots with item icons, bonds with every ally (tier hearts), and a one-line bio + the join quote
+    - Next / previous with LB / RB (or Q / E)
+- [ ] **Item icons** (`game-2d-3d-artist`): 24×24 pixel icons for every item (sword, spear, axe, bow, staff, herb, seed, antidote, rings) for the profile, shop and battle menus
+- [ ] **Data** (`game-developer`): `UnitData.bio` and `look` strings; shown in the profile and lint-checked (every recruit has both)
+
+**Validation**
+
+| Check | Pass when | Result |
+| --- | --- | --- |
+| Portrait v2 | All 15 speakers × 5 moods generated at 256×256, deterministic; the art-design review passes every one against doc/05 v2 | |
+| Originality | A side-by-side review sheet (ours vs the genre reference, format only) shows no shared hair, eye, outfit or frame design | |
+| Profile | Opens from camp for every recruit; all fields filled; fits at 1280×720 with the longest name and 4 items | |
+| Parity | The profile can be opened, paged and closed with mouse, keyboard and gamepad | |
+| Brief | `doc/06-art-brief.md` complete enough for an outside artist to quote on (owner check) | ⏳ owner |
+| Final portraits | Commissioned art replaces placeholders, same names and sizes | ⏳ owner + artist |
+
+## Step 20 — Screen redesigns
+
+**Goal:** each screen looks designed, not assembled. One primary action, faces everywhere, and clear structure.
+
+**Tasks**
+
+- [ ] **Title** (`game-artist` + `game-ui-ux-designer`):
+    - Key-art backdrop (a placeholder generated from the battle backdrops plus a silhouette line-up of the party)
+    - A **BANNER** wordmark with a pennant mark
+    - A menu on a Banner panel; save slots shown as cards (chapter, play time, party leader's portrait)
+- [ ] **Camp** (`game-ui-ux-designer`):
+    - Roster as a grid of **portrait cards** (portrait, name, class, level, HP); toggling deploy shows a ribbon
+    - Tabs: Party · Shop · Talk · Save. The shop shows item icons, prices and who can equip
+    - **Start battle** as the one dominant button
+- [ ] **Results** (`game-ui-ux-designer`):
+    - A victory banner
+    - Per-unit cards with portrait, XP bar filling, a "LEVEL UP" stamp with stat gains, and bond hearts gained
+    - Loot with icons; Continue
+- [ ] **Town** (`game-artist`): a backdrop of the place (from the backdrop generator, a town variant); townspeople as portrait cards; search spots as icon buttons
+- [ ] **Settings** (`game-ui-ux-designer`): grouped into Audio · Display · Gameplay · Controls (rebinding list), with live previews (animation speed, battle view)
+- [ ] **Credits / About** screen from `assets/CREDITS.md` + version
+
+**Validation**
+
+| Check | Pass when | Result |
+| --- | --- | --- |
+| Faces | Camp, results, town and the title's save slots all show portraits | |
+| Fits | Every screen at 1280×720 and 1920×1080 with 8 recruits (chapter 3): nothing clipped or overlapping (UI snapshots) | |
+| Clicks | Title → battle start in ≤ 4 clicks; camp → any profile in 1 | |
+| Flow tests | `tests/e2e/test_campaign_flow.gd` and screen-build tests still pass | |
+| Look (human) | Owner compares before/after sheets and approves | ⏳ owner |
+
+## Step 21 — Battle HUD polish
+
+**Goal:** the battle screen matches the new kit, and every decision is still readable at a glance.
+
+**Tasks**
+
+- [ ] **Unit card** (`game-ui-ux-designer`): a framed portrait thumbnail (mood: hurt below 25% HP), name, class, level, HP / MP bars, stat chips (ATK DEF AGI MOV), the weapon with its icon, the land effect and status icons
+- [ ] **Forecast card**: attacker vs target side by side with portraits; hit %, damage range, crit % and counter; the "!" advantage chip. It appears on hover or with the cursor
+- [ ] **Turn order bar**: the next 8 units as small portrait chips along the top, with team ribbons
+- [ ] **Command menu**: after moving, a small Banner menu next to the unit (Attack · Magic · Item · Wait), keyboard / gamepad first. It replaces the button row; the buttons remain as a mouse fallback
+- [ ] **Battle log** becomes a collapsible drawer; objective chip at the top ("Defeat the Goblin Chief")
+- [ ] **Damage numbers and popups** use the display font with an outline; level-up uses a stamp
+
+**Validation**
+
+| Check | Pass when | Result |
+| --- | --- | --- |
+| Readable | 1-second glance test (5 screenshots, 3 people): actor, target hit %, and whose turn is next named correctly ≥ 90% | ⏳ owner |
+| Parity | A whole battle is playable with the gamepad only through the command menu (scripted input test) | |
+| Same battle | 2D/3D/text equivalence test still passes; no `core/` change | |
+| Performance | ≥ 60 fps with the turn bar and cards on (bench) | |
+
+## Step 22 — Production readiness
+
+**Goal:** a build a stranger can install, read, play and trust.
+
+**Tasks**
+
+- [ ] **Accessibility** (`game-ui-ux-designer`):
+    - UI scale (90 / 100 / 115 / 130%) and text size
+    - A high-contrast option for the team colors; colorblind check (deuteranopia, protanopia, tritanopia) of the team, status and range colors, keeping shape cues (doc/05 §7)
+    - Hold-to-skip for text; screen-shake off
+- [ ] **Resolutions** (`game-qa`): 1280×720, 1920×1080, 2560×1440, 16:10 (2560×1600), ultrawide (3440×1440) and windowed resize. The safe area keeps the HUD in view; UI snapshots for each
+- [ ] **Localization-ready** (`game-developer`): every UI string goes through `tr()` and a `.csv` translation table (English). A pseudo-locale (+30% length) proves nothing clips
+- [ ] **Polish items:** app icon and splash; a pause menu in battle (resume / settings / suspend / quit); confirm dialogs for quit and overwrite save; tooltips on every stat
+- [ ] **Release checks:** crash-free soak (100 auto-played battles in the 3D view); save compatibility test across this round; the doc/04 IP review of all new art and fonts
+
+**Validation**
+
+| Check | Pass when | Result |
+| --- | --- | --- |
+| Scale & text | Every screen readable at 130% UI scale on 1280×720 (snapshots) | |
+| Colorblind | Team, status and range cues distinguishable in all 3 simulations (screenshots run through a simulator) | |
+| Resolutions | UI snapshots at the 6 sizes show no clipping | |
+| Localization | Pseudo-locale run: no missing `tr()` keys, no clipped text | |
+| Stability | 100 auto-played 3D battles, 0 script errors | |
+| IP & licenses | Every font and asset has a CREDITS line and license file; owner's IP review done | ⏳ owner |
+| Gate | 5 outside testers rate "looks finished" ≥ 4/5 | ⏳ owner |
+
 ## After the slice
 
 | Phase | Months | Engineering focus | Exit validation |
@@ -728,3 +926,8 @@ Each step becomes a GitHub milestone. Each task is an issue labeled with its ste
 | 15 Map sprites + head icons | game-2d-3d-artist, game-developer | 2026-11-07 | ✅ Done (glance test + look ⏳ owner) |
 | 16 Battle cut-in scene | game-developer, game-ui-ux-designer, game-artist | 2026-11-07 | ✅ Done (playtests ⏳ owner) |
 | 17 3D isometric map | game-developer, game-artist | 2026-11-07 | ✅ Done (min-spec fps + look ⏳ owner; final art ⏳ artist) |
+| 18 UI kit | game-art-design, game-developer, game-ui-ux-designer | — | ⬜ Next (planned 2026-11-07) |
+| 19 Portraits v2 + profile | game-art-design, game-2d-3d-artist, game-ui-ux-designer | — | ⬜ Planned (final portraits ⏳ owner + artist) |
+| 20 Screen redesigns | game-ui-ux-designer, game-artist | — | ⬜ Planned |
+| 21 Battle HUD polish | game-ui-ux-designer, game-developer | — | ⬜ Planned |
+| 22 Production readiness | game-qa, game-ui-ux-designer, game-developer | — | ⬜ Planned (Gate D ⏳ owner) |
