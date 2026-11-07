@@ -48,6 +48,8 @@ var _hurt := {}           # unit id -> true while flashing
 var _idle := 0            # 0/1, the idle frame everyone shows (2 fps)
 var _units_layer: Control # sprites, rings, HP bars, head icons (Nearest filter for pixel art)
 var _overlay: Control     # cursor, coordinates, popups (always on top of sprites)
+var _scene: BattleScene   # close-up battle scene (step 16), on top of everything
+var _hp_seen := {}        # unit id -> HP as last shown (the scene's plates start from it)
 var _popups: Array = []   # [{text, pos, color, age}]
 var _hover := Vector2i(-1, -1)
 var _busy := false
@@ -242,72 +244,119 @@ func _refresh() -> void:
 # --- events -> animation -------------------------------------------------
 
 func _play(events: Array[BattleEvent]) -> void:
-	for e in events:
-		var line := TextView.describe(e, state)
-		if line != "":
-			_log_line(line)
+	var i := 0
+	while i < events.size():
+		var e := events[i]
+		if BattleScene.is_start(e) and _scene_wanted(e):
+			# One attack or spell (with its counter, deaths, XP...) plays as a close-up.
+			var end := BattleScene.group_end(events, i)
+			var group := events.slice(i, end)
+			for g in group:
+				_log_event(g)
+				if g.type == BattleEvent.ATTACKED:
+					_face_each_other(g.data.attacker_id, g.data.target_id)
+			await _scene.play(state, group, _hp_seen.duplicate())
+			_note_hp(group)
+			queue_redraw()
+			i = end
+			continue
+		await _play_one(e)
+		i += 1
+
+
+## Close-ups follow Settings → Battle scenes, and never run with animations off or skipped.
+func _scene_wanted(e: BattleEvent) -> bool:
+	if _scene == null or not animate or Settings.anim_speed() <= 0.0 or Settings.battle_scenes == Settings.Scenes.OFF:
+		return false
+	var u := state.unit(e.data.attacker_id if e.type == BattleEvent.ATTACKED else e.data.unit_id)
+	return Settings.battle_scenes == Settings.Scenes.ON or (u != null and u.faction == Enums.Faction.PLAYER)
+
+
+func _log_event(e: BattleEvent) -> void:
+	var line := TextView.describe(e, state)
+	if line != "":
+		_log_line(line)
+
+
+## Keeps `_hp_seen` in step with what the player has been shown.
+func _note_hp(events: Array) -> void:
+	for e: BattleEvent in events:
 		match e.type:
-			BattleEvent.MOVED:
-				await _animate_move(e.data.unit_id, e.data.path)
-			BattleEvent.DAMAGED:
-				_popup("-%d" % e.data.amount, e.data.unit_id, Color("ff5a4a"))
-				_pose[e.data.unit_id] = HURT_FRAME
-				_hurt[e.data.unit_id] = true
-				queue_redraw()
-				await _pause(BEAT)
-				_pose.erase(e.data.unit_id)
-				_hurt.erase(e.data.unit_id)
-			BattleEvent.HEALED:
-				Audio.play_sfx("heal")
-				_popup("+%d" % e.data.amount, e.data.unit_id, Color("6dff7a"))
-				await _pause(BEAT)
-			BattleEvent.ATTACKED:
-				var a_id: int = e.data.attacker_id
-				_face_each_other(a_id, e.data.target_id)
-				_pose[a_id] = ATTACK_FRAMES[0]
-				queue_redraw()
-				await _pause(BEAT * 0.25)
-				_pose[a_id] = ATTACK_FRAMES[1]
-				queue_redraw()
-				Audio.play_sfx("miss" if not e.data.hit else ("crit" if e.data.crit else "hit"))
-				if not e.data.hit:
-					_popup("miss", e.data.target_id, Color.WHITE)
-				await _pause(BEAT * 0.6)
-				_pose.erase(a_id)
-			BattleEvent.CAST:
-				var caster := state.unit(e.data.unit_id)
-				if caster != null:
-					_facing[caster.id] = facing_toward(Vector2(_v(e.data.at) - caster.pos), _facing.get(caster.id, DOWN))
-					_pose[caster.id] = ATTACK_FRAMES[0]
-					queue_redraw()
-					await _pause(BEAT * 0.4)
-					_pose.erase(caster.id)
-			BattleEvent.SPAWNED:
-				_unit_px[e.data.unit_id] = _center(e.data.at)
-				_facing[e.data.unit_id] = _initial_facing(state.unit(e.data.unit_id))
-				_popup("!", e.data.unit_id, Color("ffd34a"))
-				await _pause(BEAT * 2)
-			BattleEvent.ITEM_FOUND:
-				Audio.play_sfx("chest")
-				_popup("+item", e.data.unit_id, Color("ffd34a"))
-				await _pause(BEAT * 2)
-			BattleEvent.SAID:
-				_speech.instant = not animate
-				await _speech.say(e.data.line_id)
-			BattleEvent.STATUS_ADDED:
-				_popup("POISON" if e.data.status == Unit.POISON else "SLEEP", e.data.unit_id, STATUS_COLORS[e.data.status])
-				await _pause(BEAT)
-			BattleEvent.TURN_SKIPPED:
-				_popup("zzz", e.data.unit_id, STATUS_COLORS[Unit.SLEEP])
-				await _pause(BEAT)
+			BattleEvent.DAMAGED, BattleEvent.HEALED:
+				_hp_seen[e.data.unit_id] = e.data.hp_after
 			BattleEvent.LEVELED_UP:
-				Audio.play_sfx("level_up")
-				_popup("LEVEL UP", e.data.unit_id, Color("ffd34a"))
-				await _pause(BEAT * 2)
-			BattleEvent.BATTLE_ENDED:
-				Audio.play_sfx("victory" if e.data.outcome == BattleState.Outcome.WON else "defeat")
-				_show_banner(e.data.outcome)
-		queue_redraw()
+				_hp_seen[e.data.unit_id] = _hp_seen.get(e.data.unit_id, 0) + e.data.gains.get("hp", 0)
+			BattleEvent.SPAWNED:
+				var u := state.unit(e.data.unit_id)
+				if u != null:
+					_hp_seen[u.id] = u.hp
+
+
+func _play_one(e: BattleEvent) -> void:
+	_log_event(e)
+	_note_hp([e])
+	match e.type:
+		BattleEvent.MOVED:
+			await _animate_move(e.data.unit_id, e.data.path)
+		BattleEvent.DAMAGED:
+			_popup("-%d" % e.data.amount, e.data.unit_id, Color("ff5a4a"))
+			_pose[e.data.unit_id] = HURT_FRAME
+			_hurt[e.data.unit_id] = true
+			queue_redraw()
+			await _pause(BEAT)
+			_pose.erase(e.data.unit_id)
+			_hurt.erase(e.data.unit_id)
+		BattleEvent.HEALED:
+			Audio.play_sfx("heal")
+			_popup("+%d" % e.data.amount, e.data.unit_id, Color("6dff7a"))
+			await _pause(BEAT)
+		BattleEvent.ATTACKED:
+			var a_id: int = e.data.attacker_id
+			_face_each_other(a_id, e.data.target_id)
+			_pose[a_id] = ATTACK_FRAMES[0]
+			queue_redraw()
+			await _pause(BEAT * 0.25)
+			_pose[a_id] = ATTACK_FRAMES[1]
+			queue_redraw()
+			Audio.play_sfx("miss" if not e.data.hit else ("crit" if e.data.crit else "hit"))
+			if not e.data.hit:
+				_popup("miss", e.data.target_id, Color.WHITE)
+			await _pause(BEAT * 0.6)
+			_pose.erase(a_id)
+		BattleEvent.CAST:
+			var caster := state.unit(e.data.unit_id)
+			if caster != null:
+				_facing[caster.id] = facing_toward(Vector2(_v(e.data.at) - caster.pos), _facing.get(caster.id, DOWN))
+				_pose[caster.id] = ATTACK_FRAMES[0]
+				queue_redraw()
+				await _pause(BEAT * 0.4)
+				_pose.erase(caster.id)
+		BattleEvent.SPAWNED:
+			_unit_px[e.data.unit_id] = _center(e.data.at)
+			_facing[e.data.unit_id] = _initial_facing(state.unit(e.data.unit_id))
+			_popup("!", e.data.unit_id, Color("ffd34a"))
+			await _pause(BEAT * 2)
+		BattleEvent.ITEM_FOUND:
+			Audio.play_sfx("chest")
+			_popup("+item", e.data.unit_id, Color("ffd34a"))
+			await _pause(BEAT * 2)
+		BattleEvent.SAID:
+			_speech.instant = not animate
+			await _speech.say(e.data.line_id)
+		BattleEvent.STATUS_ADDED:
+			_popup("POISON" if e.data.status == Unit.POISON else "SLEEP", e.data.unit_id, STATUS_COLORS[e.data.status])
+			await _pause(BEAT)
+		BattleEvent.TURN_SKIPPED:
+			_popup("zzz", e.data.unit_id, STATUS_COLORS[Unit.SLEEP])
+			await _pause(BEAT)
+		BattleEvent.LEVELED_UP:
+			Audio.play_sfx("level_up")
+			_popup("LEVEL UP", e.data.unit_id, Color("ffd34a"))
+			await _pause(BEAT * 2)
+		BattleEvent.BATTLE_ENDED:
+			Audio.play_sfx("victory" if e.data.outcome == BattleState.Outcome.WON else "defeat")
+			_show_banner(e.data.outcome)
+	queue_redraw()
 
 
 func _animate_move(id: int, path: Array) -> void:
@@ -651,6 +700,7 @@ func _sync_positions() -> void:
 	_hurt.clear()
 	for u in state.units():
 		_unit_px[u.id] = _center(u.pos)
+		_hp_seen[u.id] = u.hp
 		if not _facing.has(u.id) or state.round_number() == 0:
 			_facing[u.id] = _initial_facing(u)
 
@@ -670,6 +720,12 @@ func _layout() -> void:
 	_panel.size = Vector2(w, 1000)
 	_banner.position = MAP_ORIGIN + Vector2(0, map_px.y / 2.0 - 90)
 	_banner.size = Vector2(map_px.x, 200)
+
+
+func _add_scene() -> void:
+	if _scene == null:
+		_scene = BattleScene.new()
+		add_child(_scene)
 
 
 func _layer(painter: Callable) -> Control:
@@ -693,6 +749,7 @@ func _build_ui() -> void:
 	_units_layer = _layer(_draw_units)
 	_units_layer.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST   # crisp pixel art
 	_overlay = _layer(_draw_overlay)
+	call_deferred("_add_scene")   # last child, so the close-up covers the map and the side panel
 	var map_w := 8 * TILE
 	var panel := VBoxContainer.new()
 	_panel = panel

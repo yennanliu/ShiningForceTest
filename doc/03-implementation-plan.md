@@ -623,31 +623,41 @@ The owner asked for three things the reference genre does well (screenshots shar
 
 **Tasks**
 
-- [ ] **Scene** `view/battle_scene/battle_scene.tscn` (`game-developer` + `game-ui-ux-designer`):
-    - Side view, defender on the left and attacker on the right; flipped when the enemy attacks
-    - Backdrop chosen from the **defender's terrain** (`plain`, `forest`, `hill`, `sand`, `shallow`, walls → ruins)
-    - **Plates** (our own frame from doc/05): attacker top right, defender bottom left. Name, level, HP bar and numbers; the bar drains when damage lands
-- [ ] **Driven by events only.** The battle screen gives the scene the events from one `apply()`: `ATTACKED`, `DAMAGED`, `HEALED`, `CAST`, `DIED`, `STATUS_ADDED`, `LEVELED_UP`. The scene plays them in order:
-    - hit, miss (dodge pose), crit (flash + bigger number), double attack
-    - weapon special name, then the counter-attack
-    - death fade, "LEVEL UP" at the end
-    - No core change; the RNG is never touched
-- [ ] **Settings → Battle scenes:** *On* / *Player only* / *Off*. Default: *On*. *Off* behaves exactly as today. Confirm or cancel skips to the result
-- [ ] **Assets** (`game-2d-3d-artist`):
-    - Placeholder battle poses per class (6 base + 6 promoted + 4 enemy types), palette-swapped per unit
-    - 6 placeholder backdrops
-    - Effects: slash, arrow, fire, heal sparkle (`game-artist`)
-- [ ] **Audio:** hit / crit / miss / heal sounds move from the map into the scene when it's on
+- [x] **Scene** [`view/battle_scene/battle_scene.gd`](../view/battle_scene/battle_scene.gd), a `BattleScene` built in code like the other screens, so there's no `.tscn` (`game-developer` + `game-ui-ux-designer`):
+    - Side view: **player-side units always on the right** (facing left), enemies on the left (mirrored). That's the plan's "defender left, attacker right, flipped when the enemy attacks", worded by side
+    - Backdrop chosen from the **defender's terrain** (`plain`, `forest`, `hill`, `sand`, `shallow`/`deep` → shallow, `wall` → ruins)
+    - **Plates** (our flat navy + gold frame, a team-color stripe on the left): right fighter top right, left fighter bottom left. Name, level, HP bar and numbers; the bar drains in the map's HP colors when damage lands
+    - A heal on an ally puts the caster right and the ally left; a lone caster stands alone
+- [x] **Driven by events only.** `BattleScene.group_end()` cuts the combat events of one action out of `apply()`'s list (stopping at turn-end poison ticks and `TURN_ENDED`); `build_steps()` turns them into steps; `play()` shows them:
+    - hit (slash or arrow + number), miss (dodge pose + "miss"), crit (white flash, gold number, "Critical!"), double attack ("Again!")
+    - weapon special name ("Extra hit!", "Drain!", "Poison sting!", "Lullaby strike!"), then the counter-attack ("Counter!")
+    - spells (cast poses, fire or heal sparkles), status ("X is poisoned!"), death fade, "+XP", "LEVEL UP!" at the end
+    - No core change; the RNG is never touched. The battle screen still logs every event and tracks the HP the plates start from (`_hp_seen`)
+- [x] **Settings → Battle scenes:** *On* / *Player only* / *Off* (saved in `settings.cfg`). Default: *On*. *Off* behaves exactly as before. Scenes never play with animations off or set to *skip*. Click / Space / Enter / Esc skips to the result in the same frame
+- [x] **Assets** (`game-2d-3d-artist`), from `tools/make_art.py`:
+    - *Changed:* battle poses **per unit** (15 sheets, 11 frames of 192×192), not per class with palette swaps. The generator already has every character's look, so this was simpler. Promoted classes get theirs when promotion art exists
+    - 6 backdrops. *Changed:* one 1280×600 layer each, not 3 parallax layers; there's no camera pan yet that would need them
+    - Effects: slash, arrow, spark, fire, heal sparkle, drawn in code (`game-artist`)
+- [x] **Audio:** hit / crit / miss / heal / level-up sounds play from the scene when it's on
+- [x] **Muted while debugging** (owner's request, 2026-11-07): `Audio` is silent in every debug run (from source, tools, tests); exported release builds play sound. `-- --sound` turns it on, `-- --mute` or `BANNER_MUTE=1` turns it off (`Audio.should_mute`)
+- [x] `tools/screenshot.gd`:
+    - `--screen=scene` (with `--crit`, `--miss`, `--at=<s>`, `--skip-after=<s>`, `--bench`)
+    - `--screen=battle --auto-wait=<s>`: an end-to-end run with every animation and close-up on
+    - `--fast-anim`
+    - A 30 s watchdog, so a script error can't leave an empty window open
+
+![Hit](images/step16_hit.png) ![Critical hit](images/step16_crit.png)
+![Miss on a wolf (dodge)](images/step16_miss.png)
 
 **Validation**
 
 | Check | Pass when | Result |
 | --- | --- | --- |
-| Faithful | For 200 seeded attacks, the scene's shown outcome (hit/miss/crit/damage/counter/death) equals the events (headless test plays the scene with animations off) | |
-| Determinism | Golden replays and the balance sim unchanged with scenes on or off | |
-| Length | ≤ 3 s per normal attack at normal speed, ≤ 1 s at fast; skip works from the first frame | |
+| Faithful | For 200 seeded attacks, the scene's shown outcome (hit/miss/crit/damage/counter/death) equals the events (headless test plays the scene with animations off) | ✅ `test_scene_matches_the_events_for_200_seeded_attacks`: every strike's attacker, target, hit, crit, counter and damage, every death, and both plates' final HP match. The 200 seeds include misses, crits, counters, doubles and deaths |
+| Determinism | Golden replays and the balance sim unchanged with scenes on or off | ✅ no diff in `core/`, `data/` or `tests/golden/`; scenes only read events. Balance runs headless with animations off, so scenes never play there |
+| Length | ≤ 3 s per normal attack at normal speed, ≤ 1 s at fast; skip works from the first frame | ✅ `test_length_per_attack`: 1.48 s normal, 0.74 s fast, attack + counter 2.38 s. `--skip-after=0.4` → `scene closed 0 ms (0 frames) after the press` |
 | Battle length | A chapter 1 human playthrough stays within 15–25 min with scenes *On* | ⏳ owner playtest |
-| Performance | ≥ 60 fps during the scene | |
+| Performance | ≥ 60 fps during the scene | ✅ `bench scene: 117 fps` (vsync 120) on Apple M4. End to end: `--auto-wait=24 --fast-anim` on chapter 2 played 4 close-ups with no script errors |
 | Fun (human) | Testers keep scenes on, or switch to *Player only*, rather than *Off* | ⏳ owner playtest |
 
 ## Step 17 — 3D isometric battle map with sprite billboards (image A, full)
@@ -706,5 +716,5 @@ Each step becomes a GitHub milestone. Each task is an issue labeled with its ste
 | 13 Art direction + pipeline | game-art-design, game-2d-3d-artist | 2026-11-07 | ✅ Done (style sign-off ⏳ owner) |
 | 14 Portrait dialogue | game-ui-ux-designer, game-developer | 2026-11-07 | ✅ Done (playtest ⏳ owner) |
 | 15 Map sprites + head icons | game-2d-3d-artist, game-developer | 2026-11-07 | ✅ Done (glance test + look ⏳ owner) |
-| 16 Battle cut-in scene | game-developer, game-ui-ux-designer, game-artist | — | ⬜ Next |
-| 17 3D isometric map | game-developer, game-artist | — | ⬜ Planned (final art ⏳ artist) |
+| 16 Battle cut-in scene | game-developer, game-ui-ux-designer, game-artist | 2026-11-07 | ✅ Done (playtests ⏳ owner) |
+| 17 3D isometric map | game-developer, game-artist | — | ⬜ Next (final art ⏳ artist) |

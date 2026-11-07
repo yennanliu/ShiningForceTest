@@ -107,6 +107,7 @@ stateDiagram-v2
 | Move cursor | Arrows / mouse | D-pad / left stick |
 | Confirm | Enter / left click | A |
 | Cancel / back | Esc / right click | B |
+| Skip a battle close-up | Click / Space / Enter / Esc | A / Start |
 | Rotate camera | Q / E | LB / RB |
 | Zoom | Mouse wheel | Right stick |
 | Menu | Tab | Start |
