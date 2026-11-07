@@ -15,10 +15,13 @@ Start with the [doc index](doc/README.md).
 
 ## Setup
 
-| You want to… | Use | Command |
-| --- | --- | --- |
-| Run tests / build the app | **Docker** (no local Godot needed) | `tools/docker.sh test` · `tools/docker.sh export` |
-| Play or edit the game | **Native Godot** (needs a GPU and a window) | `brew install --cask godot`, then `godot --editor --path .` |
-| Run tests without Docker | Native Godot | `tools/test.sh` |
+No GPU is needed for anything below.
 
-The Godot version is pinned in `.godot-version`. Docker, CI and the native setup all use it.
+| You want to… | Command |
+| --- | --- |
+| Play a battle (text mode, in the terminal) | `tools/docker.sh play` (or, with Godot installed: `godot --headless --path . -s res://tools/play.gd`) |
+| Run the tests | `tools/docker.sh test` (or `tools/test.sh`) |
+| Build the Linux app | `tools/docker.sh export` |
+| Balance report (AI vs AI) | `godot --headless --path . -s res://tools/battle_sim.gd -- --runs=200` |
+
+The Godot version is pinned in `.godot-version`. Docker, CI and native runs all use it. A graphical (3D) view is planned for later, on a machine with a GPU.
