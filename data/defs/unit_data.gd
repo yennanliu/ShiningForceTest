@@ -11,3 +11,7 @@ extends Resource
 @export var base_level := 1
 @export var base_stats: Stats
 @export var starting_items: Array[ItemData] = []
+## One-line bio for the profile screen (recruits; step 19).
+@export_multiline var bio: String
+## The character's look in words: hair, eyes, outfit, one signature item (doc/05 §5, doc/06).
+@export var look: String

@@ -23,3 +23,5 @@ display_name = "Dara"
 class_data = ExtResource("2_e0at0")
 base_stats = SubResource("Resource_pittg")
 starting_items = Array[ExtResource("4_fqjae")]([ExtResource("5_k55si"), ExtResource("6_b3lg6")])
+bio = "A temple healer who walked out to follow the watch. Gentle with the wounded, stern with anyone who makes more of them."
+look = "Silver bob with a straight fringe, violet eyes, a small brass hair pin; linen robe, heather mantle with a blue stripe"

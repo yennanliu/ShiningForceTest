@@ -41,6 +41,10 @@ func _ready() -> void:
 		cb.disabled = u.is_leader
 		cb.toggled.connect(func(_on: bool) -> void: _apply_deploy())
 		var row := HBoxContainer.new()
+		var pid := u.data.id
+		UI.button(row, "Profile", func() -> void:
+			Game.profile_id = pid
+			Game.goto(Game.Screen.PROFILE), 130)
 		row.add_child(cb)
 		var chat := StringName("camp_%s_%s" % [u.data.id, c.chapter.id])
 		if Dialogue.has(chat):

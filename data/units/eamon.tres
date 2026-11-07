@@ -22,3 +22,5 @@ display_name = "Eamon"
 class_data = ExtResource("2_rn5im")
 base_stats = SubResource("Resource_65juc")
 starting_items = Array[ExtResource("4_k8s66")]([ExtResource("5_asei1")])
+bio = "Spent six years reading about fire and one week setting things on it. Learning, quickly, that aim matters."
+look = "Plum hair under a wide pointed hat, green eyes; heather robe with a blue band on the hat"

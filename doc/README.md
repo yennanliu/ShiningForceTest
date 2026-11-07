@@ -9,6 +9,7 @@ Project Banner (working title) is an original, single-player, isometric tactical
 | 03 | [Implementation Plan](03-implementation-plan.md) | **In what order** we build it, and how each step is validated | Engineers, leads |
 | 04 | [Research & References](04-research-and-references.md) | What we learned from the genre reference, IP guardrails, sources | Design, leads |
 | 05 | [Art Direction](05-art-direction.md) | Style, palette, characters, portraits, UI frames, readability, asset specs | Artists, UI, developers |
+| 06 | [Art Brief](06-art-brief.md) | Portrait commission for an outside artist: characters, moods, specs, rights | Artist, owner |
 
 Reading order: 01 → 02 → 03. Read 04 as needed.
 

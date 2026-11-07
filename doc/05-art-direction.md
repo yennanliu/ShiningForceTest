@@ -79,10 +79,15 @@ Shading: each color gets one **shadow** (×0.72 brightness, shifted slightly tow
 
 ## 5. Portraits
 
-- **Bust, three-quarter view**, head and shoulders, facing the dialogue text: players face right, enemies face left (mirrored in code).
-- Drawn on a **64×64 grid, exported 256×256** (×4 nearest), so they match the sprites. Shown with the **Linear** filter, because the box draws them smaller than 256 px. A final artist may paint at full 256 px resolution in the same palette.
-- Plain background in a calm tone of the character's outfit color, darkened. The team color appears only as a thin trim on the collar.
-- Moods (optional): `neutral` (required), `happy`, `angry`, `hurt`. Only the eyes, brows and mouth change between moods.
+**Style v2** (step 19; the target is the design example and [doc/06](06-art-brief.md)): illustrated busts, not pixel art.
+
+- **Framing:** head and shoulders, three-quarter view facing right (enemies mirrored in code). The head fills about 55% of the height, with eyes at about 42%.
+- **Rendering:** soft gradients in 3–4 steps on skin, hair and cloth. Irises have 2 tones, a pupil and a white highlight. Hair is drawn as strands with one highlight band. A thin warm rim light comes from the top left, with a faint blush on the near cheek.
+- **Background:** a vertical gradient in a darker version of the outfit color, with a soft glow behind the head.
+- **Team color:** exactly one element per character: a cape collar, sash, emblem or trim. None for townspeople.
+- **Moods:** `neutral` (required), `happy`, `angry`, `hurt`, `determined`. Only eyes, brows and mouth change.
+- **Placeholders** come from `tools/make_portraits.py` (SVG, built from the class outfit and each character's look) and are rasterized by `tools/render_portraits.gd` to 256×256. A final artist works at 512 and delivers 256 (doc/06).
+- **Display:** the Linear filter; they're shown at 64–600 px.
 
 ## 6. UI frames
 
@@ -130,7 +135,8 @@ Shading: each color gets one **shadow** (×0.72 brightness, shifted slightly tow
 | Asset | Size | Layout | Path |
 | --- | --- | --- | --- |
 | Map sprite sheet | 48×64 per frame → 432×256 sheet | Columns: idle0, idle1, walk0–3, attack0–1, hurt. Rows: down, left, right, up | `assets/textures/units/<unit_id>.png` |
-| Portrait | 256×256 | One file per mood | `assets/textures/portraits/<unit_id>.png`, `<unit_id>_<mood>.png` |
+| Portrait | 256×256 (from a 512 master) | 5 moods per speaker | `assets/textures/portraits/<id>.png`, `<id>_<mood>.png`; sources `assets/art_src/portraits/*.svg` |
+| Item icon | 24×24 | One per item: the shape says the kind (sword, spear, axe, bow, staff, leaf, seed, vial, ring) | `assets/textures/icons/item_<item_id>.png` |
 | Tile top (3D map) | 32×32 | One per terrain, tiles seamlessly; box sides use the terrain color darkened | `assets/textures/tiles/<terrain>.png` |
 | Head icons | 24×24 | Bubble with a symbol: `poison` (drop), `sleep` (Z), `adv` (!, gold bubble), `bond` (heart); plus `leader` (star, no bubble) | `assets/textures/icons/head_<name>.png` |
 | Battle pose | 192×192 per frame (64×64 pixel art ×3) | 11 frames in a row, facing **left**: idle 0–1, wind-up 2–3, strike 4–5, cast 6–8, hurt 9, dodge 10. Mirrored in code for the left side | `assets/textures/battle/<unit_id>.png` (2112×192) |
@@ -150,6 +156,7 @@ Ids match `data/` exactly. Every file has a line in `assets/CREDITS.md` with its
 
 ## Changelog
 
+- 2026-11-07 (step 19): portraits v2 (illustrated busts, 5 moods, §5); item icons; artist brief in doc/06.
 - 2026-11-07 (step 18): §6 rewritten: the Banner frame (rim, dark line, navy gradient, inner shadow, pennant, ribbon), button states, focus ring, primary button, Cinzel + Inter, motion and UI sounds.
 - 2026-11-07 (step 17): 3D map. Tile tops (32×32), faction bases as 3D meshes (ring / diamond), shadow discs, and a faint checker for the grid.
 - 2026-11-07 (step 16): battle poses (per unit, 11 frames) and 6 backdrops; close-up plates use the map's HP colors (green / yellow / red), never a flat bar color.

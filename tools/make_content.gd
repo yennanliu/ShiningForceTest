@@ -168,7 +168,30 @@ func _unit(id: StringName, name: String, cls: StringName, st: Array, items: Arra
 	u.base_stats = Stats.make(st[0], st[1], st[2], st[3], st[4], st[5])
 	for it in items:
 		u.starting_items.append(I[it])
+	if PROFILES.has(id):
+		u.bio = PROFILES[id][0]
+		u.look = PROFILES[id][1]
 	U[id] = _save(u, D + "units/%s.tres" % id)
+
+
+const PROFILES := {
+	&"aldric": ["Captain of a small border watch who took the job no one else wanted. Plans for the worst, hopes for the best, never leaves a soldier behind.",
+		"Brown hair swept back, steel-blue eyes, a small scar on the left cheek; slate tunic, blue cape collar, sword at the hip"],
+	&"brina": ["A farmer's daughter who learned the spear guarding grain carts. Slow on hills, unbudging on flat ground, and proud of both.",
+		"Flaxen hair in a braid, amber eyes, steel circlet with a blue stone; leather and steel plate, a square shield"],
+	&"corin": ["A hunter's son with a bet on every shot. Talks too much in camp and not at all with an arrow on the string.",
+		"Short black spiky hair, dark brown eyes; moss-green tunic, quiver over the shoulder, a blue collar trim"],
+	&"dara": ["A temple healer who walked out to follow the watch. Gentle with the wounded, stern with anyone who makes more of them.",
+		"Silver bob with a straight fringe, violet eyes, a small brass hair pin; linen robe, heather mantle with a blue stripe"],
+	&"eamon": ["Spent six years reading about fire and one week setting things on it. Learning, quickly, that aim matters.",
+		"Plum hair under a wide pointed hat, green eyes; heather robe with a blue band on the hat"],
+	&"fiora": ["Grew up in Millford's back streets and knows every one of them. Fights for her town first and the watch second, for now.",
+		"Long copper hair, hazel eyes; ochre tunic, blue cape collar, a light sword"],
+	&"garret": ["A woodcutter with a woodcutter's patience. Measures twice, swings once, and rarely has to swing again.",
+		"Bald with a thick black beard, brown eyes; bare shoulders, fur collar, a blue sash, a big axe"],
+	&"hale": ["A tracker who followed the goblin chief's trail for a month before anyone believed him. Quiet, careful, finally heard.",
+		"Short flaxen hair, grey-blue eyes; slate tunic, ochre scarf, quiver over the shoulder"],
+}
 
 
 func _units() -> void:

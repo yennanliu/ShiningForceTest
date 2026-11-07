@@ -6,8 +6,8 @@ built from the class silhouettes and character looks in tools/art_palette.py.
     python3 tools/make_art.py
 Outputs:
     assets/textures/units/<id>.png          432x256 sheet: 9 frames x 4 directions of 48x64
-    assets/textures/portraits/<id>.png      256x256 (drawn on 64x64, scaled x4); <id>_<mood>.png
     assets/textures/icons/head_<name>.png   24x24 head bubbles: poison, sleep, adv, bond; leader star
+    assets/textures/icons/item_<id>.png     24x24 item icons
     assets/textures/battle/<id>.png         2112x192 cut-in poses: 11 frames of 192x192, facing left
     assets/textures/backdrops/<kind>.png    1280x600 cut-in backdrops (plain, forest, hill, sand, shallow, ruins)
     assets/textures/tiles/<terrain>.png     32x32 tile tops for the 3D map
@@ -541,6 +541,63 @@ def backdrop(kind):
 BACKDROPS = ["plain", "forest", "hill", "sand", "shallow", "ruins"]
 
 
+# --- item icons (24x24, step 19): the shape says the kind, color says which one -------------
+
+def item_icon(iid):
+    c = Canvas(24, 24)
+    steel, brass, wood = P.METAL["steel"], P.METAL["brass"], P.CLOTH["leather"]
+    look = {
+        "bronze_sword": ("sword", hexc("#c99a5e")), "steel_sword": ("sword", steel),
+        "bronze_spear": ("spear", hexc("#c99a5e")), "hand_axe": ("axe", steel),
+        "wooden_bow": ("bow", wood), "long_bow": ("bow", hexc("#5c3a1e")), "venom_bow": ("bow", hexc("#6c4a8a")),
+        "wooden_staff": ("staff", hexc("#9fd0ff")), "lull_staff": ("staff", hexc("#8fb8ff")),
+        "herb": ("leaf", hexc("#6dbf4a")), "healing_seed": ("seed", hexc("#c9a24e")),
+        "antidote": ("vial", hexc("#8be36b")), "power_ring": ("ring", hexc("#e04a3a")), "vigor_band": ("ring", hexc("#5ad65a")),
+    }[iid]
+    kind, col = look
+    if kind == "sword":
+        c.line(5, 19, 18, 6, col, 3)
+        c.line(18, 5, 20, 3, light(col, 0.4), 2)
+        c.line(4, 15, 9, 20, brass, 2)
+        c.rect(2, 20, 4, 22, wood)
+    elif kind == "spear":
+        c.line(3, 21, 17, 7, wood, 2)
+        c.poly([(15, 6), (21, 2), (18, 9)], col)
+    elif kind == "axe":
+        c.line(5, 21, 15, 5, wood, 2)
+        c.poly([(12, 4), (20, 3), (21, 11), (15, 10)], col)
+    elif kind == "bow":
+        c.line(6, 3, 4, 12, col, 2)
+        c.line(4, 12, 6, 21, col, 2)
+        c.line(7, 4, 7, 20, P.WHITE, 1)
+        c.line(7, 12, 20, 12, steel, 1)
+        c.poly([(19, 10), (22, 12), (19, 14)], steel)
+    elif kind == "staff":
+        c.line(6, 21, 15, 7, wood, 2)
+        c.ellipse(17, 5, 3.5, 3.5, col)
+        c.set(16, 4, P.WHITE)
+    elif kind == "leaf":
+        c.poly([(4, 20), (8, 8), (19, 3), (16, 14)], col)
+        c.line(5, 19, 16, 6, shade(col, 0.7), 1)
+    elif kind == "seed":
+        c.ellipse(12, 13, 6, 8, col)
+        c.line(12, 6, 12, 20, shade(col, 0.7), 1)
+    elif kind == "vial":
+        c.rect(10, 3, 13, 6, P.CLOTH["linen"])
+        c.ellipse(11.5, 15, 6, 7, col)
+        c.rect(9, 6, 14, 10, light(col, 0.5))
+    elif kind == "ring":
+        c.ellipse(12, 14, 7, 7, brass)
+        c.ellipse(12, 14, 4, 4, (0, 0, 0, 0))
+        c.ellipse(12, 6, 3, 3, col)
+    c.outline(P.OUTLINE)
+    return c
+
+
+ITEMS = ["bronze_sword", "steel_sword", "bronze_spear", "hand_axe", "wooden_bow", "long_bow", "venom_bow",
+         "wooden_staff", "lull_staff", "herb", "healing_seed", "antidote", "power_ring", "vigor_band"]
+
+
 # --- 3D map tile tops (step 17): 32x32, seamless, terrain colors from doc/05 §3 ---------
 
 TILE_COLORS = {"plain": "#7cb35a", "forest": "#3f7f3a", "hill": "#b08e5c", "sand": "#d9c48a",
@@ -660,6 +717,8 @@ def main():
     os.makedirs(icons, exist_ok=True)
     for name in HEAD_ICONS:
         head_icon(name).save_png(os.path.join(icons, "head_%s.png" % name))
+    for iid in ITEMS:
+        item_icon(iid).save_png(os.path.join(icons, "item_%s.png" % iid))
     battle = os.path.join(ROOT, "assets", "textures", "battle")
     backdrops = os.path.join(ROOT, "assets", "textures", "backdrops")
     os.makedirs(battle, exist_ok=True)
@@ -677,13 +736,9 @@ def main():
     for cid in P.SPRITES:
         sprite_sheet(cid).save_png(os.path.join(units, cid + ".png"))
         battle_sheet(cid).save_png(os.path.join(battle, cid + ".png"))
-    for cid in P.PORTRAITS:
-        portrait(cid).save_png(os.path.join(portraits, cid + ".png"))
-        for mood in P.MOODS.get(cid, []):
-            portrait(cid, mood).save_png(os.path.join(portraits, "%s_%s.png" % (cid, mood)))
-    print("art written: %d sprite sheets, %d battle sheets, %d portraits, %d head icons, %d backdrops, %d tiles" % (
-        len(P.SPRITES), len(P.SPRITES), len(P.PORTRAITS) + sum(len(v) for v in P.MOODS.values()),
-        len(HEAD_ICONS), len(BACKDROPS), len(TILES)))
+    # Portraits moved to tools/make_portraits.py + render_portraits.gd (v2, step 19).
+    print("art written: %d sprite sheets, %d battle sheets, %d head icons, %d backdrops, %d tiles, %d UI textures" % (
+        len(P.SPRITES), len(P.SPRITES), len(HEAD_ICONS), len(BACKDROPS), len(TILES), len(ui_textures())))
 
 
 if __name__ == "__main__":

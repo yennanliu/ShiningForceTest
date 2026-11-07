@@ -21,3 +21,5 @@ display_name = "Brina"
 class_data = ExtResource("2_erhfx")
 base_stats = SubResource("Resource_v0ixs")
 starting_items = Array[ExtResource("4_iyssh")]([ExtResource("5_ptcf1")])
+bio = "A farmer's daughter who learned the spear guarding grain carts. Slow on hills, unbudging on flat ground, and proud of both."
+look = "Flaxen hair in a braid, amber eyes, steel circlet with a blue stone; leather and steel plate, a square shield"

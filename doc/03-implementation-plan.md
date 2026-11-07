@@ -781,35 +781,45 @@ Our own direction (to be written into doc/05 in step 18): a **"Banner" frame**. 
 
 **Tasks**
 
-- [ ] **Portrait style v2** (`game-art-design`): update doc/05 §5:
+- [x] **Portrait style v2** (`game-art-design`): update doc/05 §5. *Changed:* illustrated busts (the design example's style) instead of 128-grid pixel art:
     - A bust filling about 80% of the frame, eyes at about 40% height
     - Irises in 2 tones with a highlight; 3–4 shading steps on skin and hair; hair drawn as strands with one highlight band; a rim light from the top left
     - A background gradient band in the character's color
     - **Moods** (neutral, happy, angry, hurt, determined) change eyes, brows and mouth only
     - Original faces only. Each character gets a written one-line "look" (hair, eyes, outfit, one signature item) that's checked against the reference so none of them resembles it
-- [ ] **Generator upgrade** (`game-2d-3d-artist`): `tools/make_art.py` portraits on a **128×128 grid, exported 256×256**, with the v2 features (strands, 2-tone irises, shading ramps, rim light). Same names, so every screen updates by itself. Stays deterministic and standard library only
-- [ ] **Artist brief** (`game-2d-3d-artist`, for ⏳ owner to commission): `doc/06-art-brief.md`
+- [x] **Generator upgrade** (`game-2d-3d-artist`). *Changed:* a new `tools/make_portraits.py` builds each portrait as **SVG** from parts:
+    - Per character: background, hair (6 styles), class outfit (tunic + cape, plate, robe + mantle, bare + fur), team trim, face, ears, and extras (beard, scar, circlet, mage hat, horns, goblin ears, apron, scarf)
+    - Per mood: eyes, brows and mouth (5 moods)
+    - `tools/render_portraits.gd` rasterizes them with Godot's SVG renderer to the same 256×256 PNG names, so every screen updated by itself. Deterministic, standard library + Godot; both are in `check_generated.sh`
+    - 75 portraits, 2.9 MB
+- [x] Off-screen snapshots (follow-up from step 18): `tools/screenshot.gd --fixed-size` renders into a fixed 1280×720 viewport, so CI's small screen no longer changes the image size. The theme is now project-wide (`gui/theme/custom`), so it also applies inside that viewport. Same pixels as before (0.00% on all 9 old shots)
+
+![Portraits v2: 15 speakers](images/step19_portraits.png)
+![Moods: neutral, happy, angry, hurt, determined](images/step19_moods.png)
+- [x] **Artist brief** (`game-2d-3d-artist`, for ⏳ owner to commission): [`doc/06-art-brief.md`](06-art-brief.md)
     - Per character: look line, class prop, palette swatches, 5 moods
     - Technical: 512×512 master, delivered 256×256, transparent-free, Nearest-safe edges
     - Frame-safe area; license terms (work-for-hire or exclusive license); file naming
     - Reference policy: **genre conventions only**, never another game's characters or art
-- [ ] **Character profile screen** (`game-ui-ux-designer` + `game-developer`): Camp → click a portrait card → **Profile**:
+- [x] **Character profile screen** (`game-ui-ux-designer` + `game-developer`): `view/screens/profile.gd`, `Game.Screen.PROFILE`. Camp → **Profile** button on each roster row (portrait cards come in step 20) → **Profile**. Hovering the portrait shows the happy mood; the look line is its tooltip. QA fix: the right column ran off screen (no width limit); now a fixed width, wrapping text and a wrapping bond row:
     - Large framed portrait (mood switches on hover), name, class and promotion path
     - Level and XP bar; stats as bars with growth hints
     - Equipment slots with item icons, bonds with every ally (tier hearts), and a one-line bio + the join quote
     - Next / previous with LB / RB (or Q / E)
-- [ ] **Item icons** (`game-2d-3d-artist`): 24×24 pixel icons for every item (sword, spear, axe, bow, staff, herb, seed, antidote, rings) for the profile, shop and battle menus
-- [ ] **Data** (`game-developer`): `UnitData.bio` and `look` strings; shown in the profile and lint-checked (every recruit has both)
+- [x] **Item icons** (`game-2d-3d-artist`). 14 icons, `Art.item_icon(id)`: 24×24 pixel icons for every item (sword, spear, axe, bow, staff, herb, seed, antidote, rings) for the profile, shop and battle menus
+- [x] **Data** (`game-developer`): `UnitData.bio` and `look` strings for the 8 recruits (original writing in `tools/make_content.gd`); shown in the profile and lint-checked (every recruit has both)
+
+![Character profile](images/step19_profile.png)
 
 **Validation**
 
 | Check | Pass when | Result |
 | --- | --- | --- |
-| Portrait v2 | All 15 speakers × 5 moods generated at 256×256, deterministic; the art-design review passes every one against doc/05 v2 | |
-| Originality | A side-by-side review sheet (ours vs the genre reference, format only) shows no shared hair, eye, outfit or frame design | |
-| Profile | Opens from camp for every recruit; all fields filled; fits at 1280×720 with the longest name and 4 items | |
-| Parity | The profile can be opened, paged and closed with mouse, keyboard and gamepad | |
-| Brief | `doc/06-art-brief.md` complete enough for an outside artist to quote on (owner check) | ⏳ owner |
+| Portrait v2 | All 15 speakers × 5 moods generated at 256×256, deterministic; the art-design review passes every one against doc/05 v2 | ✅ `test_every_speaker_has_five_moods_at_256`; `check_generated` OK; art-design review of the contact sheets above |
+| Originality | A side-by-side review sheet (ours vs the genre reference, format only) shows no shared hair, eye, outfit or frame design | ✅ every look is written in the data and doc/06. None uses the reference character's hair and scarf combination, eye color, or frame. ⏳ owner confirms |
+| Profile | Opens from camp for every recruit; all fields filled; fits at 1280×720 with the longest name and 4 items | ✅ `test_profile_opens_for_every_recruit_with_all_fields` (8 recruits); `profile` UI snapshot with 7 bonds |
+| Parity | The profile can be opened, paged and closed with mouse, keyboard and gamepad | ✅ buttons, Q/E (LB/RB) and Esc; `test_q_and_e_page_through_the_roster` |
+| Brief | `doc/06-art-brief.md` complete enough for an outside artist to quote on (owner check) | Written ✅; ⏳ owner check |
 | Final portraits | Commissioned art replaces placeholders, same names and sizes | ⏳ owner + artist |
 
 ## Step 20 — Screen redesigns
@@ -929,7 +939,7 @@ Each step becomes a GitHub milestone. Each task is an issue labeled with its ste
 | 16 Battle cut-in scene | game-developer, game-ui-ux-designer, game-artist | 2026-11-07 | ✅ Done (playtests ⏳ owner) |
 | 17 3D isometric map | game-developer, game-artist | 2026-11-07 | ✅ Done (min-spec fps + look ⏳ owner; final art ⏳ artist) |
 | 18 UI kit | game-art-design, game-developer, game-ui-ux-designer | 2026-11-07 | ✅ Done (kit sign-off ⏳ owner) |
-| 19 Portraits v2 + profile | game-art-design, game-2d-3d-artist, game-ui-ux-designer | — | ⬜ Next (final portraits ⏳ owner + artist) |
-| 20 Screen redesigns | game-ui-ux-designer, game-artist | — | ⬜ Planned |
+| 19 Portraits v2 + profile | game-art-design, game-2d-3d-artist, game-ui-ux-designer | 2026-11-07 | ✅ Done (final portraits ⏳ owner + artist) |
+| 20 Screen redesigns | game-ui-ux-designer, game-artist | — | ⬜ Next |
 | 21 Battle HUD polish | game-ui-ux-designer, game-developer | — | ⬜ Planned |
 | 22 Production readiness | game-qa, game-ui-ux-designer, game-developer | — | ⬜ Planned (Gate D ⏳ owner) |

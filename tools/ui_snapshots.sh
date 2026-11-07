@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # UI snapshots (doc/03 step 18): screenshot every screen and compare with tests/ui_golden/.
-# Needs a window (GPU), like tools/screenshot.gd. Animations are skipped (the close-up is held on its
-# final frame) and saves are empty, so shots are repeatable. Layout is the same at every window size (the 1920x1080 canvas is scaled),
-# so shots are taken at the default 1280x720 window.
+# Needs a GPU, like tools/screenshot.gd. Animations are skipped (the close-up is held on its final
+# frame) and saves are empty, so shots are repeatable. Every shot renders into a fixed off-screen
+# 1280x720 viewport (--fixed-size), so the image size never depends on the machine's display.
 #   tools/ui_snapshots.sh            compare; fails if any screen differs by more than 1%
 #   tools/ui_snapshots.sh --update   accept the current look as the new golden images
 set -uo pipefail
@@ -18,6 +18,7 @@ SHOTS=(
   "camp_ch3|--screen=camp --chapter=3 --skip-anim"
   "town_ch2|--screen=town --chapter=2 --skip-anim"
   "results|--screen=results --chapter=1 --skip-anim"
+  "profile|--screen=profile --chapter=3 --demo-bonds --skip-anim"
   "battle_2d_ch1|--screen=battle --chapter=1 --view=2d --settle=150 --skip-anim"
   "battle_3d_ch3|--screen=battle --chapter=3 --view=3d --settle=150 --skip-anim"
   "scene|--screen=scene --chapter=3 --still"
@@ -27,7 +28,7 @@ for entry in "${SHOTS[@]}"; do
   name="${entry%%|*}"
   args="${entry#*|}"
   # shellcheck disable=SC2086
-  "$GODOT" --path . -s res://tools/screenshot.gd -- $args --clean-saves --out="$OUT/$name.png" >/dev/null 2>&1
+  "$GODOT" --path . -s res://tools/screenshot.gd -- $args --clean-saves --fixed-size --out="$OUT/$name.png" >/dev/null 2>&1
   if [[ ! -f "$OUT/$name.png" ]]; then
     echo "FAIL  $name: no screenshot"; fail=1; continue
   fi
