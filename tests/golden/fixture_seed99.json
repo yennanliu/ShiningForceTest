@@ -1,0 +1,416 @@
+{
+  "commands": [
+    {
+      "to": [
+        0,
+        1
+      ],
+      "type": "Move",
+      "unit_id": 1
+    },
+    {
+      "type": "Wait",
+      "unit_id": 1
+    },
+    {
+      "to": [
+        1,
+        1
+      ],
+      "type": "Move",
+      "unit_id": 4
+    },
+    {
+      "type": "Wait",
+      "unit_id": 4
+    },
+    {
+      "to": [
+        0,
+        2
+      ],
+      "type": "Move",
+      "unit_id": 3
+    },
+    {
+      "type": "Wait",
+      "unit_id": 3
+    },
+    {
+      "to": [
+        2,
+        0
+      ],
+      "type": "Move",
+      "unit_id": 8
+    },
+    {
+      "target_id": 1,
+      "type": "Attack",
+      "unit_id": 8
+    },
+    {
+      "to": [
+        2,
+        1
+      ],
+      "type": "Move",
+      "unit_id": 5
+    },
+    {
+      "target_id": 4,
+      "type": "Attack",
+      "unit_id": 5
+    },
+    {
+      "to": [
+        1,
+        0
+      ],
+      "type": "Move",
+      "unit_id": 6
+    },
+    {
+      "target_id": 4,
+      "type": "Attack",
+      "unit_id": 6
+    },
+    {
+      "to": [
+        1,
+        2
+      ],
+      "type": "Move",
+      "unit_id": 2
+    },
+    {
+      "type": "Wait",
+      "unit_id": 2
+    },
+    {
+      "to": [
+        3,
+        1
+      ],
+      "type": "Move",
+      "unit_id": 7
+    },
+    {
+      "target_id": 1,
+      "type": "Attack",
+      "unit_id": 7
+    },
+    {
+      "to": [
+        3,
+        2
+      ],
+      "type": "Move",
+      "unit_id": 1
+    },
+    {
+      "target_id": 7,
+      "type": "Attack",
+      "unit_id": 1
+    },
+    {
+      "to": [
+        3,
+        3
+      ],
+      "type": "Move",
+      "unit_id": 3
+    },
+    {
+      "target_id": 7,
+      "type": "Attack",
+      "unit_id": 3
+    },
+    {
+      "target_id": 1,
+      "type": "Attack",
+      "unit_id": 8
+    },
+    {
+      "to": [
+        3,
+        1
+      ],
+      "type": "Move",
+      "unit_id": 6
+    },
+    {
+      "target_id": 1,
+      "type": "Attack",
+      "unit_id": 6
+    },
+    {
+      "to": [
+        2,
+        2
+      ],
+      "type": "Move",
+      "unit_id": 5
+    },
+    {
+      "target_id": 1,
+      "type": "Attack",
+      "unit_id": 5
+    }
+  ],
+  "final": {
+    "actor": 0,
+    "flags": {},
+    "moved": true,
+    "outcome": 2,
+    "round": 2,
+    "units": [
+      {
+        "ai": 0,
+        "base": {
+          "agi": 8,
+          "atk": 10,
+          "def": 6,
+          "hp": 20,
+          "luk": 5,
+          "mp": 0
+        },
+        "class": "swordsman",
+        "data": "hero",
+        "faction": 0,
+        "hp": 0,
+        "id": 1,
+        "is_leader": true,
+        "items": [
+          "bronze_sword",
+          "herb"
+        ],
+        "level": 1,
+        "mp": 0,
+        "pos": [
+          3,
+          2
+        ],
+        "ring_slot": -1,
+        "tag": "",
+        "weapon_slot": 0,
+        "xp": 10
+      },
+      {
+        "ai": 0,
+        "base": {
+          "agi": 6,
+          "atk": 9,
+          "def": 7,
+          "hp": 22,
+          "luk": 4,
+          "mp": 0
+        },
+        "class": "swordsman",
+        "data": "knight",
+        "faction": 0,
+        "hp": 22,
+        "id": 2,
+        "is_leader": false,
+        "items": [
+          "bronze_sword",
+          "herb"
+        ],
+        "level": 1,
+        "mp": 0,
+        "pos": [
+          1,
+          2
+        ],
+        "ring_slot": -1,
+        "tag": "",
+        "weapon_slot": 0,
+        "xp": 0
+      },
+      {
+        "ai": 0,
+        "base": {
+          "agi": 7,
+          "atk": 9,
+          "def": 4,
+          "hp": 16,
+          "luk": 5,
+          "mp": 0
+        },
+        "class": "archer",
+        "data": "archer",
+        "faction": 0,
+        "hp": 16,
+        "id": 3,
+        "is_leader": false,
+        "items": [
+          "wooden_bow"
+        ],
+        "level": 1,
+        "mp": 0,
+        "pos": [
+          3,
+          3
+        ],
+        "ring_slot": -1,
+        "tag": "",
+        "weapon_slot": 0,
+        "xp": 48
+      },
+      {
+        "ai": 0,
+        "base": {
+          "agi": 9,
+          "atk": 8,
+          "def": 4,
+          "hp": 15,
+          "luk": 6,
+          "mp": 0
+        },
+        "class": "archer",
+        "data": "scout",
+        "faction": 0,
+        "hp": 0,
+        "id": 4,
+        "is_leader": false,
+        "items": [
+          "wooden_bow"
+        ],
+        "level": 1,
+        "mp": 0,
+        "pos": [
+          1,
+          1
+        ],
+        "ring_slot": -1,
+        "tag": "",
+        "weapon_slot": 0,
+        "xp": 0
+      },
+      {
+        "ai": 0,
+        "base": {
+          "agi": 6,
+          "atk": 8,
+          "def": 4,
+          "hp": 14,
+          "luk": 3,
+          "mp": 0
+        },
+        "class": "swordsman",
+        "data": "goblin",
+        "faction": 1,
+        "hp": 14,
+        "id": 5,
+        "is_leader": true,
+        "items": [
+          "bronze_sword",
+          "herb"
+        ],
+        "level": 1,
+        "mp": 0,
+        "pos": [
+          2,
+          2
+        ],
+        "ring_slot": -1,
+        "tag": "boss",
+        "weapon_slot": 0,
+        "xp": 0
+      },
+      {
+        "ai": 0,
+        "base": {
+          "agi": 6,
+          "atk": 8,
+          "def": 4,
+          "hp": 14,
+          "luk": 3,
+          "mp": 0
+        },
+        "class": "swordsman",
+        "data": "goblin",
+        "faction": 1,
+        "hp": 14,
+        "id": 6,
+        "is_leader": false,
+        "items": [
+          "bronze_sword",
+          "herb"
+        ],
+        "level": 1,
+        "mp": 0,
+        "pos": [
+          3,
+          1
+        ],
+        "ring_slot": -1,
+        "tag": "",
+        "weapon_slot": 0,
+        "xp": 0
+      },
+      {
+        "ai": 0,
+        "base": {
+          "agi": 6,
+          "atk": 7,
+          "def": 3,
+          "hp": 12,
+          "luk": 3,
+          "mp": 0
+        },
+        "class": "archer",
+        "data": "goblin_archer",
+        "faction": 1,
+        "hp": 0,
+        "id": 7,
+        "is_leader": false,
+        "items": [
+          "wooden_bow"
+        ],
+        "level": 1,
+        "mp": 0,
+        "pos": [
+          3,
+          1
+        ],
+        "ring_slot": -1,
+        "tag": "",
+        "weapon_slot": 0,
+        "xp": 0
+      },
+      {
+        "ai": 0,
+        "base": {
+          "agi": 6,
+          "atk": 7,
+          "def": 3,
+          "hp": 12,
+          "luk": 3,
+          "mp": 0
+        },
+        "class": "archer",
+        "data": "goblin_archer",
+        "faction": 1,
+        "hp": 12,
+        "id": 8,
+        "is_leader": false,
+        "items": [
+          "wooden_bow"
+        ],
+        "level": 1,
+        "mp": 0,
+        "pos": [
+          2,
+          0
+        ],
+        "ring_slot": -1,
+        "tag": "",
+        "weapon_slot": 0,
+        "xp": 0
+      }
+    ]
+  },
+  "map": "fixture_8x8",
+  "seed": 99
+}

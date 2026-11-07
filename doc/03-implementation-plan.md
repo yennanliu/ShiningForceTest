@@ -202,22 +202,34 @@ Simplifications compared with doc 02 (kept simple to run first):
 
 **Tasks**
 
-- [ ] `AiPlanner.choose` with the scoring from [02 §4.9](02-eng-design.md#49-enemy-ai--aiplanner); profiles `AGGRESSIVE`, `HOLD`, `GUARD`, `HUNT_LEADER`
-- [ ] `tests/e2e/test_battle_runs.gd`: AI vs AI on every map, 50 seeds each
-- [ ] Property test: 500 seeds × random legal commands; invariants after each `apply`
-- [ ] First golden replay in `tests/golden/` + snapshot compare
-- [ ] `tools/battle_sim.gd` CLI: `--map --runs` → win rate, average rounds, deaths, max AI ms
+- [x] `AiPlanner.choose`: score every (reachable tile × target) by expected damage, kill chance, leader value and land effect; otherwise walk toward the nearest hostile using a real move-cost distance field (gets around walls). Profiles `AGGRESSIVE`, `HOLD`, `GUARD`, `HUNT_LEADER` (`HEALER`/`FLEE` later)
+- [x] `AutoPlay.play_turn` / `play_to_end`: AI plays either side, always bounded (a turn that makes no progress is ended with Wait)
+- [x] `tests/e2e/test_battle_runs.gd`: AI vs AI on every map (fixture + `data/maps/`), 50 seeds each
+- [x] Property test: 500 seeds × 25 random legal commands; invariants after each `apply`
+- [x] Golden replays (seeds 7, 21, 99) in `tests/golden/`, written by `tools/make_golden.gd`, compared as normalized JSON
+- [x] `tools/battle_sim.gd`: `-- --runs=N [--map=res://…]` → win rate, unfinished, average rounds, deaths, max AI ms
 
 **Validation**
 
-| Check | Pass when |
-| --- | --- |
-| Finishes | Every map × 50 seeds ends (`outcome ≠ ONGOING`) in < 200 rounds with 0 errors |
-| Sensible | Unit tests: AI attacks a unit in range instead of waiting; AI kills a 1-HP target when it can; `HOLD` never moves |
-| Deterministic | Same seed → same AI choices (compare `history`) |
-| Fast | Battle sim reports max AI think time < 100 ms per unit |
-| Golden | Golden replay passes; a deliberate formula change makes it fail |
-| **Gate A review** | Leads read the sim report and the test list, then sign off that the rules core is ready for visuals |
+| Check | Pass when | Result |
+| --- | --- | --- |
+| Finishes | Every map × 50 seeds ends (`outcome ≠ ONGOING`) in < 200 rounds with 0 errors | ✅ `test_every_map_finishes_for_50_seeds`; sim: 200/200 finished |
+| Sensible | AI attacks a unit in range instead of waiting; moves in to attack; kills a 1-HP target when it can; `HOLD` never moves; finds the gap in a wall | ✅ `test_ai.gd` (5 tests) |
+| Deterministic | Same seed → same AI choices (compare `history`) | ✅ `test_ai_is_deterministic` |
+| Fast | Max AI think time < 100 ms per unit | ✅ sim max 0.9–3.1 ms |
+| Property | 500 seeds of random legal play keep every invariant | ✅ `test_random_play_invariants_500_seeds` |
+| Golden | Golden replays pass; a deliberate formula change makes them fail | ✅ passes; changing `XP_HIT` or `BASE_HIT` fails it. (Crit 4%→5% did not, because no roll in these short battles landed in that window, so goldens catch most but not all changes) |
+| **Gate A review** | Leads read the sim report and the test list, then sign off that the rules core is ready for visuals | ⏳ awaiting sign-off (see report below) |
+
+**Gate A sim report** (`tools/battle_sim.gd -- --runs=200`, fixture 8×8 map, AI vs AI):
+
+```
+player win rate: 24%      unfinished: 0
+avg rounds:      2.6      avg deaths: 1.74 player units
+max AI think:    0.9 ms
+```
+
+The 24% win rate is expected for now. On a tiny map with equal forces, the enemy AI goes after the hero (the leader), and losing the leader loses the battle. Step 8 tunes balance (target: 60–90%).
 
 ---
 
@@ -397,7 +409,7 @@ Each step becomes a GitHub milestone. Each task is an issue labeled with its ste
 | 2 Battle model | Claude | 2026-11-07 | ✅ Done |
 | 3 Pathfinding | Claude | 2026-11-07 | ✅ Done |
 | 4 Commands & rules | Claude | 2026-11-07 | ✅ Done |
-| 5 AI + headless (Gate A) | | | Not started |
+| 5 AI + headless (Gate A) | Claude | 2026-11-07 | ✅ Done, Gate A awaiting sign-off |
 | 6 Grey-box view (Gate B) | | | Not started |
 | 7 Campaign & saves | | | Not started |
 | 8 Progression | | | Not started |
