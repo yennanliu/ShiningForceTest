@@ -13,6 +13,20 @@ An original, single-player, isometric tactical RPG for desktop, built with Godot
 
 Start with the [doc index](doc/README.md).
 
+## Claude skills (game roles)
+
+Project skills in [`.claude/skills/`](.claude/skills/) give Claude Code a role to play when improving the game:
+
+| Skill | Role | Use it for |
+| --- | --- | --- |
+| [`game-manager`](.claude/skills/game-manager/SKILL.md) | Producer | Plan the next optimization round, run gates and playtests, keep `doc/03` current |
+| [`game-art-design`](.claude/skills/game-art-design/SKILL.md) | Art director | Style, palette, readability rules, the art bible (`doc/05-art-direction.md`), art reviews |
+| [`game-artist`](.claude/skills/game-artist/SKILL.md) | Game artist | Map backgrounds, scenery, town/camp/title art, battle effects |
+| [`game-2d-3d-artist`](.claude/skills/game-2d-3d-artist/SKILL.md) | 2D/3D artist | Sprites, tiles, portraits, icons, 3D models; asset specs, import, performance |
+| [`game-ui-ux-designer`](.claude/skills/game-ui-ux-designer/SKILL.md) | UI/UX designer | Screens, HUD, menus, controls, accessibility, flow |
+
+Example: *"Use game-manager to plan the next polish round"*, or type `/game-ui-ux-designer review the camp screen`.
+
 ## Run the game locally
 
 **1. Install** (macOS, once):
