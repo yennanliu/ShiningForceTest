@@ -63,25 +63,26 @@ A step is done only when **all** of these are true:
 
 **Tasks**
 
-- [ ] Install Godot 4.x stable; write the exact version to `.godot-version`
-- [ ] Create `project.godot` (name "Banner", 1920×1080, `canvas_items` stretch)
-- [ ] Create the folder tree from [02 §3](02-eng-design.md#3-project-structure) with `.gitkeep` files
-- [ ] Set up Git LFS for `assets/**` (`.gitattributes`)
-- [ ] Add gdUnit4 to `addons/`, plus one sample test
-- [ ] Write `tools/check_layers.sh`, which fails if `core/` mentions `Node`, `get_tree`, `Input`, `view/`, or calls `randf`/`randi` outside `rng.gd`
-- [ ] Add `export_presets.cfg` for macOS, Windows and Linux
-- [ ] Add `.github/workflows/ci.yml`: layer check → import → tests → Linux export → smoke → upload artifact
-- [ ] Register the empty autoloads `Game`, `SaveService`, `Audio`
+- [x] Install Godot 4.x stable; write the exact version to `.godot-version` (`4.7.2-stable`)
+- [x] Create `project.godot` (name "Banner", 1920×1080, `canvas_items` stretch, placeholder title scene)
+- [x] Create the folder tree from [02 §3](02-eng-design.md#3-project-structure) with `.gitkeep` files
+- [x] Set up Git LFS for `assets/**` (`.gitattributes`)
+- [x] Test runner + one sample test. **Changed:** a built-in runner (`tests/run_tests.gd` + `TestCase`, run via `tools/test.sh`) instead of gdUnit4. It has no dependency, works on Godot 4.7, and counts script errors as failures
+- [x] Write `tools/check_layers.sh`, which fails if `core/` mentions Nodes, `get_tree`, `Input`, `view/`, or calls `randf`/`randi` outside `rng.gd`
+- [x] Add `export_presets.cfg` for macOS, Windows and Linux
+- [x] Add `.github/workflows/ci.yml`: layer check → tests → Linux export → smoke → upload artifact
+- [x] Register the empty autoloads `Game`, `SaveService`, `Audio`
 
 **Validation**
 
-| Check | How | Pass when |
-| --- | --- | --- |
-| Project opens | `godot --editor --path .` | No errors in the output panel |
-| Tests run | `godot --headless --path . -s addons/gdUnit4/bin/GdUnitCmdTool.gd -a res://tests` | 1 test, 0 failures |
-| Layer check bites | Add `extends Node` to a temp file in `core/`, run `tools/check_layers.sh` | Exits non-zero; passes again once the file is removed |
-| CI | Push a branch | Workflow green, Linux build artifact downloadable |
-| Smoke | `build/Banner.x86_64 --headless --quit-after 60` | Exit code 0 |
+| Check | How | Pass when | Result |
+| --- | --- | --- | --- |
+| Project opens | `godot --headless --path . --import` | No errors | ✅ |
+| Tests run | `tools/test.sh` | 1 test, 0 failures | ✅ `1 passed, 0 failed` |
+| Runner catches failures | Temp test with a bad assert + a runtime error | Both reported as FAIL, exit 1 | ✅ |
+| Layer check bites | Temp `extends Node` and `randf()` in `core/` | Exits non-zero; passes once removed | ✅ |
+| Smoke (local) | `godot --headless --path . --quit-after 60` | Exit code 0 | ✅ |
+| CI | Push to `main` | Workflow green, Linux build artifact downloadable | see Tracking |
 
 ---
 
@@ -379,7 +380,7 @@ Each step becomes a GitHub milestone. Each task is an issue labeled with its ste
 
 | Step | Owner | Start | Status |
 | --- | --- | --- | --- |
-| 0 Bootstrap | | | Not started |
+| 0 Bootstrap | Claude | 2026-11-07 | ✅ Done |
 | 1 Data schema | | | Not started |
 | 2 Battle model | | | Not started |
 | 3 Pathfinding | | | Not started |

@@ -154,7 +154,7 @@ stateDiagram-v2
 | Language | Typed GDScript | Native to Godot, no build step, static types catch errors |
 | Content | Godot Resources (`.tres`) | Typed, editable in the editor's inspector, readable git diffs |
 | Saves | JSON in `user://saves/` | Readable, easy to version and migrate |
-| Tests | gdUnit4, headless | Runs the full rules core and whole battles without a window |
+| Tests | Built-in headless runner (`tools/test.sh`, ~100 lines, no dependencies) | Runs the full rules core and whole battles without a window |
 | Assets | Blender `.glb`, Aseprite `.png`, `.ogg` | Godot imports them natively |
 | Repo / CI | Git + Git LFS, GitHub Actions | Every push runs the tests and produces a playable build |
 

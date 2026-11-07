@@ -1,0 +1,7 @@
+extends TestCase
+
+
+func test_runner_works() -> void:
+	assert_eq(1 + 1, 2)
+	assert_eq([1, 2], [1, 2])
+	assert_true("banner".begins_with("ban"))

@@ -922,7 +922,7 @@ godot --editor --path .                            # editor, then F5
 godot --path .                                     # play directly
 
 # Test (unit + e2e + golden)
-godot --headless --path . -s addons/gdUnit4/bin/GdUnitCmdTool.gd -a res://tests
+tools/test.sh                                      # optional filter: tools/test.sh pathfinder
 
 # Simulate a map 1,000 times (balance)
 godot --headless --path . -s tools/battle_sim.gd -- --map m03 --runs 1000

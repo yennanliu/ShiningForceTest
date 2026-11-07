@@ -1,0 +1,52 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Install Godot (version from .godot-version)
+        run: |
+          V=$(cat .godot-version)
+          curl -fsSL -o godot.zip "https://github.com/godotengine/godot-builds/releases/download/${V}/Godot_v${V}_linux.x86_64.zip"
+          unzip -q godot.zip
+          sudo mv "Godot_v${V}_linux.x86_64" /usr/local/bin/godot
+          godot --version
+
+      - name: Layer check
+        run: tools/check_layers.sh
+
+      - name: Tests
+        run: tools/test.sh
+
+      - name: Install export templates
+        run: |
+          V=$(cat .godot-version)
+          curl -fsSL -o templates.tpz "https://github.com/godotengine/godot-builds/releases/download/${V}/Godot_v${V}_export_templates.tpz"
+          unzip -q templates.tpz
+          DEST="$HOME/.local/share/godot/export_templates/${V/-/.}"
+          mkdir -p "$DEST"
+          mv templates/* "$DEST/"
+
+      - name: Export Linux
+        run: |
+          mkdir -p build
+          godot --headless --path . --export-release "Linux" build/Banner.x86_64
+
+      - name: Smoke test
+        run: |
+          chmod +x build/Banner.x86_64
+          build/Banner.x86_64 --headless --quit-after 60
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: banner-linux
+          path: build/Banner.x86_64

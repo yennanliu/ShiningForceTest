@@ -21,7 +21,7 @@ Reading order: 01 → 02 → 03. Read 04 as needed.
 | Core contract | `BattleState.apply(Command) -> Array[BattleEvent]` is the only way a battle changes |
 | Content | Godot Resources (`.tres`), edited in the Godot editor |
 | Saves | Versioned JSON in `user://saves/` |
-| Testing | gdUnit4 headless: unit tests, AI-vs-AI battles, golden replays, save round-trips |
+| Testing | Built-in headless runner (`tools/test.sh`): unit tests, AI-vs-AI battles, golden replays, save round-trips |
 
 ## Doc conventions
 
