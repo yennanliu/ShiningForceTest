@@ -2,6 +2,10 @@ extends Control
 ## Settings: volumes, fullscreen, animation speed, battle scenes, battle view. Saved immediately.
 
 
+## Where keyboard / gamepad focus starts (doc/03 step 18).
+var default_focus: Control
+
+
 func _ready() -> void:
 	var col := UI.screen(self, 120)
 	UI.center(UI.label(col, "Settings", 64, UI.ACCENT))
@@ -47,7 +51,10 @@ func _ready() -> void:
 		Settings.battle_view = i
 		Settings.save_settings())
 	box.add_child(view)
-	UI.center(UI.button(col, "Back", func() -> void: Game.goto(Game.Screen.TITLE)))
+	UI.center(UI.button(col, "Back", func() -> void:
+		Audio.play_sfx("cancel")
+		Game.goto(Game.Screen.TITLE)))
+	UI.focus(default_focus)
 
 
 func _slider(parent: Node, text: String, value: float, on_change: Callable) -> void:
@@ -62,3 +69,5 @@ func _slider(parent: Node, text: String, value: float, on_change: Callable) -> v
 		on_change.call(v)
 		Settings.save_settings())
 	parent.add_child(s)
+	if default_focus == null:
+		default_focus = s

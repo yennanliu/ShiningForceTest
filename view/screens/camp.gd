@@ -6,6 +6,8 @@ var _status: Label
 var _talk: DialogueBox
 var _veil: ColorRect
 var _queue: Array[StringName] = []   # lines still to show (join lines on arrival)
+## Where keyboard / gamepad focus starts (doc/03 step 18).
+var default_focus: Control
 
 
 func _ready() -> void:
@@ -57,7 +59,8 @@ func _ready() -> void:
 		for item in c.chapter.shop:
 			UI.button(shop, "%s  %dG" % [item.display_name, item.price], func() -> void: _buy(item), 420)
 
-	UI.button(right, "Start battle", func() -> void: Game.start_battle(), 420)
+	default_focus = UI.primary_button(right, "Start battle", func() -> void: Game.start_battle(), 420)
+	UI.focus(default_focus)
 	if c.chapter.town_name != "":
 		UI.button(right, "Visit %s" % c.chapter.town_name, func() -> void: Game.goto(Game.Screen.TOWN), 420)
 	var row := HBoxContainer.new()

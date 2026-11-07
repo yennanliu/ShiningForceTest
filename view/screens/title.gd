@@ -2,6 +2,8 @@ extends Control
 ## Title screen: New Game, Continue (pick a save slot), Quit.
 
 var _slots_box: VBoxContainer
+## Where keyboard / gamepad focus starts (doc/03 step 18).
+var default_focus: Control
 
 
 func _ready() -> void:
@@ -10,8 +12,10 @@ func _ready() -> void:
 	UI.center(UI.label(col, "a tactics RPG  ·  demo", 28, Color(1, 1, 1, 0.6)))
 	col.add_child(_spacer(40))
 	if SaveService.has_suspend():
-		UI.center(UI.button(col, "Resume battle", func() -> void: Game.resume_battle()))
-	UI.center(UI.button(col, "New Game", Game.new_game))
+		default_focus = UI.center(UI.button(col, "Resume battle", func() -> void: Game.resume_battle())) as Button
+	var new_game := UI.center(UI.button(col, "New Game", Game.new_game)) as Button
+	if default_focus == null:
+		default_focus = new_game
 	var cont := UI.center(UI.button(col, "Continue", _toggle_slots)) as Button
 	cont.disabled = not SaveService.has_any_save()
 	_slots_box = VBoxContainer.new()
@@ -21,6 +25,7 @@ func _ready() -> void:
 	UI.center(UI.button(col, "Settings", func() -> void: Game.goto(Game.Screen.SETTINGS)))
 	UI.center(UI.button(col, "Quit", func() -> void: get_tree().quit()))
 	UI.center(UI.label(col, "v%s" % ProjectSettings.get_setting("application/config/version", "dev"), 18, Color(1, 1, 1, 0.4)))
+	UI.focus(default_focus)
 
 
 func _toggle_slots() -> void:

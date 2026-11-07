@@ -5,11 +5,13 @@ extends SceneTree
 ## scene: the battle close-up (step 16): Aldric strikes the chapter's toughest enemy. --at=<s> picks
 ## the moment to capture (default 0.85 s = the hit lands); --crit / --miss change the outcome;
 ## --skip-after=<s> presses skip at that moment and prints how long the scene took to close.
+## --still: play it instantly and capture the held final frame (repeatable; used by ui_snapshots).
 ## battle --view=2d|3d (default: the setting, 3D); 3D camera --yaw=0..3 --zoom=0..2 --top-down;
 ## --report-hidden prints units the camera can't see (should be none) and how many tiles faded.
 ## battle --auto-wait=<s>: the party keeps waiting while the enemy attacks, with every animation and
 ## close-up on, for <s> seconds (max ~25); prints how many close-ups played. An end-to-end check.
 ## --skip-anim: animation speed "skip" (dialogue shows whole lines). --fast-anim: speed "fast".
+## --clean-saves: use an empty save folder. --settle=<frames>: wait longer before the shot.
 ## --demo-status (battle): poisons the acting unit and puts an enemy to sleep, to check the status badges.
 
 
@@ -28,6 +30,8 @@ func _initialize() -> void:
 		Settings.anim_speed_index = 2
 	if "--fast-anim" in OS.get_cmdline_user_args():   # animation speed "fast"
 		Settings.anim_speed_index = 1
+	if "--clean-saves" in OS.get_cmdline_user_args():   # no saves: the same title screen on every machine
+		root.get_node("SaveService").dir = "user://snapshot_saves_empty/"
 	if "--view=2d" in OS.get_cmdline_user_args():
 		Settings.battle_view = Settings.View.TWO_D
 	if "--view=3d" in OS.get_cmdline_user_args():
@@ -75,7 +79,10 @@ func _initialize() -> void:
 		for i in 3:
 			await process_frame
 		print("hidden units: %s, faded tiles: %d" % [scr._map3d.hidden_units(scr.state), scr._map3d.faded.size()])
-	for i in 10:
+	var settle := 10
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--settle="): settle = int(a.trim_prefix("--settle="))
+	for i in settle:
 		await process_frame
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--auto-wait=") and screen == "battle":
@@ -115,6 +122,16 @@ func _scene_shot(game: Node, out: String) -> void:
 	# Loaded at run time: a -s script can't name classes that use autoloads (Audio) at compile time.
 	var scene: Control = load("res://view/battle_scene/battle_scene.gd").new()
 	root.add_child(scene)
+	if "--still" in args:   # play it instantly, then hold the final frame: the same image every run
+		scene.instant = true
+		scene.play(b, ev, {})
+		scene.hold()
+		for i in 20:
+			await process_frame
+		root.get_viewport().get_texture().get_image().save_png(out)
+		print("saved %s" % out)
+		quit()
+		return
 	var bench := "--bench" in args
 	var frames := 0
 	var t0 := Time.get_ticks_msec()

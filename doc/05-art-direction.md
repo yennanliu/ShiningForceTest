@@ -86,9 +86,31 @@ Shading: each color gets one **shadow** (×0.72 brightness, shifted slightly tow
 
 ## 6. UI frames
 
-Our frame is **flat**: rounded corners (8–10 px), a 2–3 px gold edge `#cbb98a` on navy `#1c2f6e`, and no bevels, gradients or metal textures. It's the same as `UI.panel()` and `UI.make_theme()`.
+**The Banner frame** (step 18; the target look is the design example canvas, *Banner UI Style Frames*). One 9-slice texture family from `tools/make_art.py` (`assets/ui/`), applied by one theme (`view/common/banner_theme.gd` → `assets/ui/banner_theme.tres`). Layers, outside in:
 
-- **Dialogue box:** a portrait frame (square, same style), then a name tab sitting on the top edge of the text panel, then the text. 26–28 px text at 1080p, at most 3 lines.
+1. **Gold rim**, 2 px (`#e2cd8e`), lit on its top half (`#f6e6b0`) and darker below (`#b39a5a`)
+2. **Dark line**, 2 px (`#0a1130`)
+3. **Navy field**, a vertical gradient `#1f3270` → `#121c44`, with a soft **inner shadow** under the top edge
+4. **Pennant notch** (26×16 gold pennant) at the top center: our motif, drawn on the frame
+5. **Team ribbon** (blue / red stripe) on cards that belong to a side
+
+| Weight | Use | Theme variation |
+| --- | --- | --- |
+| Panel | Menus, the battle side panel, dialogue text | `PanelContainer` default |
+| Card | Portraits, plates, profile cards (3 px rim) | `BannerCard`, `PortraitFrame`, `PlateCard` |
+| Chip | Tags such as "! Advantage", statuses | `BannerChip` |
+
+**Buttons:** normal (bronze rim), hover (gold rim, lifts 4%), pressed (deeper field, squashes), disabled (dim), and a **gold focus ring** (3 px, `#ffd34a`) on whatever has keyboard / gamepad focus. One **primary** button per screen is solid gold with dark Cinzel text (`PrimaryButton`).
+
+**Fonts:**
+- **Cinzel** (display: titles, names, primary buttons) and **Inter** (body), both SIL OFL, in `assets/fonts/` with their license files
+- `UI.label` switches to Cinzel from 30 px up; body text stays ≥ 20 px at 1080p
+
+**Motion:** 0.12 s + 0.16 s fade between screens (`Transition` autoload), button lift and squash, panels fading in. All scaled by the animation speed; none when it's *skip* or headless.
+
+**Sound:** hover, confirm, cancel and open ticks (placeholder, `tools/make_audio.py`), silent while debugging.
+
+- **Dialogue box:** a portrait in a card frame with the pennant, then the speaker's name in Cinzel, then the text in a panel. 26–28 px text at 1080p, at most 3 lines.
 - **Cut-in plates (step 16):** small rounded panels with name, `Lv`, HP bar and `hp / max`. A team-color stripe on the left edge says who is who; color is never the only cue, because the side of the screen also tells you.
 
 ## 7. Readability rules
@@ -128,6 +150,7 @@ Ids match `data/` exactly. Every file has a line in `assets/CREDITS.md` with its
 
 ## Changelog
 
+- 2026-11-07 (step 18): §6 rewritten: the Banner frame (rim, dark line, navy gradient, inner shadow, pennant, ribbon), button states, focus ring, primary button, Cinzel + Inter, motion and UI sounds.
 - 2026-11-07 (step 17): 3D map. Tile tops (32×32), faction bases as 3D meshes (ring / diamond), shadow discs, and a faint checker for the grid.
 - 2026-11-07 (step 16): battle poses (per unit, 11 frames) and 6 backdrops; close-up plates use the map's HP colors (green / yellow / red), never a flat bar color.
 - 2026-11-07 (step 15): faction bases changed to a light round ring (players) and a dark diamond (enemies), after the notched ring failed the grayscale test. Head icons added.

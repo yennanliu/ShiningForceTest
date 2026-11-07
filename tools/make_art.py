@@ -11,6 +11,7 @@ Outputs:
     assets/textures/battle/<id>.png         2112x192 cut-in poses: 11 frames of 192x192, facing left
     assets/textures/backdrops/<kind>.png    1280x600 cut-in backdrops (plain, forest, hill, sand, shallow, ruins)
     assets/textures/tiles/<terrain>.png     32x32 tile tops for the 3D map
+    assets/ui/<name>.png                    UI kit 9-slices (frames, buttons) and the pennant
 Final art replaces these files one for one (same names and sizes).
 """
 import os
@@ -588,6 +589,68 @@ def tile_top(kind):
 TILES = list(TILE_COLORS)
 
 
+# --- UI kit: the Banner frame (doc/05 §6, step 18). 9-slice textures --------------------
+
+def _mix(a, b, t):
+    return tuple(int(a[i] + (b[i] - a[i]) * t) for i in range(4))
+
+
+def _frame(w, h, r, rim, rim_hi, rim_lo, line, top, bottom, rim_w=2, line_w=2, shadow=6):
+    """Rounded frame: rim (lit on top, darker below) / dark line / gradient field / inner shadow."""
+    c = Canvas(w, h)
+    c.rounded(0, 0, w - 1, h - 1, r, rim)
+    c.rounded(0, 0, w - 1, h // 2, r, rim_hi)
+    c.rounded(0, h // 2, w - 1, h - 1, r, rim_lo)
+    c.rounded(1, 1, w - 2, h - 2, r - 1, rim)
+    i = rim_w
+    c.rounded(i, i, w - 1 - i, h - 1 - i, max(r - i, 1), line)
+    j = rim_w + line_w
+    for y in range(j, h - j):
+        t = (y - j) / max(1, h - 2 * j - 1)
+        col = _mix(top, bottom, t)
+        if y - j < shadow:   # inner shadow under the top edge
+            col = _mix(col, (0, 0, 0, 255), 0.45 * (1 - (y - j) / shadow))
+        for x in range(j, w - j):
+            dx = max(j + max(r - j, 1) - x, 0, x - (w - 1 - j - max(r - j, 1)))
+            dy = max(j + max(r - j, 1) - y, 0, y - (h - 1 - j - max(r - j, 1)))
+            if dx * dx + dy * dy <= max(r - j, 1) ** 2:
+                c.set(x, y, col)
+    return c
+
+
+GOLD, GOLD_HI, GOLD_LO = hexc("#e2cd8e"), hexc("#f6e6b0"), hexc("#b39a5a")
+NAVY_LINE = hexc("#0a1130")
+
+
+def ui_textures():
+    navy_top, navy_bot = hexc("#1f3270"), hexc("#121c44")
+    out = {
+        # panel: menus, side panel, dialogue; card: portraits, plates (thicker rim)
+        "frame_panel": _frame(48, 48, 10, GOLD, GOLD_HI, GOLD_LO, NAVY_LINE, navy_top, navy_bot),
+        "frame_card": _frame(48, 48, 10, GOLD, GOLD_HI, GOLD_LO, NAVY_LINE, hexc("#24397c"), navy_bot, rim_w=3),
+        "frame_chip": _frame(32, 24, 11, hexc("#c9b47a"), hexc("#e2cd8e"), hexc("#9c8a56"), NAVY_LINE,
+                             hexc("#16224c"), hexc("#0f1838"), rim_w=1, line_w=1, shadow=3),
+        "button_normal": _frame(32, 32, 7, hexc("#8a7a4e"), hexc("#a8955f"), hexc("#6e6240"), NAVY_LINE,
+                                hexc("#2a3f88"), hexc("#1c2c66"), line_w=1, shadow=3),
+        "button_hover": _frame(32, 32, 7, hexc("#ffd34a"), hexc("#ffe58a"), hexc("#d4a92a"), NAVY_LINE,
+                               hexc("#3550b0"), hexc("#25398a"), line_w=1, shadow=3),
+        "button_pressed": _frame(32, 32, 7, hexc("#ffd34a"), hexc("#d4a92a"), hexc("#ffe58a"), NAVY_LINE,
+                                 hexc("#121c48"), hexc("#1c2a64"), line_w=1, shadow=8),
+        "button_disabled": _frame(32, 32, 7, hexc("#2a3260"), hexc("#323a6c"), hexc("#242a52"), NAVY_LINE,
+                                  hexc("#1a2040"), hexc("#151a36"), line_w=1, shadow=2),
+        "button_primary": _frame(32, 32, 8, hexc("#fff1c4"), hexc("#ffffff"), hexc("#d8c48a"), hexc("#8a6a24"),
+                                 hexc("#f2d46a"), hexc("#c99a2e"), line_w=1, shadow=2),
+        "button_primary_hover": _frame(32, 32, 8, hexc("#ffffff"), hexc("#ffffff"), hexc("#f6e6b0"), hexc("#8a6a24"),
+                                       hexc("#fbe38a"), hexc("#d8aa3a"), line_w=1, shadow=2),
+    }
+    p = Canvas(26, 16)   # the pennant notch, our motif: sits on a frame's top edge
+    p.poly([(0, 0), (26, 0), (26, 16), (13, 10), (0, 16)], GOLD)
+    p.poly([(0, 0), (26, 0), (26, 5), (0, 5)], GOLD_HI)
+    p.outline(hexc("#6a5420"))
+    out["pennant"] = p
+    return out
+
+
 def main():
     units = os.path.join(ROOT, "assets", "textures", "units")
     portraits = os.path.join(ROOT, "assets", "textures", "portraits")
@@ -605,6 +668,10 @@ def main():
     os.makedirs(tiles, exist_ok=True)
     for kind in TILES:
         tile_top(kind).save_png(os.path.join(tiles, kind + ".png"))
+    ui = os.path.join(ROOT, "assets", "ui")
+    os.makedirs(ui, exist_ok=True)
+    for name, tex in ui_textures().items():
+        tex.save_png(os.path.join(ui, name + ".png"))
     for kind in BACKDROPS:
         backdrop(kind).save_png(os.path.join(backdrops, kind + ".png"))
     for cid in P.SPRITES:

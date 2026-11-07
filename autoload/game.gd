@@ -31,7 +31,7 @@ func _ready() -> void:
 	Settings.load_settings()
 	Settings.setup_input()
 	Settings.apply()
-	get_tree().root.theme = UI.make_theme()
+	get_tree().root.theme = BannerTheme.load_or_build()
 	Audio.play_music("camp")
 	_rng.randomize()
 
@@ -115,5 +115,7 @@ func goto(s: Screen) -> void:
 	var boss := s == Screen.BATTLE and battle != null and battle.map.objective == Enums.Objective.DEFEAT_BOSS
 	Audio.play_music("boss" if boss else ("battle" if s == Screen.BATTLE else "camp"))
 	if change_scenes:
+		await Transition.cover()
 		get_tree().change_scene_to_file(SCENES[s])
+		Transition.reveal()
 	screen_changed.emit(s)
