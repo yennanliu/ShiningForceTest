@@ -44,6 +44,7 @@ var _help_label: Label
 var _log: RichTextLabel
 var _wait_btn: Button
 var _item_btn: Button
+var _spell_btn: Button
 var _continue_btn: Button
 var _banner: Label
 
@@ -119,6 +120,30 @@ func wait_turn() -> void:
 
 
 ## Uses the first consumable on the acting unit.
+## Casts the most useful spell: heal the most hurt ally, else hit the weakest enemy.
+func cast_spell() -> void:
+	if _busy or not _player_turn():
+		return
+	var actor := state.current_actor()
+	var best: CastCommand = null
+	var best_score := -INF
+	for c in state.legal_commands(actor):
+		if not (c is CastCommand):
+			continue
+		var target := state.grid.unit_at(c.at)
+		var score := 0.0
+		if target != null:
+			score = (target.max_hp() - target.hp) if target.faction == actor.faction else (100.0 - target.hp)
+		score -= c.level * 0.1
+		if score > best_score:
+			best_score = score
+			best = c
+	if best == null:
+		_log_line("[color=gray]No spell to cast.[/color]")
+		return
+	await _do(best)
+
+
 func use_item() -> void:
 	if _busy or not _player_turn():
 		return
@@ -202,6 +227,9 @@ func _play(events: Array[BattleEvent]) -> void:
 				if not e.data.hit:
 					_popup("miss", e.data.target_id, Color.WHITE)
 				await _pause(BEAT * 0.6)
+			BattleEvent.LEVELED_UP:
+				_popup("LEVEL UP", e.data.unit_id, Color("ffd34a"))
+				await _pause(BEAT * 2)
 			BattleEvent.BATTLE_ENDED:
 				_show_banner(e.data.outcome)
 		queue_redraw()
@@ -258,6 +286,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	match event.keycode:
 		KEY_W: wait_turn()
 		KEY_I: use_item()
+		KEY_S: cast_spell()
 		KEY_R, KEY_ENTER: continue_after_battle()
 
 
@@ -413,6 +442,7 @@ func _build_ui() -> void:
 	panel.add_child(buttons)
 	_wait_btn = _button(buttons, "Wait  [W]", wait_turn)
 	_item_btn = _button(buttons, "Use Herb  [I]", use_item)
+	_spell_btn = _button(buttons, "Spell  [S]", cast_spell)
 	_continue_btn = _button(buttons, "Continue  [Enter]", continue_after_battle)
 	_continue_btn.visible = false
 
@@ -461,7 +491,7 @@ func _update_panel() -> void:
 		_hp_bar.value = shown.hp
 		_hp_label.text = "  %d / %d" % [shown.hp, shown.max_hp()]
 		var w := shown.weapon()
-		_stats_label.text = "ATK %d   DEF %d   AGI %d   MOV %d   %s" % [st.atk, st.def, st.agi, shown.mov(), w.display_name if w else "-"]
+		_stats_label.text = "MP %d/%d   ATK %d   DEF %d   AGI %d   MOV %d   %s" % [shown.mp, shown.max_mp(), st.atk, st.def, st.agi, shown.mov(), w.display_name if w else "-"]
 		_land_label.text = "Land effect: %d%%" % roundi(state.grid.land_effect(shown.pos) * 100)
 	_forecast_label.text = ""
 	if hovered != null and hovered.id in _targets:
@@ -471,6 +501,8 @@ func _update_panel() -> void:
 	var mine := _player_turn() and not _busy
 	_wait_btn.disabled = not mine
 	_item_btn.disabled = not mine
+	_spell_btn.visible = actor != null and not actor.class_data.spells.is_empty()
+	_spell_btn.disabled = not mine
 	if state.outcome() != BattleState.Outcome.ONGOING:
 		_help_label.text = "Battle over. Press Continue (Enter)."
 	elif mine:

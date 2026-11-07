@@ -23,8 +23,23 @@ func _ready() -> void:
 		cb.button_pressed = c.party.deployed.has(u.data.id)
 		cb.disabled = u.is_leader
 		cb.toggled.connect(func(_on: bool) -> void: _apply_deploy())
-		box.add_child(cb)
+		var row := HBoxContainer.new()
+		row.add_child(cb)
+		if c.party.can_promote(u):
+			for to in u.class_data.promotes_to:
+				UI.button(row, "Promote → %s" % to.display_name, func() -> void: _promote(u, to), 300)
+		box.add_child(row)
 		_checks[u.data.id] = cb
+
+	if not c.chapter.shop.is_empty():
+		var shop := UI.panel(col)
+		UI.center(shop.get_parent())
+		UI.label(shop, "Shop — items go to the first deployed unit with a free slot", 24, UI.ACCENT)
+		var srow := HBoxContainer.new()
+		srow.add_theme_constant_override("separation", 12)
+		shop.add_child(srow)
+		for item in c.chapter.shop:
+			UI.button(srow, "%s  %dG" % [item.display_name, item.price], func() -> void: _buy(item), 260)
 
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 16)
@@ -44,6 +59,18 @@ func _apply_deploy() -> void:
 			ids.append(id)
 	if not Game.campaign.party.set_deployed(ids):
 		_status.text = "Can't deploy that group."
+
+
+func _promote(u: Unit, to: ClassData) -> void:
+	if Game.campaign.party.promote(u, to):
+		get_tree().reload_current_scene()
+
+
+func _buy(item: ItemData) -> void:
+	if Game.campaign.buy(item):
+		_status.text = "Bought %s. Gold left: %d" % [item.display_name, Game.campaign.inventory.gold]
+	else:
+		_status.text = "Not enough gold."
 
 
 func _save(slot: String) -> void:

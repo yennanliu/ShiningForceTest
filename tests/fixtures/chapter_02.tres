@@ -1,12 +1,19 @@
 [gd_resource type="Resource" script_class="ChapterData" format=3]
 
-[ext_resource type="Resource" path="res://tests/fixtures/map_boss.tres" id="1_5g6cw"]
-[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="2_om7tp"]
-[ext_resource type="Script" path="res://data/defs/chapter_data.gd" id="3_3b3ko"]
+[ext_resource type="Resource" path="res://tests/fixtures/map_boss.tres" id="1_1t34s"]
+[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="2_8clwe"]
+[ext_resource type="Resource" path="res://tests/fixtures/unit_priest.tres" id="3_vk4at"]
+[ext_resource type="Script" path="res://data/defs/chapter_data.gd" id="4_krq3q"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="5_aawet"]
+[ext_resource type="Resource" path="res://tests/fixtures/item_herb.tres" id="6_mqed4"]
+[ext_resource type="Resource" path="res://tests/fixtures/item_steel_sword.tres" id="7_j4aa0"]
+[ext_resource type="Resource" path="res://tests/fixtures/item_wooden_bow.tres" id="8_5gogx"]
 
 [resource]
-script = ExtResource("3_3b3ko")
+script = ExtResource("4_krq3q")
 id = &"ch02"
 title = "Chapter 2: The Goblin Chief"
-battle = ExtResource("1_5g6cw")
+battle = ExtResource("1_1t34s")
+recruits_on_start = Array[ExtResource("2_8clwe")]([ExtResource("3_vk4at")])
 reward_gold = 150
+shop = Array[ExtResource("5_aawet")]([ExtResource("6_mqed4"), ExtResource("7_j4aa0"), ExtResource("8_5gogx")])

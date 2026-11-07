@@ -6,11 +6,14 @@ extends RefCounted
 const ROUND_STARTED := &"round_started"   # {round}
 const TURN_STARTED := &"turn_started"     # {unit_id}
 const MOVED := &"moved"                   # {unit_id, path: Array[Vector2i]}
-const ATTACKED := &"attacked"             # {attacker_id, target_id, hit, crit, counter}
+const ATTACKED := &"attacked"             # {attacker_id, target_id, hit, crit, counter, double, special}
 const DAMAGED := &"damaged"               # {unit_id, amount, hp_after}
 const HEALED := &"healed"                 # {unit_id, amount, hp_after}
 const DIED := &"died"                     # {unit_id}
 const XP_GAINED := &"xp_gained"           # {unit_id, amount, xp_after}
+const LEVELED_UP := &"leveled_up"         # {unit_id, level, gains: {stat: n}}
+const BOND_CHANGED := &"bond_changed"     # {a_id, b_id, tier}
+const CAST := &"cast"                     # {unit_id, spell_id, level, at}
 const EQUIPPED := &"equipped"             # {unit_id, item_id}
 const ITEM_USED := &"item_used"           # {unit_id, item_id, target_id}
 const TURN_ENDED := &"turn_ended"         # {unit_id}

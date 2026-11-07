@@ -1,19 +1,24 @@
 [gd_resource type="Resource" script_class="ChapterData" format=3]
 
-[ext_resource type="Resource" path="res://tests/fixtures/map_8x8.tres" id="1_vans6"]
-[ext_resource type="Resource" path="res://tests/fixtures/chapter_02.tres" id="2_r4hxe"]
-[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="3_wcb5f"]
-[ext_resource type="Resource" path="res://tests/fixtures/unit_hero.tres" id="4_r4ryc"]
-[ext_resource type="Resource" path="res://tests/fixtures/unit_knight.tres" id="5_mdivv"]
-[ext_resource type="Resource" path="res://tests/fixtures/unit_archer.tres" id="6_0ctyq"]
-[ext_resource type="Resource" path="res://tests/fixtures/unit_scout.tres" id="7_bwync"]
-[ext_resource type="Script" path="res://data/defs/chapter_data.gd" id="8_bb8iv"]
+[ext_resource type="Resource" path="res://tests/fixtures/map_8x8.tres" id="1_mdivv"]
+[ext_resource type="Resource" path="res://tests/fixtures/chapter_02.tres" id="2_0ctyq"]
+[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="3_bwync"]
+[ext_resource type="Resource" path="res://tests/fixtures/unit_hero.tres" id="4_bb8iv"]
+[ext_resource type="Resource" path="res://tests/fixtures/unit_knight.tres" id="5_8k5pa"]
+[ext_resource type="Resource" path="res://tests/fixtures/unit_archer.tres" id="6_l4c1o"]
+[ext_resource type="Resource" path="res://tests/fixtures/unit_scout.tres" id="7_e41vi"]
+[ext_resource type="Script" path="res://data/defs/chapter_data.gd" id="8_lbcum"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="9_43aih"]
+[ext_resource type="Resource" path="res://tests/fixtures/item_herb.tres" id="10_b56hi"]
+[ext_resource type="Resource" path="res://tests/fixtures/item_bronze_sword.tres" id="11_tky4v"]
+[ext_resource type="Resource" path="res://tests/fixtures/item_wooden_bow.tres" id="12_67px3"]
 
 [resource]
-script = ExtResource("8_bb8iv")
+script = ExtResource("8_lbcum")
 id = &"ch01"
 title = "Chapter 1: The Border Road"
-battle = ExtResource("1_vans6")
-recruits_on_start = Array[ExtResource("3_wcb5f")]([ExtResource("4_r4ryc"), ExtResource("5_mdivv"), ExtResource("6_0ctyq"), ExtResource("7_bwync")])
+battle = ExtResource("1_mdivv")
+recruits_on_start = Array[ExtResource("3_bwync")]([ExtResource("4_bb8iv"), ExtResource("5_8k5pa"), ExtResource("6_l4c1o"), ExtResource("7_e41vi")])
 reward_gold = 100
-next = ExtResource("2_r4hxe")
+shop = Array[ExtResource("9_43aih")]([ExtResource("10_b56hi"), ExtResource("11_tky4v"), ExtResource("12_67px3")])
+next = ExtResource("2_0ctyq")

@@ -10,5 +10,7 @@ extends Resource
 @export var battle: MapData
 @export var recruits_on_start: Array[UnitData] = []
 @export var reward_gold := 0
+## Items for sale at camp before this chapter's battle.
+@export var shop: Array[ItemData] = []
 ## Null = campaign end.
 @export var next: ChapterData

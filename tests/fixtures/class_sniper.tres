@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="ClassData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_yxda6"]
+[ext_resource type="Script" path="res://data/defs/class_data.gd" id="2_d1pks"]
+[ext_resource type="Script" path="res://data/defs/spell_data.gd" id="3_yv1bv"]
+
+[sub_resource type="Resource" id="Resource_6ya8b"]
+script = ExtResource("1_yxda6")
+hp = 30
+atk = 27
+def = 15
+agi = 19
+luk = 14
+
+[resource]
+script = ExtResource("2_d1pks")
+id = &"sniper"
+display_name = "Sniper"
+mov = 6
+weapon_types = Array[int]([4])
+growth = SubResource("Resource_6ya8b")

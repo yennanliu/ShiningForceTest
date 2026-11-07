@@ -71,8 +71,7 @@
       "unit_id": 6
     },
     {
-      "target_id": 4,
-      "type": "Attack",
+      "type": "Wait",
       "unit_id": 6
     },
     {
@@ -89,24 +88,16 @@
     },
     {
       "to": [
-        3,
-        0
-      ],
-      "type": "Move",
-      "unit_id": 8
-    },
-    {
-      "target_id": 4,
-      "type": "Attack",
-      "unit_id": 8
-    },
-    {
-      "to": [
-        3,
+        1,
         1
       ],
       "type": "Move",
-      "unit_id": 1
+      "unit_id": 8
+    },
+    {
+      "target_id": 3,
+      "type": "Attack",
+      "unit_id": 8
     },
     {
       "target_id": 8,
@@ -127,6 +118,16 @@
       "unit_id": 3
     },
     {
+      "target_id": 3,
+      "type": "Attack",
+      "unit_id": 6
+    },
+    {
+      "target_id": 1,
+      "type": "Attack",
+      "unit_id": 7
+    },
+    {
       "to": [
         3,
         0
@@ -140,22 +141,22 @@
       "unit_id": 2
     },
     {
-      "target_id": 3,
-      "type": "Attack",
-      "unit_id": 6
-    },
-    {
       "to": [
         0,
-        1
+        0
       ],
       "type": "Move",
       "unit_id": 5
     },
     {
-      "target_id": 3,
+      "target_id": 1,
       "type": "Attack",
       "unit_id": 5
+    },
+    {
+      "target_id": 5,
+      "type": "Attack",
+      "unit_id": 1
     },
     {
       "to": [
@@ -163,30 +164,7 @@
         1
       ],
       "type": "Move",
-      "unit_id": 1
-    },
-    {
-      "target_id": 5,
-      "type": "Attack",
-      "unit_id": 1
-    },
-    {
-      "target_id": 1,
-      "type": "Attack",
-      "unit_id": 5
-    },
-    {
-      "to": [
-        0,
-        2
-      ],
-      "type": "Move",
-      "unit_id": 2
-    },
-    {
-      "target_id": 5,
-      "type": "Attack",
-      "unit_id": 2
+      "unit_id": 6
     },
     {
       "target_id": 1,
@@ -194,30 +172,20 @@
       "unit_id": 6
     },
     {
-      "target_id": 6,
+      "target_id": 1,
       "type": "Attack",
-      "unit_id": 1
-    },
-    {
-      "to": [
-        0,
-        0
-      ],
-      "type": "Move",
-      "unit_id": 2
-    },
-    {
-      "target_id": 6,
-      "type": "Attack",
-      "unit_id": 2
+      "unit_id": 5
     }
   ],
   "final": {
     "actor": 0,
+    "bonds": {
+      "archer|hero": 8
+    },
     "flags": {},
-    "moved": true,
-    "outcome": 1,
-    "round": 4,
+    "moved": false,
+    "outcome": 2,
+    "round": 3,
     "units": [
       {
         "ai": 0,
@@ -232,7 +200,7 @@
         "class": "swordsman",
         "data": "hero",
         "faction": 0,
-        "hp": 8,
+        "hp": 0,
         "id": 1,
         "is_leader": true,
         "items": [
@@ -242,13 +210,13 @@
         "level": 1,
         "mp": 0,
         "pos": [
-          1,
+          0,
           1
         ],
         "ring_slot": -1,
         "tag": "",
         "weapon_slot": 0,
-        "xp": 68
+        "xp": 58
       },
       {
         "ai": 0,
@@ -273,13 +241,13 @@
         "level": 1,
         "mp": 0,
         "pos": [
-          0,
+          3,
           0
         ],
         "ring_slot": -1,
         "tag": "",
         "weapon_slot": 0,
-        "xp": 144
+        "xp": 48
       },
       {
         "ai": 0,
@@ -354,7 +322,7 @@
         "class": "swordsman",
         "data": "goblin",
         "faction": 1,
-        "hp": 0,
+        "hp": 4,
         "id": 5,
         "is_leader": true,
         "items": [
@@ -365,7 +333,7 @@
         "mp": 0,
         "pos": [
           0,
-          1
+          0
         ],
         "ring_slot": -1,
         "tag": "boss",
@@ -385,7 +353,7 @@
         "class": "swordsman",
         "data": "goblin",
         "faction": 1,
-        "hp": 0,
+        "hp": 14,
         "id": 6,
         "is_leader": false,
         "items": [
@@ -396,7 +364,7 @@
         "mp": 0,
         "pos": [
           1,
-          0
+          1
         ],
         "ring_slot": -1,
         "tag": "",
@@ -455,8 +423,8 @@
         "level": 1,
         "mp": 0,
         "pos": [
-          3,
-          0
+          1,
+          1
         ],
         "ring_slot": -1,
         "tag": "",

@@ -49,7 +49,7 @@ func test_win_gives_gold_xp_and_next_chapter() -> void:
 	var total_xp := 0
 	for id in r.xp:
 		total_xp += r.xp[id]
-		assert_eq(c.party.member(id).xp, r.xp[id])
+		assert_eq(c.party.member(id).total_xp() - Unit.XP_PER_LEVEL, r.xp[id], "%s xp" % id)
 	assert_true(total_xp > 0, "someone earned XP")
 	for u in c.party.roster:
 		assert_eq(u.hp, u.max_hp(), "%s healed after battle" % u.data.id)

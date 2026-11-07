@@ -5,6 +5,7 @@ extends RefCounted
 var outcome: BattleState.Outcome = BattleState.Outcome.ONGOING
 var chapter_title := ""
 var xp: Dictionary = {}                 # data id -> XP gained
+var level_ups: Array[StringName] = []   # units that gained at least one level
 var fallen: Array[StringName] = []      # units that went down (revived after battle)
 var gold := 0
 var rounds := 0

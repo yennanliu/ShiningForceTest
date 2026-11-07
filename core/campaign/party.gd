@@ -34,6 +34,23 @@ func member(id: StringName) -> Unit:
 	return null
 
 
+const PROMOTE_LEVEL := 20
+
+
+func can_promote(u: Unit) -> bool:
+	return u.level >= PROMOTE_LEVEL and not u.class_data.promotes_to.is_empty()
+
+
+## New class, level back to 1, stats kept.
+func promote(u: Unit, to: ClassData) -> bool:
+	if not can_promote(u) or not u.class_data.promotes_to.has(to):
+		return false
+	u.class_data = to
+	u.level = 1
+	u.xp = 0
+	return true
+
+
 func deployed_units() -> Array[Unit]:
 	var out: Array[Unit] = []
 	for id in deployed:

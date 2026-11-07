@@ -1,11 +1,12 @@
 [gd_resource type="Resource" script_class="ClassData" format=3]
 
-[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_xy1b5"]
-[ext_resource type="Script" path="res://data/defs/class_data.gd" id="2_bjwfm"]
-[ext_resource type="Script" path="res://data/defs/spell_data.gd" id="3_c6o4m"]
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_bjwfm"]
+[ext_resource type="Script" path="res://data/defs/class_data.gd" id="2_c6o4m"]
+[ext_resource type="Resource" path="res://tests/fixtures/class_swordmaster.tres" id="3_qr13r"]
+[ext_resource type="Script" path="res://data/defs/spell_data.gd" id="4_fhrwh"]
 
-[sub_resource type="Resource" id="Resource_qr13r"]
-script = ExtResource("1_xy1b5")
+[sub_resource type="Resource" id="Resource_81eje"]
+script = ExtResource("1_bjwfm")
 hp = 30
 atk = 24
 def = 18
@@ -13,8 +14,9 @@ agi = 15
 luk = 10
 
 [resource]
-script = ExtResource("2_bjwfm")
+script = ExtResource("2_c6o4m")
 id = &"swordsman"
 display_name = "Swordsman"
 weapon_types = Array[int]([1])
-growth = SubResource("Resource_qr13r")
+growth = SubResource("Resource_81eje")
+promotes_to = Array[ExtResource("2_c6o4m")]([ExtResource("3_qr13r")])

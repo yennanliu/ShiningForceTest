@@ -1,11 +1,12 @@
 [gd_resource type="Resource" script_class="ClassData" format=3]
 
-[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_5augb"]
-[ext_resource type="Script" path="res://data/defs/class_data.gd" id="2_nwa4v"]
-[ext_resource type="Script" path="res://data/defs/spell_data.gd" id="3_gef8k"]
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_nwa4v"]
+[ext_resource type="Script" path="res://data/defs/class_data.gd" id="2_gef8k"]
+[ext_resource type="Resource" path="res://tests/fixtures/class_sniper.tres" id="3_kvdcs"]
+[ext_resource type="Script" path="res://data/defs/spell_data.gd" id="4_0arb8"]
 
-[sub_resource type="Resource" id="Resource_kvdcs"]
-script = ExtResource("1_5augb")
+[sub_resource type="Resource" id="Resource_5gkna"]
+script = ExtResource("1_nwa4v")
 hp = 25
 atk = 22
 def = 12
@@ -13,8 +14,9 @@ agi = 16
 luk = 12
 
 [resource]
-script = ExtResource("2_nwa4v")
+script = ExtResource("2_gef8k")
 id = &"archer"
 display_name = "Archer"
 weapon_types = Array[int]([4])
-growth = SubResource("Resource_kvdcs")
+growth = SubResource("Resource_5gkna")
+promotes_to = Array[ExtResource("2_gef8k")]([ExtResource("3_kvdcs")])

@@ -3,6 +3,7 @@ extends RefCounted
 ## A unit's runtime state in a battle or in the party roster.
 
 const MAX_ITEMS := 4
+const XP_PER_LEVEL := 100
 
 var id := 0                     # unique within a battle
 var data: UnitData
@@ -84,6 +85,18 @@ func mov() -> int:
 
 func jump() -> int:
 	return class_data.jump
+
+
+## Level and XP as one number, to measure XP gained across level-ups.
+func total_xp() -> int:
+	return level * XP_PER_LEVEL + xp
+
+
+func spell(id: StringName) -> SpellData:
+	for sp in class_data.spells:
+		if sp.id == id:
+			return sp
+	return null
 
 
 func display_name() -> String:

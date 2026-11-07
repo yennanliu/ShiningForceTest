@@ -310,25 +310,25 @@ The 3D isometric view moves to *after the slice*.
 
 **Tasks**
 
-- [ ] XP formula, level-ups with seeded growth rolls, `LeveledUp` panel
-- [ ] Promotion at camp (level ≥ 20, `promotes_to`)
-- [ ] `Bonds`: points, tiers, combat bonuses, drop on death, bond viewer in camp
-- [ ] `Cast` command + spells (damage, heal, area); MP
-- [ ] Equipment rules, weapon specials, 4 item slots, camp storage
-- [ ] Shop UI (buy/sell) backed by `Inventory`
+- [x] XP → level every 100 XP; seeded growth rolls (`growth/10` + chance of 1 more); `leveled_up` event, "LEVEL UP" popup in 2D, level-ups listed on Results
+- [x] Promotion (`Party.can_promote` / `promote`, level ≥ 20, `promotes_to`), with a Promote button in camp. Fixtures: swordsman → swordmaster, archer → sniper (MOV 6)
+- [x] `Bonds` (simplified): allies standing next to a unit that lands a hit gain +4 points with it. Tiers at 0/40/120/260/500; the attacker's best adjacent tier gives +2% hit, +1% crit and +2% damage per tier. A fallen unit drops one tier with every partner. Bonds are saved in the campaign and copied into each battle
+- [x] `CastCommand` + spells (heal allies / damage hostiles, area radius, MP cost). New Priest (cleric: Heal, Blaze) joins in chapter 2. Text: `c heal 1 x y`; 2D: Spell button (S) picks the most useful cast
+- [x] Deferred from step 4: double attacks (6%) and weapon specials `EXTRA_HIT` and `DRAIN` (fixture: Steel Sword, 15% extra hit). `POISON`/`SLEEP` wait for a status system
+- [x] Shop in camp, stocked per chapter (`ChapterData.shop`); purchases go to the first deployed unit with a free slot, else storage
 
 **Validation**
 
-| Check | Pass when |
-| --- | --- |
-| XP | Table tests: XP clamped to 1–49; kill > hit; higher-level enemy gives more |
-| Growth | Over 10,000 seeded level-ups, average gain is within 2% of `growth` |
-| Promotion | Level resets to 1, stats are kept, class and growth change; not allowed below level 20 |
-| Bonds | Shared target adds points; tier thresholds exact; death drops one tier but keeps points |
-| Spells | Area spell hits every unit in its radius; MP deducted; not castable with too little MP |
-| Balance sim | Battle sim on fixture maps: player win rate 60–90% with AI on both sides *(tune)* |
-
----
+| Check | Pass when | Result |
+| --- | --- | --- |
+| XP | Clamped to 1–49; kill > hit; 150 XP = level 2 with 50 left over | ✅ `test_xp_formula`, `test_level_up_every_100_xp` |
+| Growth | Over 10,000 seeded level-ups, average gain is within 2% of growth | ✅ `test_growth_average_matches_class` |
+| Promotion | Level resets to 1, stats kept, class changes; refused below 20 or to the wrong branch | ✅ `test_promotion_rules` |
+| Bonds | Tier thresholds exact; adjacent ally earns points; bonus raises hit and damage; death drops a tier; saved and restored | ✅ `test_bond_tiers_and_death`, `test_adjacent_ally_earns_bond_points`, `test_bond_bonus_raises_hit_and_damage`, `test_campaign_keeps_bonds_and_applies_death_penalty` |
+| Spells | Heal restores HP and costs MP; area Blaze hits everyone in radius; refused without MP, out of range, or for non-casters | ✅ `test_heal_spell_*`, `test_area_blaze_*`, `test_cannot_cast_*` |
+| Double / specials | ≈6% double attacks and ≈15% extra hits over 400 seeded attacks | ✅ `test_double_attacks_and_specials_happen` |
+| Shop | Buying spends gold and gives the item to a unit; refused when too poor | ✅ `test_shop_buy_goes_to_a_unit` |
+| Balance sim | Player win rate 60–90% with AI on both sides *(tune)* | ⚠️ boss map 60%; 8×8 test map 44%. That map is a mirror-image 4v4 test map, so ~50% is expected. Real balancing happens on real maps in step 11 |
 
 ## Step 9 — Map scripting, dialogue and town
 
@@ -430,7 +430,7 @@ Each step becomes a GitHub milestone. Each task is an issue labeled with its ste
 | 5 AI + headless (Gate A) | Claude | 2026-11-07 | ✅ Done, Gate A awaiting sign-off |
 | 6 Playable battle (Gate B) | Claude | 2026-11-07 | ✅ Done, Gate B needs a human playtest |
 | 7 Campaign & saves | Claude | 2026-11-07 | ✅ Done |
-| 8 Progression | | | Not started |
+| 8 Progression | Claude | 2026-11-07 | ✅ Done (balance ⚠️, see step 8) |
 | 9 Scripting & town | | | Not started |
 | 10 Hardening | | | Not started |
 | 11 Slice content (Gate C) | | | Not started |

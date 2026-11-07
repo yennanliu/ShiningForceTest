@@ -65,7 +65,7 @@ static func unit_on(g: Grid, at: Vector2i, faction := Enums.Faction.PLAYER, id :
 
 ## A small battle on an open map. Players (hero, knight, archer, scout order) at
 ## `players`, goblins at `enemies`. Hero is the leader.
-static func duel(players: Array, enemies: Array, p_seed := 1, size := Vector2i(8, 8), overrides := {}) -> BattleState:
+static func duel(players: Array, enemies: Array, p_seed := 1, size := Vector2i(8, 8), overrides := {}, roster: Array[Unit] = []) -> BattleState:
 	var m := open_map(size, overrides)
 	m.player_spawns.clear()
 	for p: Vector2i in players:
@@ -75,7 +75,7 @@ static func duel(players: Array, enemies: Array, p_seed := 1, size := Vector2i(8
 		sp.unit = unit_data("goblin")
 		sp.at = e
 		m.enemies.append(sp)
-	var b := BattleState.new(m, party(), p_seed)
+	var b := BattleState.new(m, roster if not roster.is_empty() else party(), p_seed)
 	b.start()
 	return b
 

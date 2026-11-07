@@ -17,7 +17,8 @@ func _ready() -> void:
 		var u: Unit = Game.campaign.party.member(id)
 		var name := u.display_name() if u else String(id)
 		var down := "   (fell, revived)" if r.fallen.has(id) else ""
-		UI.label(box, "%-10s  XP +%d%s" % [name, r.xp[id], down], 24)
+		var up := "   LEVEL UP → %d" % u.level if u and r.level_ups.has(id) else ""
+		UI.label(box, "%-10s  XP +%d%s%s" % [name, r.xp[id], up, down], 24)
 	if r.campaign_complete:
 		UI.center(UI.label(col, "You finished the demo campaign. Thanks for playing!", 30, UI.ACCENT))
 	UI.center(UI.button(col, "Continue", Game.after_results))

@@ -11,6 +11,7 @@ var rng: Rng
 var queue := TurnQueue.new()
 var flags: Dictionary = {}
 var history: Array[Command] = []      # every applied command, for replays
+var bonds := Bonds.new()              # a copy of the campaign's bonds; merged back after
 
 var _units: Array[Unit] = []
 var _actor: Unit
@@ -34,8 +35,10 @@ func _init(p_map: MapData, party: Array[Unit], p_seed: int) -> void:
 
 
 ## Rebuilds a battle by replaying commands (suspend saves, golden tests, bug reports).
-static func replay(p_map: MapData, party: Array[Unit], p_seed: int, cmds: Array) -> BattleState:
+static func replay(p_map: MapData, party: Array[Unit], p_seed: int, cmds: Array, p_bonds: Bonds = null) -> BattleState:
 	var b := BattleState.new(p_map, party, p_seed)
+	if p_bonds != null:
+		b.bonds = p_bonds.copy()
 	b.start()
 	for c in cmds:
 		var cmd: Command = c if c is Command else Command.from_dict(c)
@@ -82,6 +85,12 @@ func legal_commands(u: Unit) -> Array[Command]:
 		var c := AttackCommand.on(u.id, t.id)
 		if c.is_valid(self):
 			out.append(c)
+	for sp in u.class_data.spells:
+		for lv in sp.levels.size():
+			for t in living():
+				var cast := CastCommand.at_tile(u.id, sp.id, lv + 1, t.pos)
+				if cast.is_valid(self):
+					out.append(cast)
 	for i in u.items.size():
 		var eq := EquipCommand.slot_of(u.id, i)
 		if eq.is_valid(self):
@@ -154,6 +163,7 @@ func snapshot() -> Dictionary:
 		"moved": _moved,
 		"outcome": _outcome,
 		"flags": flags.duplicate(),
+		"bonds": bonds.to_dict(),
 		"units": _units.map(func(u: Unit) -> Dictionary: return u.to_dict()),
 	}
 

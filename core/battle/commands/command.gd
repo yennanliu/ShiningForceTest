@@ -40,6 +40,8 @@ static func from_dict(d: Dictionary) -> Command:
 			c = EquipCommand.slot_of(0, d.slot)
 		"UseItem":
 			c = UseItemCommand.on(0, d.slot, d.target_id)
+		"Cast":
+			c = CastCommand.at_tile(0, StringName(d.spell_id), d.level, Vector2i(d.at[0], d.at[1]))
 		"Wait":
 			c = WaitCommand.new()
 		_:

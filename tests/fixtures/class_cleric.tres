@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="ClassData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_00wno"]
+[ext_resource type="Script" path="res://data/defs/class_data.gd" id="2_cmmll"]
+[ext_resource type="Script" path="res://data/defs/spell_data.gd" id="3_tsikh"]
+[ext_resource type="Resource" path="res://tests/fixtures/spell_heal.tres" id="4_y64q2"]
+[ext_resource type="Resource" path="res://tests/fixtures/spell_blaze.tres" id="5_dpc6e"]
+
+[sub_resource type="Resource" id="Resource_ceqdt"]
+script = ExtResource("1_00wno")
+hp = 22
+mp = 25
+atk = 10
+def = 10
+agi = 12
+luk = 15
+
+[resource]
+script = ExtResource("2_cmmll")
+id = &"cleric"
+display_name = "Cleric"
+weapon_types = Array[int]([5])
+growth = SubResource("Resource_ceqdt")
+spells = Array[ExtResource("3_tsikh")]([ExtResource("4_y64q2"), ExtResource("5_dpc6e")])

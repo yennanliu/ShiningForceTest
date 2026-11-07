@@ -9,6 +9,7 @@ const TERRAIN_CHAR := {
 const HELP := """Commands (x y = column row, ID = unit id):
   m x y      move            a ID       attack
   i SLOT ID  use item        e SLOT     equip
+  c SPELL LV x y  cast a spell (e.g. c heal 1 2 6)
   w          wait (end turn) f ID       forecast an attack
   u ID       unit details    r          redraw the map
   h          help            q          quit"""
@@ -40,9 +41,19 @@ static func describe(e: BattleEvent, s: BattleState) -> String:
 			var path: Array = d.path
 			return "%s moves to %s" % [_name(s, d.unit_id), _xy(path[-1])]
 		BattleEvent.ATTACKED:
-			var verb := "counters" if d.counter else "attacks"
+			var verb := "counters" if d.counter else ("attacks again" if d.get("double", false) else "attacks")
 			var how := "misses" if not d.hit else ("CRITICAL hit" if d.crit else "hits")
-			return "%s %s %s: %s" % [_name(s, d.attacker_id), verb, _name(s, d.target_id), how]
+			var sp: String = d.get("special", "")
+			return "%s %s %s: %s%s" % [_name(s, d.attacker_id), verb, _name(s, d.target_id), how, " (%s!)" % sp.replace("_", " ") if sp != "" else ""]
+		BattleEvent.LEVELED_UP:
+			var parts := PackedStringArray()
+			for k in d.gains:
+				parts.append("%s+%d" % [k.to_upper(), d.gains[k]])
+			return "  %s reached level %d! %s" % [_name(s, d.unit_id), d.level, " ".join(parts)]
+		BattleEvent.BOND_CHANGED:
+			return "  %s and %s grow closer (bond %d)" % [_name(s, d.a_id), _name(s, d.b_id), d.tier]
+		BattleEvent.CAST:
+			return "%s casts %s %d" % [_name(s, d.unit_id), String(d.spell_id).capitalize(), d.level]
 		BattleEvent.DAMAGED:
 			return "  %s takes %d damage (HP %d)" % [_name(s, d.unit_id), d.amount, d.hp_after]
 		BattleEvent.HEALED:
@@ -85,6 +96,10 @@ static func parse(line: String, s: BattleState) -> Variant:
 			if w.size() != 2 or not w[1].is_valid_int():
 				return "usage: e SLOT"
 			return EquipCommand.slot_of(actor.id, int(w[1]))
+		"c", "cast":
+			if w.size() != 5 or not w[2].is_valid_int() or not w[3].is_valid_int() or not w[4].is_valid_int():
+				return "usage: c SPELL LEVEL x y"
+			return CastCommand.at_tile(actor.id, StringName(w[1]), int(w[2]), Vector2i(int(w[3]), int(w[4])))
 		"w", "wait":
 			return WaitCommand.by(actor.id)
 		"f", "forecast":
@@ -151,9 +166,13 @@ static func _details(u: Unit) -> String:
 	for i in u.items.size():
 		var mark := " (equipped)" if i == u.weapon_slot or i == u.ring_slot else ""
 		items.append("%d:%s%s" % [i, u.items[i].display_name, mark])
-	return "%s  Lv %d %s  HP %d/%d  ATK %d DEF %d AGI %d LUK %d  MOV %d  XP %d\n  items: %s" % [
-		_label(u), u.level, u.class_data.display_name, u.hp, u.max_hp(), st.atk, st.def, st.agi, st.luk,
-		u.mov(), u.xp, ", ".join(items) if not items.is_empty() else "-"]
+	var spells := PackedStringArray()
+	for sp in u.class_data.spells:
+		spells.append("%s (lv 1-%d)" % [String(sp.id), sp.levels.size()])
+	return "%s  Lv %d %s  HP %d/%d  MP %d/%d  ATK %d DEF %d AGI %d LUK %d  MOV %d  XP %d\n  items: %s%s" % [
+		_label(u), u.level, u.class_data.display_name, u.hp, u.max_hp(), u.mp, u.max_mp(), st.atk, st.def, st.agi, st.luk,
+		u.mov(), u.xp, ", ".join(items) if not items.is_empty() else "-",
+		"\n  spells: " + ", ".join(spells) if not spells.is_empty() else ""]
 
 
 ## First letter of the last word: Goblin -> g, Goblin Archer -> a.

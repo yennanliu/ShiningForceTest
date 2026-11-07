@@ -113,27 +113,9 @@
       "unit_id": 1
     },
     {
-      "target_id": 1,
-      "type": "Attack",
-      "unit_id": 8
-    },
-    {
-      "to": [
-        3,
-        0
-      ],
-      "type": "Move",
-      "unit_id": 7
-    },
-    {
-      "target_id": 1,
-      "type": "Attack",
-      "unit_id": 7
-    },
-    {
       "to": [
         0,
-        0
+        1
       ],
       "type": "Move",
       "unit_id": 3
@@ -144,17 +126,9 @@
       "unit_id": 3
     },
     {
-      "to": [
-        3,
-        0
-      ],
-      "type": "Move",
-      "unit_id": 2
-    },
-    {
-      "target_id": 8,
+      "target_id": 1,
       "type": "Attack",
-      "unit_id": 2
+      "unit_id": 8
     },
     {
       "to": [
@@ -185,6 +159,7 @@
   ],
   "final": {
     "actor": 0,
+    "bonds": {},
     "flags": {},
     "moved": true,
     "outcome": 2,
@@ -244,13 +219,13 @@
         "level": 1,
         "mp": 0,
         "pos": [
-          3,
-          0
+          1,
+          2
         ],
         "ring_slot": -1,
         "tag": "",
         "weapon_slot": 0,
-        "xp": 10
+        "xp": 0
       },
       {
         "ai": 0,
@@ -275,7 +250,7 @@
         "mp": 0,
         "pos": [
           0,
-          0
+          1
         ],
         "ring_slot": -1,
         "tag": "",
@@ -397,7 +372,7 @@
         "mp": 0,
         "pos": [
           3,
-          0
+          1
         ],
         "ring_slot": -1,
         "tag": "",
@@ -417,7 +392,7 @@
         "class": "archer",
         "data": "goblin_archer",
         "faction": 1,
-        "hp": 1,
+        "hp": 12,
         "id": 8,
         "is_leader": false,
         "items": [

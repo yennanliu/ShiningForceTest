@@ -111,17 +111,22 @@
         0
       ],
       "type": "Move",
-      "unit_id": 3
+      "unit_id": 6
     },
     {
-      "target_id": 7,
+      "target_id": 1,
       "type": "Attack",
-      "unit_id": 3
+      "unit_id": 6
+    },
+    {
+      "target_id": 8,
+      "type": "Attack",
+      "unit_id": 2
     },
     {
       "to": [
-        0,
-        2
+        1,
+        1
       ],
       "type": "Move",
       "unit_id": 5
@@ -132,40 +137,40 @@
       "unit_id": 5
     },
     {
-      "target_id": 3,
-      "type": "Attack",
-      "unit_id": 6
-    },
-    {
       "to": [
         3,
-        0
+        1
       ],
       "type": "Move",
-      "unit_id": 2
+      "unit_id": 3
     },
     {
       "target_id": 7,
       "type": "Attack",
-      "unit_id": 2
+      "unit_id": 3
     },
     {
-      "target_id": 3,
+      "target_id": 1,
       "type": "Attack",
-      "unit_id": 8
+      "unit_id": 7
     },
     {
-      "target_id": 8,
+      "to": [
+        2,
+        1
+      ],
+      "type": "Move",
+      "unit_id": 1
+    },
+    {
+      "target_id": 7,
       "type": "Attack",
       "unit_id": 1
     },
     {
-      "to": [
-        1,
-        2
-      ],
-      "type": "Move",
-      "unit_id": 2
+      "target_id": 5,
+      "type": "Attack",
+      "unit_id": 3
     },
     {
       "target_id": 5,
@@ -174,7 +179,7 @@
     },
     {
       "to": [
-        0,
+        2,
         0
       ],
       "type": "Move",
@@ -186,17 +191,44 @@
       "unit_id": 6
     },
     {
+      "target_id": 6,
+      "type": "Attack",
+      "unit_id": 1
+    },
+    {
+      "target_id": 6,
+      "type": "Attack",
+      "unit_id": 3
+    },
+    {
       "target_id": 1,
       "type": "Attack",
-      "unit_id": 5
+      "unit_id": 6
+    },
+    {
+      "to": [
+        1,
+        0
+      ],
+      "type": "Move",
+      "unit_id": 2
+    },
+    {
+      "target_id": 6,
+      "type": "Attack",
+      "unit_id": 2
     }
   ],
   "final": {
     "actor": 0,
+    "bonds": {
+      "archer|hero": 16,
+      "archer|knight": 4
+    },
     "flags": {},
-    "moved": false,
-    "outcome": 2,
-    "round": 3,
+    "moved": true,
+    "outcome": 1,
+    "round": 4,
     "units": [
       {
         "ai": 0,
@@ -211,7 +243,7 @@
         "class": "swordsman",
         "data": "hero",
         "faction": 0,
-        "hp": 0,
+        "hp": 3,
         "id": 1,
         "is_leader": true,
         "items": [
@@ -221,44 +253,44 @@
         "level": 1,
         "mp": 0,
         "pos": [
-          0,
+          2,
           1
         ],
         "ring_slot": -1,
         "tag": "",
         "weapon_slot": 0,
-        "xp": 48
+        "xp": 68
       },
       {
         "ai": 0,
         "base": {
-          "agi": 6,
-          "atk": 9,
-          "def": 7,
-          "hp": 22,
-          "luk": 4,
+          "agi": 8,
+          "atk": 11,
+          "def": 9,
+          "hp": 25,
+          "luk": 5,
           "mp": 0
         },
         "class": "swordsman",
         "data": "knight",
         "faction": 0,
-        "hp": 22,
+        "hp": 25,
         "id": 2,
         "is_leader": false,
         "items": [
           "bronze_sword",
           "herb"
         ],
-        "level": 1,
+        "level": 2,
         "mp": 0,
         "pos": [
           1,
-          2
+          0
         ],
         "ring_slot": -1,
         "tag": "",
         "weapon_slot": 0,
-        "xp": 58
+        "xp": 44
       },
       {
         "ai": 0,
@@ -273,7 +305,7 @@
         "class": "archer",
         "data": "archer",
         "faction": 0,
-        "hp": 0,
+        "hp": 9,
         "id": 3,
         "is_leader": false,
         "items": [
@@ -282,13 +314,13 @@
         "level": 1,
         "mp": 0,
         "pos": [
-          0,
-          0
+          3,
+          1
         ],
         "ring_slot": -1,
         "tag": "",
         "weapon_slot": 0,
-        "xp": 10
+        "xp": 20
       },
       {
         "ai": 0,
@@ -333,7 +365,7 @@
         "class": "swordsman",
         "data": "goblin",
         "faction": 1,
-        "hp": 4,
+        "hp": 0,
         "id": 5,
         "is_leader": true,
         "items": [
@@ -343,8 +375,8 @@
         "level": 1,
         "mp": 0,
         "pos": [
-          0,
-          2
+          1,
+          1
         ],
         "ring_slot": -1,
         "tag": "boss",
@@ -364,7 +396,7 @@
         "class": "swordsman",
         "data": "goblin",
         "faction": 1,
-        "hp": 14,
+        "hp": 0,
         "id": 6,
         "is_leader": false,
         "items": [
@@ -374,7 +406,7 @@
         "level": 1,
         "mp": 0,
         "pos": [
-          0,
+          2,
           0
         ],
         "ring_slot": -1,

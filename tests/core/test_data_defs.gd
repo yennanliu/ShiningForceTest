@@ -14,6 +14,7 @@ func test_every_fixture_loads_with_its_type() -> void:
 		elif p.get_file().begins_with("item_"): expected = "ItemData"
 		elif p.get_file().begins_with("map_"): expected = "MapData"
 		elif p.get_file().begins_with("chapter_"): expected = "ChapterData"
+		elif p.get_file().begins_with("spell_"): expected = "SpellData"
 		assert_eq(r.get_script().get_global_name(), StringName(expected), p)
 
 

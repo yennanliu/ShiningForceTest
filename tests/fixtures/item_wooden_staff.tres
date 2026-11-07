@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_h6o0o"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="2_yyi4c"]
+
+[sub_resource type="Resource" id="Resource_cbrh2"]
+script = ExtResource("1_h6o0o")
+atk = 2
+
+[resource]
+script = ExtResource("2_yyi4c")
+id = &"wooden_staff"
+display_name = "Wooden Staff"
+kind = 0
+weapon_type = 5
+bonus = SubResource("Resource_cbrh2")
+price = 60
