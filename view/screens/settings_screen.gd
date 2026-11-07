@@ -1,5 +1,5 @@
 extends Control
-## Settings: volumes, fullscreen, animation speed, battle scenes. Saved immediately.
+## Settings: volumes, fullscreen, animation speed, battle scenes, battle view. Saved immediately.
 
 
 func _ready() -> void:
@@ -38,6 +38,15 @@ func _ready() -> void:
 		Settings.battle_scenes = i
 		Settings.save_settings())
 	box.add_child(scenes)
+	var view := OptionButton.new()
+	view.add_theme_font_size_override("font_size", 26)
+	for t in ["Battle view: 3D", "Battle view: 2D"]:
+		view.add_item(t)
+	view.selected = Settings.battle_view
+	view.item_selected.connect(func(i: int) -> void:
+		Settings.battle_view = i
+		Settings.save_settings())
+	box.add_child(view)
 	UI.center(UI.button(col, "Back", func() -> void: Game.goto(Game.Screen.TITLE)))
 
 

@@ -10,6 +10,7 @@ Outputs:
     assets/textures/icons/head_<name>.png   24x24 head bubbles: poison, sleep, adv, bond; leader star
     assets/textures/battle/<id>.png         2112x192 cut-in poses: 11 frames of 192x192, facing left
     assets/textures/backdrops/<kind>.png    1280x600 cut-in backdrops (plain, forest, hill, sand, shallow, ruins)
+    assets/textures/tiles/<terrain>.png     32x32 tile tops for the 3D map
 Final art replaces these files one for one (same names and sizes).
 """
 import os
@@ -539,6 +540,54 @@ def backdrop(kind):
 BACKDROPS = ["plain", "forest", "hill", "sand", "shallow", "ruins"]
 
 
+# --- 3D map tile tops (step 17): 32x32, seamless, terrain colors from doc/05 §3 ---------
+
+TILE_COLORS = {"plain": "#7cb35a", "forest": "#3f7f3a", "hill": "#b08e5c", "sand": "#d9c48a",
+               "shallow": "#5aa0d8", "deep": "#2f5f9e", "wall": "#6b6b6b"}
+
+
+def tile_top(kind):
+    base = hexc(TILE_COLORS[kind])
+    c = Canvas(32, 32, base)
+    dk, lt = shade(base, 0.82), light(base, 0.16)
+    if kind in ("plain", "forest", "hill"):
+        for i in range(14):   # grass tufts / pebbles at fixed spots
+            x, y = (i * 11 + 3) % 30, (i * 7 + 5) % 29
+            if kind == "hill":
+                c.rect(x, y, x + 1, y, dk)
+            else:
+                c.set(x, y + 1, dk)
+                c.set(x + 1, y, dk)
+        if kind == "forest":
+            for x, y in ((8, 9), (22, 7), (14, 22), (27, 24), (4, 26)):
+                c.ellipse(x, y, 3, 3, dk)
+                c.set(x - 1, y - 1, lt)
+        if kind == "hill":
+            for x, y in ((6, 8), (20, 20), (26, 6)):
+                c.ellipse(x, y, 3, 2, hexc("#7cb35a"))
+    elif kind == "sand":
+        for i in range(20):
+            c.set((i * 13 + 2) % 32, (i * 5 + 3) % 32, dk)
+    elif kind in ("shallow", "deep"):
+        for row in range(4):
+            y = 4 + row * 8
+            x0 = (row * 9) % 32
+            c.rect(x0, y, x0 + 6, y, lt)
+            c.rect((x0 + 16) % 32, y + 3, (x0 + 16) % 32 + 5, y + 3, lt)
+    elif kind == "wall":
+        for row in range(4):
+            y = row * 8
+            c.rect(0, y, 31, y, dk)
+            off = 0 if row % 2 else 8
+            for x in range(off, 32, 16):
+                c.rect(x, y, x, y + 7, dk)
+        c.rect(0, 0, 31, 0, lt)
+    return c
+
+
+TILES = list(TILE_COLORS)
+
+
 def main():
     units = os.path.join(ROOT, "assets", "textures", "units")
     portraits = os.path.join(ROOT, "assets", "textures", "portraits")
@@ -552,6 +601,10 @@ def main():
     backdrops = os.path.join(ROOT, "assets", "textures", "backdrops")
     os.makedirs(battle, exist_ok=True)
     os.makedirs(backdrops, exist_ok=True)
+    tiles = os.path.join(ROOT, "assets", "textures", "tiles")
+    os.makedirs(tiles, exist_ok=True)
+    for kind in TILES:
+        tile_top(kind).save_png(os.path.join(tiles, kind + ".png"))
     for kind in BACKDROPS:
         backdrop(kind).save_png(os.path.join(backdrops, kind + ".png"))
     for cid in P.SPRITES:
@@ -561,9 +614,9 @@ def main():
         portrait(cid).save_png(os.path.join(portraits, cid + ".png"))
         for mood in P.MOODS.get(cid, []):
             portrait(cid, mood).save_png(os.path.join(portraits, "%s_%s.png" % (cid, mood)))
-    print("art written: %d sprite sheets, %d battle sheets, %d portraits, %d head icons, %d backdrops" % (
+    print("art written: %d sprite sheets, %d battle sheets, %d portraits, %d head icons, %d backdrops, %d tiles" % (
         len(P.SPRITES), len(P.SPRITES), len(P.PORTRAITS) + sum(len(v) for v in P.MOODS.values()),
-        len(HEAD_ICONS), len(BACKDROPS)))
+        len(HEAD_ICONS), len(BACKDROPS), len(TILES)))
 
 
 if __name__ == "__main__":

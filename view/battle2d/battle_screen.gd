@@ -50,6 +50,9 @@ var _units_layer: Control # sprites, rings, HP bars, head icons (Nearest filter 
 var _overlay: Control     # cursor, coordinates, popups (always on top of sprites)
 var _scene: BattleScene   # close-up battle scene (step 16), on top of everything
 var _hp_seen := {}        # unit id -> HP as last shown (the scene's plates start from it)
+var _map3d: Map3D         # 3D map view (step 17); null / hidden in 2D
+## -1 = follow Settings.battle_view; 0 = force 3D; 1 = force 2D. Headless runs use 2D unless forced.
+var view_mode := -1
 var _popups: Array = []   # [{text, pos, color, age}]
 var _hover := Vector2i(-1, -1)
 var _busy := false
@@ -106,6 +109,7 @@ func start_battle(p_seed: int) -> void:
 func begin(s: BattleState) -> void:
 	_ensure_ui()
 	state = s
+	_setup_view()
 	_layout()
 	_popups.clear()
 	_log.clear()
@@ -444,15 +448,25 @@ func _process(delta: float) -> void:
 
 # --- input ----------------------------------------------------------------
 
+## The tile under a screen pixel, in either view.
+func _pick(p: Vector2) -> Vector2i:
+	return _map3d.pick(p) if is_3d() else _tile_at(p)
+
+
 func _gui_input(event: InputEvent) -> void:
+	if is_3d() and event is InputEventMouseButton and event.pressed \
+			and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
+		_map3d.zoom_by(1 if event.button_index == MOUSE_BUTTON_WHEEL_UP else -1)
+		queue_redraw()
+		return
 	if event is InputEventMouseMotion:
-		var t := _tile_at(event.position)
+		var t := _pick(event.position)
 		if t != _hover:
 			_hover = t
 			_update_panel()
 			queue_redraw()
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		var t := _tile_at(event.position)
+		var t := _pick(event.position)
 		if state.grid.in_bounds(t):
 			click_tile(t)
 
@@ -463,7 +477,20 @@ func _unhandled_input(event: InputEvent) -> void:
 	var moves := {"cursor_up": Vector2i.UP, "cursor_down": Vector2i.DOWN, "cursor_left": Vector2i.LEFT, "cursor_right": Vector2i.RIGHT}
 	for a: String in moves:
 		if event.is_action(a):
-			move_cursor(moves[a])
+			move_cursor(_map3d.screen_dir_to_grid(moves[a]) if is_3d() else moves[a])
+			return
+	if is_3d():
+		if event.is_action("rotate_left") or event.is_action("rotate_right"):
+			_map3d.rotate_view(-1 if event.is_action("rotate_left") else 1)
+			queue_redraw()
+			return
+		if event.is_action("zoom"):
+			_map3d.cycle_zoom()
+			queue_redraw()
+			return
+		if event.is_action("top_down"):
+			_map3d.toggle_top_down()
+			queue_redraw()
 			return
 	if event.is_action("confirm"):
 		click_tile(_hover)
@@ -495,6 +522,10 @@ func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), Color("161a24"))
 	if state == null:
 		return
+	if is_3d():   # the 3D view draws tiles, ranges, chests and the cursor itself
+		_units_layer.queue_redraw()
+		_overlay.queue_redraw()
+		return
 	var g := state.grid
 	for y in g.size.y:
 		for x in g.size.x:
@@ -519,6 +550,10 @@ func _draw_overlay(ci: CanvasItem) -> void:
 	if state == null:
 		return
 	var g := state.grid
+	if is_3d():
+		for p in _popups:
+			_draw_popup(ci, p, _px_to_screen(p.pos))
+		return
 	if g.in_bounds(_hover):
 		ci.draw_rect(_tile_rect(_hover).grow(-1), Color(1, 1, 1, 0.9), false, 2.0)
 	for x in g.size.x:
@@ -526,10 +561,22 @@ func _draw_overlay(ci: CanvasItem) -> void:
 	for y in g.size.y:
 		ci.draw_string(_font, MAP_ORIGIN + Vector2(-30, y * TILE + TILE / 2.0 + 7), str(y), HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(1, 1, 1, 0.5))
 	for p in _popups:
-		var pos: Vector2 = p.pos + Vector2(-20, -50 - p.age * 40)
-		var c: Color = p.color
-		c.a = 1.0 - p.age / 0.9
-		ci.draw_string(_font, pos, p.text, HORIZONTAL_ALIGNMENT_LEFT, -1, 34, c)
+		_draw_popup(ci, p, p.pos)
+
+
+func _draw_popup(ci: CanvasItem, p: Dictionary, at: Vector2) -> void:
+	var pos: Vector2 = at + Vector2(-20, -50 - p.age * 40)
+	var c: Color = p.color
+	c.a = 1.0 - p.age / 0.9
+	ci.draw_string(_font, pos, p.text, HORIZONTAL_ALIGNMENT_LEFT, -1, 34, c)
+
+
+## A 2D-layout pixel (unit centers, popups) -> where it is on screen in the current view.
+func _px_to_screen(p: Vector2) -> Vector2:
+	if not is_3d():
+		return p
+	var t := _tile_at(p)
+	return _map3d.to_screen(_map3d.world_of_px(p, t) + Vector3(0, 0.6, 0))
 
 
 ## Units back to front, then every HP bar / icon on top, so a sprite never hides them.
@@ -541,8 +588,11 @@ func _draw_units(ci: CanvasItem) -> void:
 		var ya: float = _unit_px.get(a.id, _center(a.pos)).y
 		var yb: float = _unit_px.get(b.id, _center(b.pos)).y
 		return ya < yb or (ya == yb and a.id < b.id))
-	for u: Unit in alive:
-		_draw_unit_body(ci, u)
+	if is_3d():
+		_map3d.sync()   # bodies are Sprite3D billboards; only the HUD is drawn here
+	else:
+		for u: Unit in alive:
+			_draw_unit_body(ci, u)
 	for u: Unit in alive:
 		_draw_unit_hud(ci, u)
 
@@ -623,24 +673,37 @@ func _frame(u: Unit) -> int:
 
 
 ## HP bar under the feet, leader star beside it, one head bubble above the head.
-func _draw_unit_hud(ci: CanvasItem, u: Unit) -> void:
+## Where a unit's HUD goes on screen: feet, top of the head, and the apparent tile size.
+func _hud_anchor(u: Unit) -> Dictionary:
 	var c: Vector2 = _unit_px.get(u.id, _center(u.pos))
-	var w := TILE * 0.7
-	var bar := Rect2(c + Vector2(-w / 2, TILE * 0.39), Vector2(w, 7))
+	if is_3d():
+		var feet := _map3d.world_of_px(c, u.pos)
+		return {"feet": _map3d.to_screen(feet), "head": _map3d.to_screen(_map3d.head_of(feet)),
+			"tile": _map3d.px_per_unit()}
+	var head := c.y + TILE * FEET - TILE * SPRITE_HEIGHT * 50.0 / FRAME.y
+	if Art.sprite_sheet(u.data.id) == null:
+		head = c.y - TILE * 0.36
+	return {"feet": c + Vector2(0, TILE * FEET), "head": Vector2(c.x, head), "tile": float(TILE)}
+
+
+func _draw_unit_hud(ci: CanvasItem, u: Unit) -> void:
+	var an := _hud_anchor(u)
+	var tile: float = an.tile
+	var feet: Vector2 = an.feet
+	var w := tile * 0.7
+	var bar := Rect2(feet + Vector2(-w / 2, tile * 0.17), Vector2(w, 7))
 	ci.draw_rect(bar.grow(1), Color(0, 0, 0, 0.7))
 	var frac := float(u.hp) / u.max_hp()
 	var hp_col := Color("5ad65a") if frac > 0.5 else (Color("e8c440") if frac > 0.25 else Color("e04a3a"))
 	ci.draw_rect(Rect2(bar.position, Vector2(w * frac, 7)), hp_col)
-	var star := TILE * 0.3
+	var star := tile * 0.3
 	if u.is_leader:
 		_draw_icon(ci, "leader", Rect2(bar.position + Vector2(-star - 2, 3.5 - star / 2), Vector2(star, star)))
 	var icon := head_icon(u)
 	if icon != "":
-		var s := maxf(24.0, TILE * 0.4)
-		var head_top := c.y + TILE * FEET - TILE * SPRITE_HEIGHT * 50.0 / FRAME.y
-		if Art.sprite_sheet(u.data.id) == null:
-			head_top = c.y - TILE * 0.36
-		_draw_icon(ci, icon, Rect2(c.x - s / 2, head_top - s + 2, s, s))
+		var s := maxf(24.0, tile * 0.4)
+		var head: Vector2 = an.head
+		_draw_icon(ci, icon, Rect2(head.x - s / 2, head.y - s + 2, s, s))
 
 
 ## One bubble per unit, most important first (doc/03 step 15):
@@ -708,10 +771,31 @@ func _sync_positions() -> void:
 # --- side panel --------------------------------------------------------------
 
 ## Picks a tile size that fits the map, then places the side panel and banner.
+## True when the map is drawn in 3D.
+func is_3d() -> bool:
+	return _map3d != null and _map3d.visible
+
+
+func _setup_view() -> void:
+	var mode := view_mode if view_mode >= 0 else Settings.battle_view
+	var want := mode == Settings.View.THREE_D and (view_mode == 0 or DisplayServer.get_name() != "headless")
+	if want and _map3d == null:
+		_map3d = Map3D.new()
+		_map3d.screen = self
+		add_child(_map3d)
+		move_child(_map3d, 0)   # under the unit / overlay layers and the side panel
+	if _map3d != null:
+		_map3d.visible = want
+		if want:
+			_map3d.position = MAP_ORIGIN - Vector2(0, 60)
+			_map3d.size = MAP_AREA + Vector2(0, 60)
+			_map3d.build(state)
+
+
 func _layout() -> void:
 	var sz := state.map.size
 	TILE = mini(MAX_TILE, floori(minf(MAP_AREA.x / sz.x, MAP_AREA.y / sz.y)))
-	var map_px := Vector2(sz) * TILE
+	var map_px := Vector2(sz) * TILE if not is_3d() else MAP_AREA
 	var x := MAP_ORIGIN.x + map_px.x + 50
 	var w := 1920 - x - 50
 	for c in [_help_label, _log, _speech]:   # shrink children first, or the panel can't shrink
@@ -879,7 +963,8 @@ func _update_panel() -> void:
 	if state.outcome() != BattleState.Outcome.ONGOING:
 		_help_label.text = "Battle over. Press Continue (Enter)."
 	elif mine:
-		_help_label.text = "Click a blue tile to move, then a red-outlined enemy to attack (or arrows/D-pad + Space/A). Hover an enemy for the forecast. W/B = wait."
+		_help_label.text = "Click a blue tile to move, then a red-outlined enemy to attack (or arrows/D-pad + Space/A). Hover an enemy for the forecast. W/B = wait." \
+			+ ("  Q/E rotate · Z or wheel zoom · T top-down." if is_3d() else "")
 	else:
 		_help_label.text = "Enemy is moving…"
 

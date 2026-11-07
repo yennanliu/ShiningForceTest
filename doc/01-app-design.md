@@ -109,7 +109,8 @@ stateDiagram-v2
 | Cancel / back | Esc / right click | B |
 | Skip a battle close-up | Click / Space / Enter / Esc | A / Start |
 | Rotate camera | Q / E | LB / RB |
-| Zoom | Mouse wheel | Right stick |
+| Zoom | Mouse wheel / Z | Right stick click |
+| Top-down view | T | Back |
 | Menu | Tab | Start |
 
 ### 6. Scope and non-goals

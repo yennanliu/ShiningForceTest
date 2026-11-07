@@ -666,28 +666,38 @@ The owner asked for three things the reference genre does well (screenshots shar
 
 **Tasks**
 
-- [ ] **`view/battle3d/`** (`game-developer`):
-    - Map mesh from `MapData` heights and terrain, with tile textures (`game-artist`)
-    - Units as `Sprite3D` billboards with the step 15 sheets; facing is relative to the camera
-    - Ground shadow disc plus faction ring, as in the reference genre's dark shadows, but in our colors
-- [ ] **Camera:** 4 rotations (Q/E, LB/RB), 3 zoom levels, wall fade when a unit is hidden, top-down toggle ([01 §5](01-app-design.md#5-screens-and-controls))
-- [ ] **HUD reuse:** unit panel, forecast, dialogue box (step 14) and cut-in scene (step 16) work unchanged on top of the 3D view
-- [ ] **Settings → Battle view:** *3D* / *2D*. The 2D view stays as a fallback for low-end machines and tests
+- [x] **[`view/battle3d/map3d.gd`](../view/battle3d/map3d.gd)** (`game-developer`). `Map3D` is a renderer only: the battle screen still owns input, HUD and event playback, and the 3D view reads the same positions, facings and poses it animates:
+    - Map: one box per tile, with height you can see (hills 0.5 per level, walls 1.6, water a little low) and 32×32 pixel-art tops (`assets/textures/tiles/`, from `tools/make_art.py`, `game-artist`). A faint checker marks the grid; forests get small trees; chests are boxes
+    - Units are `Sprite3D` billboards using the step 15 sheets. Facing is turned to match the camera (`screen_facing`)
+    - Under each unit: a dark shadow disc plus the doc/05 faction base (light ring for players, dark diamond for enemies). The acting unit gets a gold ring. Move range, targets and the cursor are tinted tiles
+    - HP bars, head icons, the leader star and popups are drawn over the 3D view at each unit's projected screen position (`_hud_anchor`, `_px_to_screen`)
+- [x] **Camera:** orthographic, 35° down:
+    - 4 rotations (Q/E, LB/RB)
+    - 3 zoom levels (Z, mouse wheel, right-stick click). Zoom centers on the cursor
+    - Wall fade: any tile between a unit and the camera turns see-through, checked from each unit's feet, middle and head
+    - Top-down toggle (T, Back). It lines up with the grid like the 2D view, and sprites face the camera fully
+    - The camera fits the whole map at every angle; arrow keys turn with the camera; mouse clicks pick the tile under the cursor
+- [x] **HUD reuse:** unit panel, forecast, dialogue box (step 14) and cut-in scene (step 16) work unchanged on top of the 3D view. The help line adds the camera keys
+- [x] **Settings → Battle view:** *3D* (default) / *2D*. The 2D view stays as a fallback for low-end machines and tests: headless runs always draw 2D unless a test forces 3D (`view_mode`)
+- [x] `tools/screenshot.gd`: `--view=2d|3d`, `--yaw=0..3`, `--zoom=0..2`, `--top-down`, `--report-hidden`
+
+![Chapter 1 in 3D](images/step17_ch1.png) ![Chapter 2, camera turned twice](images/step17_ch2_rotated.png)
+![Chapter 3: the wall in front of the chief fades](images/step17_ch3_fade.png) ![Top-down toggle](images/step17_topdown.png)
 
 **Validation**
 
 | Check | Pass when | Result |
 | --- | --- | --- |
-| Same battle | The same scripted battles play identically in 2D, 3D and text views (as planned in *After the slice*) | |
-| No hidden units | At all 4 angles, every unit is visible or outlined on all 3 maps (screenshots) | |
-| Performance | ≥ 60 fps at 1080p on Apple M1 / Intel Iris Xe class, Compatibility renderer | |
+| Same battle | The same scripted battles play identically in 2D, 3D and text views (as planned in *After the slice*) | ✅ `test_same_battle_in_2d_3d_and_text`: on all 3 chapters, the same seed played through the 3D screen and the 2D screen gives identical commands and final snapshots, and the headless replay of those commands (the text view's engine) matches too |
+| No hidden units | At all 4 angles, every unit is visible or outlined on all 3 maps (screenshots) | ✅ `test_no_unit_is_hidden_at_any_angle_on_any_map` (4 angles × angled/top-down × 3 maps) and the same check on the GPU: `--report-hidden` printed `hidden units: []` for all 12 map/angle pairs; chapter 3 fades 1–3 wall tiles at 3 of the 4 angles |
+| Performance | ≥ 60 fps at 1080p on Apple M1 / Intel Iris Xe class, Compatibility renderer | ✅ 110 fps (vsync 120) on Apple M4, Compatibility renderer, 1920×1080 canvas in the 1280×720 window. ⏳ an M1 / Iris Xe machine and a full-screen 1080p run are still to do (owner) |
 | Look (human) | Owner approves the 3D look against doc/05 | ⏳ owner |
 
 ## After the slice
 
 | Phase | Months | Engineering focus | Exit validation |
 | --- | --- | --- | --- |
-| 3D view | after the slice | Now planned as [step 17](#step-17--3d-isometric-battle-map-with-sprite-billboards-image-a-full) | Same scripted battles play identically in every view |
+| 3D view | after the slice | Done in [step 17](#step-17--3d-isometric-battle-map-with-sprite-billboards-image-a-full) | ✅ Same scripted battles play identically in every view |
 | Production | 9–18 | Content tools, hard mode, remaining spells/items/classes, localization pipeline | All 12 chapters playable start to finish in CI (campaign e2e over every chapter) |
 | Alpha / beta | 19–22 | Bug fixing, performance, save migration tests for every released version | Crash-free ≥ 99.5%, 0 open save bugs |
 | Launch | 23–24 | Store builds, day-1 patch pipeline | Signed builds pass store review |
@@ -717,4 +727,4 @@ Each step becomes a GitHub milestone. Each task is an issue labeled with its ste
 | 14 Portrait dialogue | game-ui-ux-designer, game-developer | 2026-11-07 | ✅ Done (playtest ⏳ owner) |
 | 15 Map sprites + head icons | game-2d-3d-artist, game-developer | 2026-11-07 | ✅ Done (glance test + look ⏳ owner) |
 | 16 Battle cut-in scene | game-developer, game-ui-ux-designer, game-artist | 2026-11-07 | ✅ Done (playtests ⏳ owner) |
-| 17 3D isometric map | game-developer, game-artist | — | ⬜ Next (final art ⏳ artist) |
+| 17 3D isometric map | game-developer, game-artist | 2026-11-07 | ✅ Done (min-spec fps + look ⏳ owner; final art ⏳ artist) |
