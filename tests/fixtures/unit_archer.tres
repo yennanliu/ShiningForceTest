@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_dif3t"]
+[ext_resource type="Resource" path="res://tests/fixtures/class_archer.tres" id="2_udgr3"]
+[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="3_n736q"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="4_wauci"]
+[ext_resource type="Resource" path="res://tests/fixtures/item_wooden_bow.tres" id="5_4lhmu"]
+
+[sub_resource type="Resource" id="Resource_glr8t"]
+script = ExtResource("1_dif3t")
+hp = 16
+atk = 9
+def = 4
+agi = 7
+luk = 5
+
+[resource]
+script = ExtResource("3_n736q")
+id = &"archer"
+display_name = "Archer"
+class_data = ExtResource("2_udgr3")
+base_stats = SubResource("Resource_glr8t")
+starting_items = Array[ExtResource("4_wauci")]([ExtResource("5_4lhmu")])

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TerrainData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/terrain_data.gd" id="1_416ro"]
+
+[resource]
+script = ExtResource("1_416ro")
+id = &"hill"
+land_effect = 0.3
+move_cost = PackedInt32Array(2, 3, 2, 1, 3)

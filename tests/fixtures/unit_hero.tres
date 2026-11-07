@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_3b2y6"]
+[ext_resource type="Resource" path="res://tests/fixtures/class_swordsman.tres" id="2_e1wov"]
+[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="3_2tffu"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="4_ei35w"]
+[ext_resource type="Resource" path="res://tests/fixtures/item_bronze_sword.tres" id="5_pl1rj"]
+[ext_resource type="Resource" path="res://tests/fixtures/item_herb.tres" id="6_861vu"]
+
+[sub_resource type="Resource" id="Resource_olqxp"]
+script = ExtResource("1_3b2y6")
+hp = 20
+atk = 10
+def = 6
+agi = 8
+luk = 5
+
+[resource]
+script = ExtResource("3_2tffu")
+id = &"hero"
+display_name = "Hero"
+class_data = ExtResource("2_e1wov")
+base_stats = SubResource("Resource_olqxp")
+starting_items = Array[ExtResource("4_ei35w")]([ExtResource("5_pl1rj"), ExtResource("6_861vu")])

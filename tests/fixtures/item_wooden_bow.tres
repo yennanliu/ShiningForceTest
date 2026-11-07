@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_47xn7"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="2_sp7uj"]
+
+[sub_resource type="Resource" id="Resource_5yety"]
+script = ExtResource("1_47xn7")
+atk = 4
+
+[resource]
+script = ExtResource("2_sp7uj")
+id = &"wooden_bow"
+display_name = "Wooden Bow"
+kind = 0
+weapon_type = 4
+bonus = SubResource("Resource_5yety")
+attack_range = Vector2i(2, 3)
+price = 120

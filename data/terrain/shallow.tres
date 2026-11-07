@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="TerrainData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/terrain_data.gd" id="1_ne22l"]
+
+[resource]
+script = ExtResource("1_ne22l")
+id = &"shallow"
+move_cost = PackedInt32Array(3, -1, -1, 1, 1)

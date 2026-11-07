@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="1_fss3j"]
+
+[resource]
+script = ExtResource("1_fss3j")
+id = &"herb"
+display_name = "Herb"
+heal_amount = 10
+price = 10

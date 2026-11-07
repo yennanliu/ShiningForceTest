@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="ClassData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_5augb"]
+[ext_resource type="Script" path="res://data/defs/class_data.gd" id="2_nwa4v"]
+[ext_resource type="Script" path="res://data/defs/spell_data.gd" id="3_gef8k"]
+
+[sub_resource type="Resource" id="Resource_kvdcs"]
+script = ExtResource("1_5augb")
+hp = 25
+atk = 22
+def = 12
+agi = 16
+luk = 12
+
+[resource]
+script = ExtResource("2_nwa4v")
+id = &"archer"
+display_name = "Archer"
+weapon_types = Array[int]([4])
+growth = SubResource("Resource_kvdcs")

@@ -65,6 +65,7 @@ func _initialize() -> void:
 					print("        %s" % p)
 
 	print("\n%d passed, %d failed (%d ms)" % [passed, failed, Time.get_ticks_msec() - t0])
+	OS.remove_logger(_errors)
 	quit(1 if failed > 0 else 0)
 
 
