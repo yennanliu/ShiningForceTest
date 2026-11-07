@@ -7,8 +7,9 @@ FROM ubuntu:24.04 AS base
 ARG GODOT_VERSION=4.7.2-stable
 ARG TARGETARCH
 RUN apt-get update \
- && apt-get install -y --no-install-recommends ca-certificates curl unzip libfontconfig1 \
- && rm -rf /var/lib/apt/lists/*
+ && apt-get install -y --no-install-recommends ca-certificates curl unzip libfontconfig1 python3 git \
+ && rm -rf /var/lib/apt/lists/* \
+ && git config --global --add safe.directory /project
 RUN set -eux; \
     case "$TARGETARCH" in arm64) A=arm64 ;; *) A=x86_64 ;; esac; \
     curl -fsSL -o /tmp/godot.zip "https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_linux.${A}.zip"; \

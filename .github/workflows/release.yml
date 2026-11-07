@@ -1,0 +1,42 @@
+# CD: push a tag like v0.2.0 to build every platform and publish a GitHub Release.
+#   git tag v0.2.0 && git push origin v0.2.0
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to release (e.g. v0.2.0)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.event.inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+      - name: Tests must pass before release
+        run: tools/docker.sh test
+      - name: Build all platforms
+        run: tools/docker.sh export-all
+      - name: Package
+        run: |
+          cd build
+          zip -q "Banner-${TAG}-windows.zip" Banner.exe
+          tar -czf "Banner-${TAG}-linux.tar.gz" Banner.x86_64
+          mv Banner-macos.zip "Banner-${TAG}-macos.zip"
+          ls -lh
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$TAG" build/Banner-${TAG}-* --title "Banner $TAG" --generate-notes \
+            --notes "Unsigned builds. macOS: right-click → Open the first time."

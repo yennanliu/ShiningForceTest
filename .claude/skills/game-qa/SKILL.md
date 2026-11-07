@@ -19,7 +19,13 @@ Nothing is "done" until you have evidence. You find problems before players do a
 | Architecture | `tools/check_layers.sh` | `layer check: OK` |
 | Same env as CI | `tools/docker.sh test` | same result as native |
 | Build boots | `tools/docker.sh export` | `export + smoke: OK` |
-| CI | `gh run list --limit 3` | latest `success` |
+| CI | `gh run list --limit 3` (workflows: `ci`, `release`, `nightly`) | latest `success` |
+| One test folder | `tools/test.sh --dir=core\|e2e\|view` | as above |
+| Env | `tools/check_env.sh` | Godot matches `.godot-version`, clean import |
+| Generated files | `tools/check_generated.sh` | no diff after re-running generators |
+| Scripted play | `tools/smoke_play.sh` | `smoke play: OK` |
+| Balance gate | `... battle_sim.gd -- --runs=300 --chapter=N --min=60 --max=90` | `balance check: OK` |
+| All platforms | `tools/docker.sh export-all` | `export-all: OK` |
 | Balance per map | `godot --headless --path . -s res://tools/battle_sim.gd -- --runs=300 --chapter=N` | 60–90% win, 0 unfinished |
 | Visuals | `godot --path . -s res://tools/screenshot.gd -- --screen=<title/camp/town/battle/results/settings> --chapter=N --out=/tmp/x.png` | nothing clipped/overlapping; read the PNG |
 | Performance | same + `--bench` | ≥ 60 fps |

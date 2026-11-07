@@ -1,26 +1,87 @@
+# CI: runs on every push to main and every pull request.
+# Every job uses the same pinned-Godot Docker image as local runs (Dockerfile, tools/docker.sh),
+# except env-macos, which checks the native macOS setup developers use.
 name: ci
 
 on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  test-and-build:
+  checks:
+    name: Checks (layers, env, generated files)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          lfs: true
+      - run: tools/docker.sh run tools/check_layers.sh
+      - run: tools/docker.sh run tools/check_env.sh
+      - run: tools/docker.sh run tools/check_generated.sh
 
-      # Same container as local runs: see Dockerfile and tools/docker.sh
-      - name: Layer check + tests
-        run: tools/docker.sh test
+  unit:
+    name: Unit tests (tests/core)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: tools/docker.sh run tools/test.sh --dir=core
 
-      - name: Export Linux + smoke test
-        run: tools/docker.sh export
+  e2e:
+    name: E2E tests (battles, campaign, saves, goldens, slice)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: tools/docker.sh run tools/test.sh --dir=e2e
 
+  view:
+    name: View tests + scripted play
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: tools/docker.sh run tools/test.sh --dir=view
+      - run: tools/docker.sh run tools/smoke_play.sh
+
+  balance:
+    name: Balance (chapter ${{ matrix.chapter }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        chapter: [1, 2, 3]
+    steps:
+      - uses: actions/checkout@v4
+      - name: AI-vs-AI win rate must stay in 60-90%
+        run: tools/docker.sh run "godot --headless --path . --import >/dev/null 2>&1; godot --headless --path . -s res://tools/battle_sim.gd -- --runs=300 --chapter=${{ matrix.chapter }} --min=60 --max=90"
+
+  env-macos:
+    name: Env test (native macOS)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Godot (version from .godot-version)
+        run: |
+          V=$(cat .godot-version)
+          curl -fsSL -o godot.zip "https://github.com/godotengine/godot-builds/releases/download/${V}/Godot_v${V}_macos.universal.zip"
+          unzip -q godot.zip
+          echo "GODOT=$PWD/Godot.app/Contents/MacOS/Godot" >> "$GITHUB_ENV"
+      - run: tools/check_env.sh
+      - run: tools/test.sh
+
+  build:
+    name: Build (Linux, Windows, macOS) + smoke
+    needs: [checks, unit, e2e, view, balance]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: tools/docker.sh export-all
       - uses: actions/upload-artifact@v4
         with:
-          name: banner-linux
-          path: build/Banner.x86_64
+          name: banner-builds
+          path: |
+            build/Banner.x86_64
+            build/Banner.exe
+            build/Banner-macos.zip

@@ -937,10 +937,10 @@ godot --headless --path . --export-release "Linux"   build/Banner.x86_64
 
 **Docker (recommended for tests and builds).** `Dockerfile` pins the Godot version from `.godot-version`. It has a `base` target (Godot only) and an `export` target (adds about 1 GB of export templates). `tools/docker.sh test|export|shell` runs tasks in it with no local Godot install. Playing and editing still use the native Godot app, because they need a GPU and a window.
 
-**CI (`.github/workflows/ci.yml`)**, on every push and pull request:
+**CI/CD** (all jobs use the Docker image except the native macOS env test):
 
-1. `tools/docker.sh test`: layer check + all tests in the container
-2. `tools/docker.sh export`: Linux export + smoke test in the container
-3. Upload the build as an artifact
-
-Windows and macOS exports are added at step 10.
+| Workflow | Jobs |
+| --- | --- |
+| `ci.yml` (push to main, PRs) | `checks`: `check_layers.sh`, `check_env.sh` (Godot = `.godot-version`, clean import), `check_generated.sh` (re-runs make_fixtures / make_content / make_golden / make_audio.py; fails on any diff) · `unit`: `test.sh --dir=core` · `e2e`: `test.sh --dir=e2e` · `view`: `test.sh --dir=view` + `smoke_play.sh` · `balance` (matrix ch1–3): `battle_sim.gd --runs=300 --min=60 --max=90` · `env-macos`: native Godot on macOS, env check + full suite · `build` (after all pass): `docker.sh export-all` → artifacts |
+| `release.yml` (tag `v*`) | tests → export-all → GitHub Release (zip/tar per platform) |
+| `nightly.yml` (daily + manual) | 1,000-run balance per chapter, full suite, generated check, smoke play, export-all |

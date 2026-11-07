@@ -1,6 +1,7 @@
 extends SceneTree
 ## Balance tool: AI plays both sides many times and reports stats.
-##   godot --headless --path . -s res://tools/battle_sim.gd -- --runs=200 [--chapter=1 | --map=res://...]
+##   godot --headless --path . -s res://tools/battle_sim.gd -- --runs=200 [--chapter=1 | --map=res://...] [--min=60 --max=90]
+## With --min/--max it exits 1 if the win rate is outside the range (used by CI).
 ## Without --map it uses the 8x8 test fixture and the fixture party.
 
 
@@ -13,9 +14,15 @@ func _initialize() -> void:
 		elif a.begins_with("--map="):
 			map_path = a.trim_prefix("--map=")
 	var chapter := 0
+	var min_rate := -1.0
+	var max_rate := 101.0
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--chapter="):
 			chapter = int(a.trim_prefix("--chapter="))
+		elif a.begins_with("--min="):
+			min_rate = float(a.trim_prefix("--min="))
+		elif a.begins_with("--max="):
+			max_rate = float(a.trim_prefix("--max="))
 	Content.register_dir("res://tests/fixtures/")
 	var map: MapData = load(map_path) if map_path != "" else load("res://tests/fixtures/map_8x8.tres")
 	var campaign: Campaign = null
@@ -61,4 +68,11 @@ func _initialize() -> void:
 	print("avg rounds:     %.1f" % (float(rounds) / runs))
 	print("avg deaths:     %.2f player units" % (float(player_deaths) / runs))
 	print("max AI think:   %.1f ms" % max_ai_ms)
+	var rate := 100.0 * wins / runs
+	if unfinished > 0 or rate < min_rate or rate > max_rate:
+		print("BALANCE CHECK FAILED: win rate %.0f%% (allowed %s-%s), unfinished %d" % [rate, min_rate, max_rate, unfinished])
+		quit(1)
+		return
+	if min_rate >= 0.0:
+		print("balance check: OK")
 	quit()

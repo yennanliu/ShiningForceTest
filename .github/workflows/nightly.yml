@@ -1,0 +1,30 @@
+# Nightly: longer balance runs and a full native macOS run, to catch slow drifts.
+# Also runnable by hand from the Actions tab.
+name: nightly
+
+on:
+  schedule:
+    - cron: "0 19 * * *"    # 03:00 Asia/Taipei
+  workflow_dispatch:
+
+jobs:
+  long-balance:
+    name: Long balance run (chapter ${{ matrix.chapter }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        chapter: [1, 2, 3]
+    steps:
+      - uses: actions/checkout@v4
+      - run: tools/docker.sh run "godot --headless --path . --import >/dev/null 2>&1; godot --headless --path . -s res://tools/battle_sim.gd -- --runs=1000 --chapter=${{ matrix.chapter }} --min=60 --max=90"
+
+  full-suite:
+    name: Full suite + builds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: tools/docker.sh test
+      - run: tools/docker.sh run tools/check_generated.sh
+      - run: tools/docker.sh run tools/smoke_play.sh
+      - run: tools/docker.sh export-all

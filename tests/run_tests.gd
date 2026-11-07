@@ -1,6 +1,6 @@
 extends SceneTree
 ## Minimal headless test runner (no dependencies).
-## Usage: tools/test.sh [filter]
+## Usage: tools/test.sh [filter] [--dir=core|e2e|view] [--filter=name]
 ## Finds every res://tests/**/test_*.gd, runs each test_* method,
 ## and counts engine/script errors raised during a test as failures.
 
@@ -25,12 +25,15 @@ class ErrorCounter extends Logger:
 func _initialize() -> void:
 	OS.add_logger(_errors)
 	var filter := ""
+	var dir := ""
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--filter="):
 			filter = arg.trim_prefix("--filter=")
+		elif arg.begins_with("--dir="):
+			dir = arg.trim_prefix("--dir=")
 
 	var files: Array[String] = []
-	_collect("res://tests", files)
+	_collect("res://tests" if dir == "" else "res://tests/" + dir, files)
 	files.sort()
 
 	var passed := 0

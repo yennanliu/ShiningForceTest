@@ -83,6 +83,16 @@ godot --headless --path . -s res://tools/play.gd       # or with Godot installed
 | Edit in the Godot editor | `godot --editor --path .` |
 | Regenerate content / audio | `godot --headless --path . -s res://tools/make_content.gd` · `python3 tools/make_audio.py` |
 
+## CI / CD
+
+| Workflow | When | What it runs |
+| --- | --- | --- |
+| [`ci`](.github/workflows/ci.yml) | Every push to `main`, every PR | **Checks** (layer rules, env = pinned Godot version + clean import, generated files up to date) · **Unit** (`tests/core`) · **E2E** (`tests/e2e`: whole battles, campaign, saves, goldens, slice content) · **View** tests + scripted text-mode play · **Balance** per chapter (AI-vs-AI win rate 60–90%) · **Env test on native macOS** · then **Build** Linux/Windows/macOS + smoke test, uploaded as artifacts |
+| [`release`](.github/workflows/release.yml) | Push a tag `v*` | Tests → build all platforms → GitHub Release with zips |
+| [`nightly`](.github/workflows/nightly.yml) | Daily 03:00 (Taipei) or by hand | 1,000-run balance per chapter, full suite, generated-files check, all builds |
+
+Run any CI job locally: `tools/docker.sh run tools/test.sh --dir=e2e`, `tools/docker.sh run tools/check_generated.sh`, `tools/docker.sh export-all`. Release: `git tag v0.2.0 && git push origin v0.2.0`.
+
 The Godot version is pinned in `.godot-version`. Docker, CI and native runs all use it.
 
 ![Vertical slice battle](doc/images/slice_battle.png)
