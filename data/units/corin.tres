@@ -21,3 +21,5 @@ display_name = "Corin"
 class_data = ExtResource("2_jaol4")
 base_stats = SubResource("Resource_twshn")
 starting_items = Array[ExtResource("4_scpks")]([ExtResource("5_jlsal")])
+bio = "A hunter's son with a bet on every shot. Talks too much in camp and not at all with an arrow on the string."
+look = "Short black spiky hair, dark brown eyes; moss-green tunic, quiver over the shoulder, a blue collar trim"

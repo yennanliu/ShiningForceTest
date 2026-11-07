@@ -22,3 +22,5 @@ display_name = "Hale"
 class_data = ExtResource("2_x114o")
 base_stats = SubResource("Resource_sb30v")
 starting_items = Array[ExtResource("4_omhw2")]([ExtResource("5_qcu5o"), ExtResource("6_0v8fs")])
+bio = "A tracker who followed the goblin chief's trail for a month before anyone believed him. Quiet, careful, finally heard."
+look = "Short flaxen hair, grey-blue eyes; slate tunic, ochre scarf, quiver over the shoulder"

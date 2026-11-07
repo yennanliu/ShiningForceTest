@@ -11,6 +11,7 @@ An original, single-player, isometric tactical RPG for desktop, built with Godot
 | 03 | [Implementation Plan](doc/03-implementation-plan.md) | 22 steps, with tasks and validation for each |
 | 04 | [Research & References](doc/04-research-and-references.md) | Genre reference analysis, IP guardrails, sources |
 | 05 | [Art Direction](doc/05-art-direction.md) | Style, palette, characters, portraits, asset specs |
+| 06 | [Art Brief](doc/06-art-brief.md) | Portrait commission: characters, moods, specs, rights |
 
 Start with the [doc index](doc/README.md).
 
@@ -89,7 +90,7 @@ godot --headless --path . -s res://tools/play.gd       # or with Godot installed
 | Build the Linux app | `tools/docker.sh export` |
 | Balance report (AI vs AI) | `godot --headless --path . -s res://tools/battle_sim.gd -- --runs=200` |
 | Edit in the Godot editor | `godot --editor --path .` |
-| Regenerate content / audio / art / UI theme | `godot --headless --path . -s res://tools/make_content.gd` · `python3 tools/make_audio.py` · `python3 tools/make_art.py` · `godot --headless --path . -s res://tools/make_theme.gd` |
+| Regenerate content / audio / art / UI theme | `godot --headless --path . -s res://tools/make_content.gd` · `python3 tools/make_audio.py` · `python3 tools/make_art.py` · `python3 tools/make_portraits.py` + `godot --headless --path . -s res://tools/render_portraits.gd` · `godot --headless --path . -s res://tools/make_theme.gd` |
 | UI snapshots (needs a window) | `tools/ui_snapshots.sh` (compare) · `tools/ui_snapshots.sh --update` (accept a new look) |
 
 ## CI / CD

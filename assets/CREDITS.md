@@ -14,6 +14,7 @@ No file is ripped, traced or extracted from another game.
 | `ui/*.png`, `ui/banner_theme.tres` | UI kit: Banner frame 9-slices, buttons, pennant (`tools/make_art.py`) and the theme (`tools/make_theme.gd`) | Project Banner (generated) | Project-owned |
 | `fonts/Cinzel-Variable.ttf` | Cinzel, display font | The Cinzel Project Authors (github.com/NDISCOVER/Cinzel) | SIL Open Font License 1.1, `fonts/Cinzel-OFL.txt` |
 | `fonts/Inter-Variable.ttf` | Inter, body font | The Inter Project Authors (github.com/rsms/inter) | SIL Open Font License 1.1, `fonts/Inter-OFL.txt` |
-| `textures/portraits/*.png` | Placeholder dialogue portraits (64×64 pixel art at ×4), drawn by `tools/make_art.py` from doc/05 | Project Banner (generated) | Project-owned |
+| `textures/portraits/*.png`, `art_src/portraits/*.svg` | Placeholder portraits v2: illustrated busts, 15 speakers × 5 moods, built by `tools/make_portraits.py`, rendered by `tools/render_portraits.gd` | Project Banner (generated) | Project-owned |
+| `textures/icons/item_*.png` | Placeholder item icons (24×24), drawn by `tools/make_art.py` | Project Banner (generated) | Project-owned |
 
 When final art replaces a placeholder, keep the file name and size and replace its row with the artist's name and license.

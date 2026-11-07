@@ -31,6 +31,11 @@ static func battle_sheet(id: StringName) -> Texture2D:
 	return _load(BATTLE % id)
 
 
+## 24x24 item icon. Null if none.
+static func item_icon(id: StringName) -> Texture2D:
+	return _load("res://assets/textures/icons/item_%s.png" % id)
+
+
 ## Head icon bubble (poison, sleep, adv, bond) or the leader star. Null if none.
 static func head_icon(name: String) -> Texture2D:
 	return _load(ICONS % name)

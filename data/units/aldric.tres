@@ -22,3 +22,5 @@ display_name = "Aldric"
 class_data = ExtResource("2_kvcll")
 base_stats = SubResource("Resource_y23io")
 starting_items = Array[ExtResource("4_bg0rm")]([ExtResource("5_sn714"), ExtResource("6_8fk3f")])
+bio = "Captain of a small border watch who took the job no one else wanted. Plans for the worst, hopes for the best, never leaves a soldier behind."
+look = "Brown hair swept back, steel-blue eyes, a small scar on the left cheek; slate tunic, blue cape collar, sword at the hip"

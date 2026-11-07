@@ -12,7 +12,7 @@
 [ext_resource type="Texture2D" path="res://assets/ui/button_primary_hover.png" id="10_evukl"]
 [ext_resource type="Texture2D" path="res://assets/ui/button_primary.png" id="11_sfglu"]
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_rqwcr"]
+[sub_resource type="StyleBoxTexture" id="sb_BannerCard_panel"]
 content_margin_left = 16.0
 content_margin_top = 16.0
 content_margin_right = 16.0
@@ -23,7 +23,7 @@ texture_margin_top = 12.0
 texture_margin_right = 12.0
 texture_margin_bottom = 12.0
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_q33ll"]
+[sub_resource type="StyleBoxTexture" id="sb_BannerChip_panel"]
 content_margin_left = 14.0
 content_margin_top = 5.0
 content_margin_right = 14.0
@@ -34,13 +34,13 @@ texture_margin_top = 9.0
 texture_margin_right = 9.0
 texture_margin_bottom = 9.0
 
-[sub_resource type="FontVariation" id="FontVariation_pldif"]
+[sub_resource type="FontVariation" id="font_MenuButton_font"]
 base_font = ExtResource("3_vdb52")
 variation_opentype = {
 2003265652: 650
 }
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_b1wnb"]
+[sub_resource type="StyleBoxTexture" id="sb_Button_disabled"]
 content_margin_left = 16.0
 content_margin_top = 8.0
 content_margin_right = 16.0
@@ -51,7 +51,7 @@ texture_margin_top = 9.0
 texture_margin_right = 9.0
 texture_margin_bottom = 9.0
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yn0s7"]
+[sub_resource type="StyleBoxFlat" id="sb_Button_focus"]
 draw_center = false
 border_width_left = 3
 border_width_top = 3
@@ -67,7 +67,7 @@ expand_margin_top = 4.0
 expand_margin_right = 4.0
 expand_margin_bottom = 4.0
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_kcfx7"]
+[sub_resource type="StyleBoxTexture" id="sb_Button_hover"]
 content_margin_left = 16.0
 content_margin_top = 8.0
 content_margin_right = 16.0
@@ -78,7 +78,7 @@ texture_margin_top = 9.0
 texture_margin_right = 9.0
 texture_margin_bottom = 9.0
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_1kw5q"]
+[sub_resource type="StyleBoxTexture" id="sb_Button_hover_pressed"]
 content_margin_left = 16.0
 content_margin_top = 8.0
 content_margin_right = 16.0
@@ -89,7 +89,7 @@ texture_margin_top = 9.0
 texture_margin_right = 9.0
 texture_margin_bottom = 9.0
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fqh6n"]
+[sub_resource type="StyleBoxTexture" id="sb_Button_normal"]
 content_margin_left = 16.0
 content_margin_top = 8.0
 content_margin_right = 16.0
@@ -100,7 +100,7 @@ texture_margin_top = 9.0
 texture_margin_right = 9.0
 texture_margin_bottom = 9.0
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_60ul4"]
+[sub_resource type="StyleBoxTexture" id="sb_Button_pressed"]
 content_margin_left = 16.0
 content_margin_top = 8.0
 content_margin_right = 16.0
@@ -111,7 +111,7 @@ texture_margin_top = 9.0
 texture_margin_right = 9.0
 texture_margin_bottom = 9.0
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_77imu"]
+[sub_resource type="StyleBoxFlat" id="sb_CheckBox_focus"]
 draw_center = false
 border_width_left = 3
 border_width_top = 3
@@ -127,37 +127,37 @@ expand_margin_top = 4.0
 expand_margin_right = 4.0
 expand_margin_bottom = 4.0
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_44rs2"]
+[sub_resource type="StyleBoxEmpty" id="sb_CheckBox_hover"]
 content_margin_left = 8.0
 content_margin_top = 6.0
 content_margin_right = 8.0
 content_margin_bottom = 6.0
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_f6d48"]
+[sub_resource type="StyleBoxEmpty" id="sb_CheckBox_hover_pressed"]
 content_margin_left = 8.0
 content_margin_top = 6.0
 content_margin_right = 8.0
 content_margin_bottom = 6.0
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_dop8x"]
+[sub_resource type="StyleBoxEmpty" id="sb_CheckBox_normal"]
 content_margin_left = 8.0
 content_margin_top = 6.0
 content_margin_right = 8.0
 content_margin_bottom = 6.0
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3yt2o"]
+[sub_resource type="StyleBoxEmpty" id="sb_CheckBox_pressed"]
 content_margin_left = 8.0
 content_margin_top = 6.0
 content_margin_right = 8.0
 content_margin_bottom = 6.0
 
-[sub_resource type="FontVariation" id="FontVariation_j2lri"]
+[sub_resource type="FontVariation" id="font_PrimaryButton_font"]
 base_font = ExtResource("8_wv1iq")
 variation_opentype = {
 2003265652: 700
 }
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vx37n"]
+[sub_resource type="StyleBoxFlat" id="sb_HSlider_focus"]
 draw_center = false
 border_width_left = 3
 border_width_top = 3
@@ -173,7 +173,7 @@ expand_margin_top = 4.0
 expand_margin_right = 4.0
 expand_margin_bottom = 4.0
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gjll3"]
+[sub_resource type="StyleBoxFlat" id="sb_HSlider_grabber_area"]
 content_margin_top = 5.0
 content_margin_bottom = 5.0
 bg_color = Color(0.8862745, 0.8039216, 0.5568628, 1)
@@ -182,7 +182,7 @@ corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1gifx"]
+[sub_resource type="StyleBoxFlat" id="sb_HSlider_grabber_area_highlight"]
 content_margin_top = 5.0
 content_margin_bottom = 5.0
 bg_color = Color(1, 0.827451, 0.2901961, 1)
@@ -191,7 +191,7 @@ corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ayuyc"]
+[sub_resource type="StyleBoxFlat" id="sb_HSlider_slider"]
 content_margin_top = 5.0
 content_margin_bottom = 5.0
 bg_color = Color(0.16470589, 0.19607843, 0.3764706, 1)
@@ -200,28 +200,28 @@ corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mytck"]
+[sub_resource type="StyleBoxFlat" id="sb_HpHigh_fill"]
 bg_color = Color(0.3529412, 0.8392157, 0.3529412, 1)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6lm01"]
+[sub_resource type="StyleBoxFlat" id="sb_HpLow_fill"]
 bg_color = Color(0.8784314, 0.2901961, 0.22745098, 1)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_orwij"]
+[sub_resource type="StyleBoxFlat" id="sb_HpMid_fill"]
 bg_color = Color(0.9098039, 0.76862746, 0.2509804, 1)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_v5d7r"]
+[sub_resource type="StyleBoxTexture" id="sb_MenuButton_disabled"]
 content_margin_left = 16.0
 content_margin_top = 8.0
 content_margin_right = 16.0
@@ -232,7 +232,7 @@ texture_margin_top = 9.0
 texture_margin_right = 9.0
 texture_margin_bottom = 9.0
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_itjgn"]
+[sub_resource type="StyleBoxFlat" id="sb_MenuButton_focus"]
 draw_center = false
 border_width_left = 3
 border_width_top = 3
@@ -248,7 +248,7 @@ expand_margin_top = 4.0
 expand_margin_right = 4.0
 expand_margin_bottom = 4.0
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_hcfcy"]
+[sub_resource type="StyleBoxTexture" id="sb_MenuButton_hover"]
 content_margin_left = 16.0
 content_margin_top = 8.0
 content_margin_right = 16.0
@@ -259,7 +259,7 @@ texture_margin_top = 9.0
 texture_margin_right = 9.0
 texture_margin_bottom = 9.0
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_al18b"]
+[sub_resource type="StyleBoxTexture" id="sb_MenuButton_hover_pressed"]
 content_margin_left = 16.0
 content_margin_top = 8.0
 content_margin_right = 16.0
@@ -270,7 +270,7 @@ texture_margin_top = 9.0
 texture_margin_right = 9.0
 texture_margin_bottom = 9.0
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_h1frf"]
+[sub_resource type="StyleBoxTexture" id="sb_MenuButton_normal"]
 content_margin_left = 16.0
 content_margin_top = 8.0
 content_margin_right = 16.0
@@ -281,7 +281,7 @@ texture_margin_top = 9.0
 texture_margin_right = 9.0
 texture_margin_bottom = 9.0
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_tk5ea"]
+[sub_resource type="StyleBoxTexture" id="sb_MenuButton_pressed"]
 content_margin_left = 16.0
 content_margin_top = 8.0
 content_margin_right = 16.0
@@ -292,7 +292,7 @@ texture_margin_top = 9.0
 texture_margin_right = 9.0
 texture_margin_bottom = 9.0
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_go68i"]
+[sub_resource type="StyleBoxTexture" id="sb_OptionButton_disabled"]
 content_margin_left = 16.0
 content_margin_top = 8.0
 content_margin_right = 16.0
@@ -303,7 +303,7 @@ texture_margin_top = 9.0
 texture_margin_right = 9.0
 texture_margin_bottom = 9.0
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qfx3r"]
+[sub_resource type="StyleBoxFlat" id="sb_OptionButton_focus"]
 draw_center = false
 border_width_left = 3
 border_width_top = 3
@@ -319,7 +319,7 @@ expand_margin_top = 4.0
 expand_margin_right = 4.0
 expand_margin_bottom = 4.0
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_kjj5r"]
+[sub_resource type="StyleBoxTexture" id="sb_OptionButton_hover"]
 content_margin_left = 16.0
 content_margin_top = 8.0
 content_margin_right = 16.0
@@ -330,7 +330,7 @@ texture_margin_top = 9.0
 texture_margin_right = 9.0
 texture_margin_bottom = 9.0
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_vei55"]
+[sub_resource type="StyleBoxTexture" id="sb_OptionButton_hover_pressed"]
 content_margin_left = 16.0
 content_margin_top = 8.0
 content_margin_right = 16.0
@@ -341,7 +341,7 @@ texture_margin_top = 9.0
 texture_margin_right = 9.0
 texture_margin_bottom = 9.0
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_r61uy"]
+[sub_resource type="StyleBoxTexture" id="sb_OptionButton_normal"]
 content_margin_left = 16.0
 content_margin_top = 8.0
 content_margin_right = 16.0
@@ -352,7 +352,7 @@ texture_margin_top = 9.0
 texture_margin_right = 9.0
 texture_margin_bottom = 9.0
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_gjji4"]
+[sub_resource type="StyleBoxTexture" id="sb_OptionButton_pressed"]
 content_margin_left = 16.0
 content_margin_top = 8.0
 content_margin_right = 16.0
@@ -363,7 +363,7 @@ texture_margin_top = 9.0
 texture_margin_right = 9.0
 texture_margin_bottom = 9.0
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_oe2fm"]
+[sub_resource type="StyleBoxTexture" id="sb_Panel_panel"]
 content_margin_left = 22.0
 content_margin_top = 22.0
 content_margin_right = 22.0
@@ -374,7 +374,7 @@ texture_margin_top = 12.0
 texture_margin_right = 12.0
 texture_margin_bottom = 12.0
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fwhlv"]
+[sub_resource type="StyleBoxTexture" id="sb_PanelContainer_panel"]
 content_margin_left = 22.0
 content_margin_top = 22.0
 content_margin_right = 22.0
@@ -385,7 +385,7 @@ texture_margin_top = 12.0
 texture_margin_right = 12.0
 texture_margin_bottom = 12.0
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_s47if"]
+[sub_resource type="StyleBoxTexture" id="sb_PlateCard_panel"]
 content_margin_left = 30.0
 content_margin_top = 16.0
 content_margin_right = 16.0
@@ -396,14 +396,14 @@ texture_margin_top = 12.0
 texture_margin_right = 12.0
 texture_margin_bottom = 12.0
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gkyi5"]
+[sub_resource type="StyleBoxFlat" id="sb_PopupMenu_hover"]
 bg_color = Color(0.1764706, 0.27058825, 0.627451, 1)
 corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_s1w2i"]
+[sub_resource type="StyleBoxTexture" id="sb_PopupMenu_panel"]
 content_margin_left = 10.0
 content_margin_top = 10.0
 content_margin_right = 10.0
@@ -414,7 +414,7 @@ texture_margin_top = 12.0
 texture_margin_right = 12.0
 texture_margin_bottom = 12.0
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_npc55"]
+[sub_resource type="StyleBoxTexture" id="sb_PortraitFrame_panel"]
 content_margin_left = 7.0
 content_margin_top = 7.0
 content_margin_right = 7.0
@@ -425,7 +425,7 @@ texture_margin_top = 12.0
 texture_margin_right = 12.0
 texture_margin_bottom = 12.0
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ypapc"]
+[sub_resource type="StyleBoxFlat" id="sb_PrimaryButton_focus"]
 draw_center = false
 border_width_left = 3
 border_width_top = 3
@@ -441,7 +441,7 @@ expand_margin_top = 4.0
 expand_margin_right = 4.0
 expand_margin_bottom = 4.0
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_6ktjv"]
+[sub_resource type="StyleBoxTexture" id="sb_PrimaryButton_hover"]
 content_margin_left = 18.0
 content_margin_top = 10.0
 content_margin_right = 18.0
@@ -452,7 +452,7 @@ texture_margin_top = 9.0
 texture_margin_right = 9.0
 texture_margin_bottom = 9.0
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_lrypt"]
+[sub_resource type="StyleBoxTexture" id="sb_PrimaryButton_normal"]
 content_margin_left = 18.0
 content_margin_top = 10.0
 content_margin_right = 18.0
@@ -463,7 +463,7 @@ texture_margin_top = 9.0
 texture_margin_right = 9.0
 texture_margin_bottom = 9.0
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_nyss6"]
+[sub_resource type="StyleBoxTexture" id="sb_PrimaryButton_pressed"]
 content_margin_left = 18.0
 content_margin_top = 10.0
 content_margin_right = 18.0
@@ -474,21 +474,21 @@ texture_margin_top = 9.0
 texture_margin_right = 9.0
 texture_margin_bottom = 9.0
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_a835i"]
+[sub_resource type="StyleBoxFlat" id="sb_ProgressBar_background"]
 bg_color = Color(0.04, 0.07, 0.19, 0.9)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bkat1"]
+[sub_resource type="StyleBoxFlat" id="sb_ProgressBar_fill"]
 bg_color = Color(0.3529412, 0.8392157, 0.3529412, 1)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_xdmi1"]
+[sub_resource type="StyleBoxTexture" id="sb_TooltipPanel_panel"]
 content_margin_left = 12.0
 content_margin_top = 6.0
 content_margin_right = 12.0
@@ -499,79 +499,79 @@ texture_margin_top = 9.0
 texture_margin_right = 9.0
 texture_margin_bottom = 9.0
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_37poa"]
+[sub_resource type="StyleBoxFlat" id="sb_VScrollBar_grabber"]
 bg_color = Color(0.7090196, 0.6431373, 0.4454902, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3k2gr"]
+[sub_resource type="StyleBoxFlat" id="sb_VScrollBar_grabber_highlight"]
 bg_color = Color(0.8862745, 0.8039216, 0.5568628, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gyg64"]
+[sub_resource type="StyleBoxFlat" id="sb_VScrollBar_scroll"]
 bg_color = Color(0, 0, 0, 0.3)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8ka1k"]
+[sub_resource type="StyleBoxFlat" id="sb_XpBar_fill"]
 bg_color = Color(0.49803922, 0.63529414, 1, 1)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
-[sub_resource type="FontVariation" id="FontVariation_vnf76"]
+[sub_resource type="FontVariation" id="font_default"]
 base_font = ExtResource("3_vdb52")
 variation_opentype = {
 2003265652: 500
 }
 
 [resource]
-default_font = SubResource("FontVariation_vnf76")
+default_font = SubResource("font_default")
 default_font_size = 24
 BannerCard/base_type = &"PanelContainer"
-BannerCard/styles/panel = SubResource("StyleBoxTexture_rqwcr")
+BannerCard/styles/panel = SubResource("sb_BannerCard_panel")
 BannerChip/base_type = &"PanelContainer"
-BannerChip/styles/panel = SubResource("StyleBoxTexture_q33ll")
+BannerChip/styles/panel = SubResource("sb_BannerChip_panel")
 Button/colors/font_color = Color(0.9529412, 0.9254902, 0.84705883, 1)
 Button/colors/font_disabled_color = Color(1, 1, 1, 0.32)
 Button/colors/font_focus_color = Color(0.9529412, 0.9254902, 0.84705883, 1)
 Button/colors/font_hover_color = Color(1, 0.827451, 0.2901961, 1)
 Button/colors/font_hover_pressed_color = Color(1, 0.94509804, 0.76862746, 1)
 Button/colors/font_pressed_color = Color(1, 0.94509804, 0.76862746, 1)
-Button/fonts/font = SubResource("FontVariation_pldif")
-Button/styles/disabled = SubResource("StyleBoxTexture_b1wnb")
-Button/styles/focus = SubResource("StyleBoxFlat_yn0s7")
-Button/styles/hover = SubResource("StyleBoxTexture_kcfx7")
-Button/styles/hover_pressed = SubResource("StyleBoxTexture_1kw5q")
-Button/styles/normal = SubResource("StyleBoxTexture_fqh6n")
-Button/styles/pressed = SubResource("StyleBoxTexture_60ul4")
+Button/fonts/font = SubResource("font_MenuButton_font")
+Button/styles/disabled = SubResource("sb_Button_disabled")
+Button/styles/focus = SubResource("sb_Button_focus")
+Button/styles/hover = SubResource("sb_Button_hover")
+Button/styles/hover_pressed = SubResource("sb_Button_hover_pressed")
+Button/styles/normal = SubResource("sb_Button_normal")
+Button/styles/pressed = SubResource("sb_Button_pressed")
 CheckBox/colors/font_hover_color = Color(1, 0.827451, 0.2901961, 1)
-CheckBox/styles/focus = SubResource("StyleBoxFlat_77imu")
-CheckBox/styles/hover = SubResource("StyleBoxEmpty_44rs2")
-CheckBox/styles/hover_pressed = SubResource("StyleBoxEmpty_f6d48")
-CheckBox/styles/normal = SubResource("StyleBoxEmpty_dop8x")
-CheckBox/styles/pressed = SubResource("StyleBoxEmpty_3yt2o")
+CheckBox/styles/focus = SubResource("sb_CheckBox_focus")
+CheckBox/styles/hover = SubResource("sb_CheckBox_hover")
+CheckBox/styles/hover_pressed = SubResource("sb_CheckBox_hover_pressed")
+CheckBox/styles/normal = SubResource("sb_CheckBox_normal")
+CheckBox/styles/pressed = SubResource("sb_CheckBox_pressed")
 DisplayLabel/base_type = &"Label"
 DisplayLabel/colors/font_color = Color(1, 0.94509804, 0.76862746, 1)
-DisplayLabel/fonts/font = SubResource("FontVariation_j2lri")
-HSlider/styles/focus = SubResource("StyleBoxFlat_vx37n")
-HSlider/styles/grabber_area = SubResource("StyleBoxFlat_gjll3")
-HSlider/styles/grabber_area_highlight = SubResource("StyleBoxFlat_1gifx")
-HSlider/styles/slider = SubResource("StyleBoxFlat_ayuyc")
+DisplayLabel/fonts/font = SubResource("font_PrimaryButton_font")
+HSlider/styles/focus = SubResource("sb_HSlider_focus")
+HSlider/styles/grabber_area = SubResource("sb_HSlider_grabber_area")
+HSlider/styles/grabber_area_highlight = SubResource("sb_HSlider_grabber_area_highlight")
+HSlider/styles/slider = SubResource("sb_HSlider_slider")
 HpHigh/base_type = &"ProgressBar"
-HpHigh/styles/fill = SubResource("StyleBoxFlat_mytck")
+HpHigh/styles/fill = SubResource("sb_HpHigh_fill")
 HpLow/base_type = &"ProgressBar"
-HpLow/styles/fill = SubResource("StyleBoxFlat_6lm01")
+HpLow/styles/fill = SubResource("sb_HpLow_fill")
 HpMid/base_type = &"ProgressBar"
-HpMid/styles/fill = SubResource("StyleBoxFlat_orwij")
+HpMid/styles/fill = SubResource("sb_HpMid_fill")
 Label/colors/font_color = Color(0.9529412, 0.9254902, 0.84705883, 1)
 Label/colors/font_outline_color = Color(0, 0, 0, 0.6)
 MenuButton/colors/font_color = Color(0.9529412, 0.9254902, 0.84705883, 1)
@@ -580,55 +580,55 @@ MenuButton/colors/font_focus_color = Color(0.9529412, 0.9254902, 0.84705883, 1)
 MenuButton/colors/font_hover_color = Color(1, 0.827451, 0.2901961, 1)
 MenuButton/colors/font_hover_pressed_color = Color(1, 0.94509804, 0.76862746, 1)
 MenuButton/colors/font_pressed_color = Color(1, 0.94509804, 0.76862746, 1)
-MenuButton/fonts/font = SubResource("FontVariation_pldif")
-MenuButton/styles/disabled = SubResource("StyleBoxTexture_v5d7r")
-MenuButton/styles/focus = SubResource("StyleBoxFlat_itjgn")
-MenuButton/styles/hover = SubResource("StyleBoxTexture_hcfcy")
-MenuButton/styles/hover_pressed = SubResource("StyleBoxTexture_al18b")
-MenuButton/styles/normal = SubResource("StyleBoxTexture_h1frf")
-MenuButton/styles/pressed = SubResource("StyleBoxTexture_tk5ea")
+MenuButton/fonts/font = SubResource("font_MenuButton_font")
+MenuButton/styles/disabled = SubResource("sb_MenuButton_disabled")
+MenuButton/styles/focus = SubResource("sb_MenuButton_focus")
+MenuButton/styles/hover = SubResource("sb_MenuButton_hover")
+MenuButton/styles/hover_pressed = SubResource("sb_MenuButton_hover_pressed")
+MenuButton/styles/normal = SubResource("sb_MenuButton_normal")
+MenuButton/styles/pressed = SubResource("sb_MenuButton_pressed")
 OptionButton/colors/font_color = Color(0.9529412, 0.9254902, 0.84705883, 1)
 OptionButton/colors/font_disabled_color = Color(1, 1, 1, 0.32)
 OptionButton/colors/font_focus_color = Color(0.9529412, 0.9254902, 0.84705883, 1)
 OptionButton/colors/font_hover_color = Color(1, 0.827451, 0.2901961, 1)
 OptionButton/colors/font_hover_pressed_color = Color(1, 0.94509804, 0.76862746, 1)
 OptionButton/colors/font_pressed_color = Color(1, 0.94509804, 0.76862746, 1)
-OptionButton/fonts/font = SubResource("FontVariation_pldif")
-OptionButton/styles/disabled = SubResource("StyleBoxTexture_go68i")
-OptionButton/styles/focus = SubResource("StyleBoxFlat_qfx3r")
-OptionButton/styles/hover = SubResource("StyleBoxTexture_kjj5r")
-OptionButton/styles/hover_pressed = SubResource("StyleBoxTexture_vei55")
-OptionButton/styles/normal = SubResource("StyleBoxTexture_r61uy")
-OptionButton/styles/pressed = SubResource("StyleBoxTexture_gjji4")
-Panel/styles/panel = SubResource("StyleBoxTexture_oe2fm")
-PanelContainer/styles/panel = SubResource("StyleBoxTexture_fwhlv")
+OptionButton/fonts/font = SubResource("font_MenuButton_font")
+OptionButton/styles/disabled = SubResource("sb_OptionButton_disabled")
+OptionButton/styles/focus = SubResource("sb_OptionButton_focus")
+OptionButton/styles/hover = SubResource("sb_OptionButton_hover")
+OptionButton/styles/hover_pressed = SubResource("sb_OptionButton_hover_pressed")
+OptionButton/styles/normal = SubResource("sb_OptionButton_normal")
+OptionButton/styles/pressed = SubResource("sb_OptionButton_pressed")
+Panel/styles/panel = SubResource("sb_Panel_panel")
+PanelContainer/styles/panel = SubResource("sb_PanelContainer_panel")
 PlateCard/base_type = &"PanelContainer"
-PlateCard/styles/panel = SubResource("StyleBoxTexture_s47if")
+PlateCard/styles/panel = SubResource("sb_PlateCard_panel")
 PopupMenu/colors/font_color = Color(0.9529412, 0.9254902, 0.84705883, 1)
 PopupMenu/colors/font_hover_color = Color(1, 0.827451, 0.2901961, 1)
-PopupMenu/styles/hover = SubResource("StyleBoxFlat_gkyi5")
-PopupMenu/styles/panel = SubResource("StyleBoxTexture_s1w2i")
+PopupMenu/styles/hover = SubResource("sb_PopupMenu_hover")
+PopupMenu/styles/panel = SubResource("sb_PopupMenu_panel")
 PortraitFrame/base_type = &"PanelContainer"
-PortraitFrame/styles/panel = SubResource("StyleBoxTexture_npc55")
+PortraitFrame/styles/panel = SubResource("sb_PortraitFrame_panel")
 PrimaryButton/base_type = &"Button"
 PrimaryButton/colors/font_color = Color(0.101960786, 0.078431375, 0.023529412, 1)
 PrimaryButton/colors/font_focus_color = Color(0.101960786, 0.078431375, 0.023529412, 1)
 PrimaryButton/colors/font_hover_color = Color(0.101960786, 0.078431375, 0.023529412, 1)
 PrimaryButton/colors/font_hover_pressed_color = Color(0.101960786, 0.078431375, 0.023529412, 1)
 PrimaryButton/colors/font_pressed_color = Color(0.101960786, 0.078431375, 0.023529412, 1)
-PrimaryButton/fonts/font = SubResource("FontVariation_j2lri")
-PrimaryButton/styles/focus = SubResource("StyleBoxFlat_ypapc")
-PrimaryButton/styles/hover = SubResource("StyleBoxTexture_6ktjv")
-PrimaryButton/styles/normal = SubResource("StyleBoxTexture_lrypt")
-PrimaryButton/styles/pressed = SubResource("StyleBoxTexture_nyss6")
+PrimaryButton/fonts/font = SubResource("font_PrimaryButton_font")
+PrimaryButton/styles/focus = SubResource("sb_PrimaryButton_focus")
+PrimaryButton/styles/hover = SubResource("sb_PrimaryButton_hover")
+PrimaryButton/styles/normal = SubResource("sb_PrimaryButton_normal")
+PrimaryButton/styles/pressed = SubResource("sb_PrimaryButton_pressed")
 ProgressBar/colors/font_color = Color(0.9529412, 0.9254902, 0.84705883, 1)
-ProgressBar/styles/background = SubResource("StyleBoxFlat_a835i")
-ProgressBar/styles/fill = SubResource("StyleBoxFlat_bkat1")
+ProgressBar/styles/background = SubResource("sb_ProgressBar_background")
+ProgressBar/styles/fill = SubResource("sb_ProgressBar_fill")
 RichTextLabel/colors/default_color = Color(0.9529412, 0.9254902, 0.84705883, 1)
 TooltipLabel/colors/font_color = Color(0.9529412, 0.9254902, 0.84705883, 1)
-TooltipPanel/styles/panel = SubResource("StyleBoxTexture_xdmi1")
-VScrollBar/styles/grabber = SubResource("StyleBoxFlat_37poa")
-VScrollBar/styles/grabber_highlight = SubResource("StyleBoxFlat_3k2gr")
-VScrollBar/styles/scroll = SubResource("StyleBoxFlat_gyg64")
+TooltipPanel/styles/panel = SubResource("sb_TooltipPanel_panel")
+VScrollBar/styles/grabber = SubResource("sb_VScrollBar_grabber")
+VScrollBar/styles/grabber_highlight = SubResource("sb_VScrollBar_grabber_highlight")
+VScrollBar/styles/scroll = SubResource("sb_VScrollBar_scroll")
 XpBar/base_type = &"ProgressBar"
-XpBar/styles/fill = SubResource("StyleBoxFlat_8ka1k")
+XpBar/styles/fill = SubResource("sb_XpBar_fill")

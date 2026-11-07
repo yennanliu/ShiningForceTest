@@ -2,7 +2,7 @@ extends Node
 ## Screen flow and the current Campaign (doc/02 §5.7).
 ## Title -> Camp -> Battle -> Results -> Camp ... -> Title when the campaign is complete.
 
-enum Screen { TITLE, CAMP, TOWN, BATTLE, RESULTS, SETTINGS }
+enum Screen { TITLE, CAMP, TOWN, BATTLE, RESULTS, SETTINGS, PROFILE }
 
 const SCENES := {
 	Screen.TITLE: "res://view/screens/title.tscn",
@@ -11,6 +11,7 @@ const SCENES := {
 	Screen.BATTLE: "res://view/battle2d/battle_screen.tscn",
 	Screen.RESULTS: "res://view/screens/results.tscn",
 	Screen.SETTINGS: "res://view/screens/settings.tscn",
+	Screen.PROFILE: "res://view/screens/profile.tscn",
 }
 const FIRST_CHAPTER := "res://data/chapters/ch01.tres"
 
@@ -18,6 +19,8 @@ signal screen_changed(screen: Screen)
 
 var campaign: Campaign
 var battle: BattleState
+## The recruit the Profile screen shows (data id).
+var profile_id: StringName
 var last_result: BattleResult
 var screen: Screen = Screen.TITLE
 ## Tests turn this off to drive the flow without loading scenes.

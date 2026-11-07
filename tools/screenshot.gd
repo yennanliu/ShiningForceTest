@@ -1,7 +1,7 @@
 extends SceneTree
 ## Saves a PNG of a screen with demo game state (needs a GPU / window).
 ##   godot --path . -s res://tools/screenshot.gd -- --screen=camp --out=camp.png
-## Screens: title, camp, battle, results, town, settings, scene.  Add --bench to measure FPS.
+## Screens: title, camp, battle, results, town, settings, profile, scene.  Add --bench to measure FPS.
 ## scene: the battle close-up (step 16): Aldric strikes the chapter's toughest enemy. --at=<s> picks
 ## the moment to capture (default 0.85 s = the hit lands); --crit / --miss change the outcome;
 ## --skip-after=<s> presses skip at that moment and prints how long the scene took to close.
@@ -11,6 +11,8 @@ extends SceneTree
 ## battle --auto-wait=<s>: the party keeps waiting while the enemy attacks, with every animation and
 ## close-up on, for <s> seconds (max ~25); prints how many close-ups played. An end-to-end check.
 ## --skip-anim: animation speed "skip" (dialogue shows whole lines). --fast-anim: speed "fast".
+## --fixed-size: draw into an off-screen 1280x720 viewport (1920x1080 canvas, scaled), so the image
+## size never depends on the machine's display (CI runners have small screens). Used by ui_snapshots.
 ## --clean-saves: use an empty save folder. --settle=<frames>: wait longer before the shot.
 ## --demo-status (battle): poisons the acting unit and puts an enemy to sleep, to check the status badges.
 
@@ -43,6 +45,13 @@ func _initialize() -> void:
 		if a.begins_with("--chapter="):
 			for i in int(a.trim_prefix("--chapter=")) - 1:
 				game.campaign._advance_chapter()
+	if screen == "profile":   # --unit=<id> (default: the leader); --demo-bonds gives some bonds to show
+		for a in OS.get_cmdline_user_args():
+			if a.begins_with("--unit="): game.profile_id = StringName(a.trim_prefix("--unit="))
+		if "--demo-bonds" in OS.get_cmdline_user_args():
+			for other in game.campaign.party.roster:
+				if other.data.id != game.campaign.party.leader().data.id:
+					game.campaign.bonds.add(game.campaign.party.leader().data.id, other.data.id, 130 if other.data.id == &"brina" else 45)
 	if screen == "results":
 		game.last_result = game.campaign.finish_battle(Fixtures.win_battle(game.campaign))
 	if screen == "scene":
@@ -52,6 +61,7 @@ func _initialize() -> void:
 		"title": "res://view/screens/title.tscn", "camp": "res://view/screens/camp.tscn",
 		"results": "res://view/screens/results.tscn", "battle": "res://view/battle2d/battle_screen.tscn",
 		"town": "res://view/screens/town.tscn", "settings": "res://view/screens/settings.tscn",
+		"profile": "res://view/screens/profile.tscn",
 	}
 	if not screens.has(screen):   # quit instead of leaving an empty window open
 		printerr("screenshot: unknown --screen=%s (use %s)" % [screen, ", ".join(screens.keys())])
@@ -66,7 +76,7 @@ func _initialize() -> void:
 			Rules.add_status(game.battle.living(Enums.Faction.ENEMY)[0], Unit.SLEEP, 2, ev)
 			Rules.add_status(game.battle.living(Enums.Faction.ENEMY)[0], Unit.POISON, 2, ev)
 	var scr: Control = load(path).instantiate()
-	root.add_child(scr)
+	_host().add_child(scr)
 	for i in 30:
 		await process_frame
 	for a in OS.get_cmdline_user_args():   # 3D camera: --yaw=0..3, --zoom=0..2, --top-down
@@ -94,7 +104,7 @@ func _initialize() -> void:
 			await process_frame
 			frames += 1
 		print("bench %s: %.1f fps average over 3 s" % [screen, frames / 3.0])
-	root.get_viewport().get_texture().get_image().save_png(out)
+	_capture().save_png(out)
 	print("saved %s" % out)
 	quit()
 
@@ -121,14 +131,14 @@ func _scene_shot(game: Node, out: String) -> void:
 		ev.append(BattleEvent.make(BattleEvent.DAMAGED, {"unit_id": foe.id, "amount": dmg, "hp_after": maxi(0, foe.hp - dmg)}))
 	# Loaded at run time: a -s script can't name classes that use autoloads (Audio) at compile time.
 	var scene: Control = load("res://view/battle_scene/battle_scene.gd").new()
-	root.add_child(scene)
+	_host().add_child(scene)
 	if "--still" in args:   # play it instantly, then hold the final frame: the same image every run
 		scene.instant = true
 		scene.play(b, ev, {})
 		scene.hold()
 		for i in 20:
 			await process_frame
-		root.get_viewport().get_texture().get_image().save_png(out)
+		_capture().save_png(out)
 		print("saved %s" % out)
 		quit()
 		return
@@ -159,7 +169,7 @@ func _scene_shot(game: Node, out: String) -> void:
 	else:
 		while Time.get_ticks_msec() - t0 < at * 1000.0:
 			await process_frame
-	root.get_viewport().get_texture().get_image().save_png(out)
+	_capture().save_png(out)
 	print("saved %s" % out)
 	quit()
 
@@ -173,3 +183,32 @@ func _auto_wait(scr: Control, seconds: float) -> void:
 			scr.wait_turn()
 		await process_frame
 	print("auto-wait: %d close-ups played, round %d, outcome %d" % [scenes[0], scr.state.round_number(), scr.state.outcome()])
+
+
+var _fixed_vp: SubViewport
+var _fixed_root: Control
+
+
+## Where screens are added: the window, or (with --fixed-size) a fixed off-screen viewport.
+func _host() -> Node:
+	if not ("--fixed-size" in OS.get_cmdline_user_args()):
+		return root
+	if _fixed_vp == null:
+		_fixed_vp = SubViewport.new()
+		_fixed_vp.size = Vector2i(1280, 720)
+		_fixed_vp.size_2d_override = Vector2i(1920, 1080)
+		_fixed_vp.size_2d_override_stretch = true
+		_fixed_vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+		root.add_child(_fixed_vp)
+		# A viewport doesn't pass the window's theme on, so screens go under a themed root here.
+		_fixed_root = Control.new()
+		_fixed_root.set_anchors_preset(Control.PRESET_FULL_RECT)
+		_fixed_root.theme = BannerTheme.load_or_build()
+		_fixed_vp.add_child(_fixed_root)
+	return _fixed_root
+
+
+func _capture() -> Image:
+	if _fixed_vp != null:
+		return _fixed_vp.get_texture().get_image()
+	return root.get_viewport().get_texture().get_image()

@@ -21,3 +21,5 @@ display_name = "Fiora"
 class_data = ExtResource("2_1ir5s")
 base_stats = SubResource("Resource_fjgvy")
 starting_items = Array[ExtResource("4_vd717")]([ExtResource("5_ojig8")])
+bio = "Grew up in Millford's back streets and knows every one of them. Fights for her town first and the watch second, for now."
+look = "Long copper hair, hazel eyes; ochre tunic, blue cape collar, a light sword"

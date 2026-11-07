@@ -22,3 +22,5 @@ display_name = "Garret"
 class_data = ExtResource("2_g32xe")
 base_stats = SubResource("Resource_swkww")
 starting_items = Array[ExtResource("4_1vjuh")]([ExtResource("5_ye7qr"), ExtResource("6_55phf")])
+bio = "A woodcutter with a woodcutter's patience. Measures twice, swings once, and rarely has to swing again."
+look = "Bald with a thick black beard, brown eyes; bare shoulders, fur collar, a blue sash, a big axe"
