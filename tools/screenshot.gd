@@ -5,6 +5,8 @@ extends SceneTree
 ## scene: the battle close-up (step 16): Aldric strikes the chapter's toughest enemy. --at=<s> picks
 ## the moment to capture (default 0.85 s = the hit lands); --crit / --miss change the outcome;
 ## --skip-after=<s> presses skip at that moment and prints how long the scene took to close.
+## battle --view=2d|3d (default: the setting, 3D); 3D camera --yaw=0..3 --zoom=0..2 --top-down;
+## --report-hidden prints units the camera can't see (should be none) and how many tiles faded.
 ## battle --auto-wait=<s>: the party keeps waiting while the enemy attacks, with every animation and
 ## close-up on, for <s> seconds (max ~25); prints how many close-ups played. An end-to-end check.
 ## --skip-anim: animation speed "skip" (dialogue shows whole lines). --fast-anim: speed "fast".
@@ -26,6 +28,10 @@ func _initialize() -> void:
 		Settings.anim_speed_index = 2
 	if "--fast-anim" in OS.get_cmdline_user_args():   # animation speed "fast"
 		Settings.anim_speed_index = 1
+	if "--view=2d" in OS.get_cmdline_user_args():
+		Settings.battle_view = Settings.View.TWO_D
+	if "--view=3d" in OS.get_cmdline_user_args():
+		Settings.battle_view = Settings.View.THREE_D
 	var game: Node = root.get_node("Game")
 	game.change_scenes = false
 	game.new_game()
@@ -58,6 +64,18 @@ func _initialize() -> void:
 	var scr: Control = load(path).instantiate()
 	root.add_child(scr)
 	for i in 30:
+		await process_frame
+	for a in OS.get_cmdline_user_args():   # 3D camera: --yaw=0..3, --zoom=0..2, --top-down
+		if scr.get("_map3d") != null and scr._map3d.visible:
+			if a.begins_with("--yaw="): scr._map3d.rotate_view(int(a.trim_prefix("--yaw=")))
+			if a.begins_with("--zoom="): scr._map3d.zoom_by(int(a.trim_prefix("--zoom=")))
+			if a == "--top-down": scr._map3d.toggle_top_down()
+			scr.queue_redraw()
+	if scr.get("_map3d") != null and scr._map3d.visible and "--report-hidden" in OS.get_cmdline_user_args():
+		for i in 3:
+			await process_frame
+		print("hidden units: %s, faded tiles: %d" % [scr._map3d.hidden_units(scr.state), scr._map3d.faded.size()])
+	for i in 10:
 		await process_frame
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--auto-wait=") and screen == "battle":

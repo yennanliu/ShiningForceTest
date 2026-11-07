@@ -63,11 +63,12 @@ A 1280×720 window opens on the title screen. Choose **New Game → Camp → Sta
 | Use a herb / cast a spell | Use Herb / Spell buttons | I / X · S / Y |
 | Next dialogue line | Click | Space / A · Enter / Start |
 | Skip a battle close-up | Click | Space / A · Enter / Start · Esc |
+| Turn / zoom the 3D camera, top-down | Mouse wheel zooms | Q·E / LB·RB · Z / right-stick click · T / Back |
 | After the battle | Continue button | Enter / Start |
 
 Win by defeating the enemies (chapter 3: the Goblin Chief). If Aldric (★) falls, you retreat to camp and keep your XP.
 
-Each attack or spell plays a short close-up. Choose **Settings → Battle scenes: on / player only / off**.
+The battle map is 3D (sprites on an isometric map); **Settings → Battle view** switches to the 2D map. Each attack or spell plays a short close-up. Choose **Settings → Battle scenes: on / player only / off**.
 
 **Sound is off while debugging.** Running from source (and every tool or test) is silent; exported builds play sound. Hear it anyway with `godot --path . -- --sound`; silence any build with `-- --mute` or `BANNER_MUTE=1`.
 

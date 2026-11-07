@@ -5,12 +5,15 @@ const PATH := "user://settings.cfg"
 const SPEEDS := [1.0, 2.0, 0.0]   # 0 = skip animations
 ## Battle close-up scenes (step 16).
 enum Scenes { ON, PLAYER_ONLY, OFF }
+## Battle map view (step 17). 2D stays as the fallback for low-end machines and tests.
+enum View { THREE_D, TWO_D }
 
 static var music_volume := 0.8
 static var sfx_volume := 0.8
 static var fullscreen := false
 static var anim_speed_index := 0
 static var battle_scenes: int = Scenes.ON
+static var battle_view: int = View.THREE_D
 static var path := PATH
 
 
@@ -27,6 +30,7 @@ static func load_settings() -> void:
 	fullscreen = cfg.get_value("video", "fullscreen", fullscreen)
 	anim_speed_index = clampi(cfg.get_value("game", "anim_speed", anim_speed_index), 0, SPEEDS.size() - 1)
 	battle_scenes = clampi(cfg.get_value("game", "battle_scenes", battle_scenes), 0, Scenes.size() - 1)
+	battle_view = clampi(cfg.get_value("game", "battle_view", battle_view), 0, View.size() - 1)
 
 
 static func save_settings() -> Error:
@@ -36,6 +40,7 @@ static func save_settings() -> Error:
 	cfg.set_value("video", "fullscreen", fullscreen)
 	cfg.set_value("game", "anim_speed", anim_speed_index)
 	cfg.set_value("game", "battle_scenes", battle_scenes)
+	cfg.set_value("game", "battle_view", battle_view)
 	return cfg.save(path)
 
 
@@ -57,6 +62,10 @@ static func setup_input() -> void:
 		"item": [KEY_I, JOY_BUTTON_X],
 		"spell": [KEY_S, JOY_BUTTON_Y],
 		"continue": [KEY_ENTER, JOY_BUTTON_START],
+		"rotate_left": [KEY_Q, JOY_BUTTON_LEFT_SHOULDER],
+		"rotate_right": [KEY_E, JOY_BUTTON_RIGHT_SHOULDER],
+		"zoom": [KEY_Z, JOY_BUTTON_RIGHT_STICK],
+		"top_down": [KEY_T, JOY_BUTTON_BACK],
 	}
 	for action: String in map:
 		if InputMap.has_action(action):
