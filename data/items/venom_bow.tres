@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_gusxy"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="2_b02yb"]
+[ext_resource type="Script" path="res://data/defs/special_data.gd" id="3_vjkxh"]
+
+[sub_resource type="Resource" id="Resource_oushp"]
+script = ExtResource("1_gusxy")
+atk = 5
+
+[sub_resource type="Resource" id="Resource_ra285"]
+script = ExtResource("3_vjkxh")
+effect = 1
+chance = 0.2
+
+[resource]
+script = ExtResource("2_b02yb")
+id = &"venom_bow"
+display_name = "Venom Bow"
+kind = 0
+weapon_type = 4
+bonus = SubResource("Resource_oushp")
+attack_range = Vector2i(2, 3)
+special = SubResource("Resource_ra285")
+price = 260

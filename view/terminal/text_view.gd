@@ -62,7 +62,7 @@ static func describe(e: BattleEvent, s: BattleState) -> String:
 		BattleEvent.CAST:
 			return "%s casts %s %d" % [_name(s, d.unit_id), String(d.spell_id).capitalize(), d.level]
 		BattleEvent.DAMAGED:
-			return "  %s takes %d damage (HP %d)" % [_name(s, d.unit_id), d.amount, d.hp_after]
+			return "  %s takes %d %sdamage (HP %d)" % [_name(s, d.unit_id), d.amount, "poison " if d.get("poison", false) else "", d.hp_after]
 		BattleEvent.HEALED:
 			return "  %s recovers %d HP (HP %d)" % [_name(s, d.unit_id), d.amount, d.hp_after]
 		BattleEvent.DIED:
@@ -75,6 +75,12 @@ static func describe(e: BattleEvent, s: BattleState) -> String:
 			return "%s uses %s on %s" % [_name(s, d.unit_id), d.item_id, _name(s, d.target_id)]
 		BattleEvent.TURN_ENDED:
 			return ""
+		BattleEvent.STATUS_ADDED:
+			return "  %s is %s!" % [_name(s, d.unit_id), "poisoned" if d.status == Unit.POISON else "asleep"]
+		BattleEvent.STATUS_ENDED:
+			return "  %s %s" % [_name(s, d.unit_id), "is no longer poisoned" if d.status == Unit.POISON else "wakes up"]
+		BattleEvent.TURN_SKIPPED:
+			return "%s is asleep and can't act" % _name(s, d.unit_id)
 		BattleEvent.BATTLE_ENDED:
 			return "*** VICTORY ***" if d.outcome == BattleState.Outcome.WON else "*** DEFEAT ***"
 	return str(e.to_dict())
@@ -114,8 +120,9 @@ static func parse(line: String, s: BattleState) -> Variant:
 				return "usage: f ID"
 			var t := s.unit(int(w[1]))
 			var fc := Rules.forecast(s, actor, t)
-			return "Forecast vs %s: hit %d%%, damage %d-%d, crit %d%%, counter: %s" % [
-				_label(t), roundi(fc.hit * 100), fc.dmg.x, fc.dmg.y, roundi(fc.crit * 100), "possible" if fc.counter else "no"]
+			var adv := " (! weapon advantage)" if fc.adv > 0 else (" (weapon disadvantage)" if fc.adv < 0 else "")
+			return "Forecast vs %s: hit %d%%, damage %d-%d, crit %d%%, counter: %s%s" % [
+				_label(t), roundi(fc.hit * 100), fc.dmg.x, fc.dmg.y, roundi(fc.crit * 100), "possible" if fc.counter else "no", adv]
 		"u", "unit":
 			if w.size() != 2 or not w[1].is_valid_int() or s.unit(int(w[1])) == null:
 				return "usage: u ID"
@@ -166,7 +173,8 @@ static func _unit_lines(s: BattleState) -> PackedStringArray:
 		var side := "you" if u.faction == Enums.Faction.PLAYER else "enemy"
 		var w := u.weapon()
 		out.append("  %-3d %-19s %-7s %2d/%-3d %-7s %s" % [
-			u.id, "%s (%s)" % [u.display_name(), _letter(u)], side, u.hp, u.max_hp(), _xy(u.pos), w.display_name if w else "-"])
+			u.id, "%s (%s)" % [u.display_name(), _letter(u)], side, u.hp, u.max_hp(), _xy(u.pos), w.display_name if w else "-"]
+			+ (("  [%s]" % status_text(u)) if not u.status.is_empty() else ""))
 	return out
 
 
@@ -183,6 +191,16 @@ static func _details(u: Unit) -> String:
 		_label(u), u.level, u.class_data.display_name, u.hp, u.max_hp(), u.mp, u.max_mp(), st.atk, st.def, st.agi, st.luk,
 		u.mov(), u.xp, ", ".join(items) if not items.is_empty() else "-",
 		"\n  spells: " + ", ".join(spells) if not spells.is_empty() else ""]
+
+
+## "poisoned 2, asleep 1" (turns left), or "" when healthy.
+static func status_text(u: Unit) -> String:
+	var parts := PackedStringArray()
+	if u.status.has(Unit.POISON):
+		parts.append("poisoned %d" % u.status[Unit.POISON])
+	if u.status.has(Unit.SLEEP):
+		parts.append("asleep %d" % u.status[Unit.SLEEP])
+	return ", ".join(parts)
 
 
 ## First letter of the last word: Goblin -> g, Goblin Archer -> a.

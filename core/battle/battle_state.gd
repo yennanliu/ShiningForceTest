@@ -75,6 +75,8 @@ func apply(cmd: Command) -> Array[BattleEvent]:
 	if _ended(out):
 		return out
 	if cmd.ends_turn() or not _actor.is_alive():
+		if _end_of_turn(_actor, out):
+			return out
 		out.append(BattleEvent.make(BattleEvent.TURN_ENDED, {"unit_id": _actor.id}))
 		_next_turn(out)
 		_ended(out)
@@ -217,18 +219,41 @@ func _accepts(cmd: Command) -> bool:
 
 
 func _next_turn(out: Array[BattleEvent]) -> void:
-	_moved = false
-	_actor = queue.next()
-	if _actor == null:
-		queue.start_round(_units, rng)
-		out.append(BattleEvent.make(BattleEvent.ROUND_STARTED, {"round": queue.round_number}))
-		MapScript.run(self, out)
+	while true:
+		_moved = false
 		_actor = queue.next()
-	out.append(BattleEvent.make(BattleEvent.TURN_STARTED, {"unit_id": _actor.id}))
+		if _actor == null:
+			queue.start_round(_units, rng)
+			out.append(BattleEvent.make(BattleEvent.ROUND_STARTED, {"round": queue.round_number}))
+			MapScript.run(self, out)
+			_actor = queue.next()
+		out.append(BattleEvent.make(BattleEvent.TURN_STARTED, {"unit_id": _actor.id}))
+		if not _actor.status.has(Unit.SLEEP):
+			return
+		# Asleep: the turn is skipped. Sleep wears off after its turns run out (or on damage).
+		out.append(BattleEvent.make(BattleEvent.TURN_SKIPPED, {"unit_id": _actor.id, "reason": Unit.SLEEP}))
+		_actor.status[Unit.SLEEP] -= 1
+		if _actor.status[Unit.SLEEP] <= 0:
+			Rules.end_status(_actor, Unit.SLEEP, out)
+		if _end_of_turn(_actor, out):
+			return
+		out.append(BattleEvent.make(BattleEvent.TURN_ENDED, {"unit_id": _actor.id}))
+
+
+## End-of-turn effects (ring regen, poison) for `u`. Returns true if the battle ended.
+func _end_of_turn(u: Unit, out: Array[BattleEvent]) -> bool:
+	var n := out.size()
+	Rules.end_of_turn(self, u, out)
+	if out.size() == n:
+		return false
+	MapScript.run(self, out)
+	return _ended(out)
 
 
 ## Checks for the end of the battle; if over, appends BATTLE_ENDED. Returns true if over.
 func _ended(out: Array[BattleEvent]) -> bool:
+	if _outcome != Outcome.ONGOING:   # already ended (e.g. poison during a skipped turn)
+		return true
 	_outcome = Rules.check_outcome(self)
 	if _outcome == Outcome.ONGOING:
 		return false

@@ -1,122 +1,123 @@
 [gd_resource type="Resource" script_class="MapData" format=4]
 
-[ext_resource type="Script" path="res://data/defs/enemy_spawn.gd" id="1_wmkg0"]
-[ext_resource type="Resource" path="res://data/units/goblin_archer.tres" id="2_k001j"]
-[ext_resource type="Resource" path="res://data/units/goblin_chief.tres" id="3_dl5ng"]
-[ext_resource type="Resource" path="res://data/units/bandit.tres" id="4_oc7hu"]
-[ext_resource type="Resource" path="res://data/units/goblin.tres" id="5_qhx5v"]
-[ext_resource type="Script" path="res://data/defs/map_data.gd" id="6_wu21w"]
-[ext_resource type="Script" path="res://data/defs/terrain_data.gd" id="7_k7nag"]
-[ext_resource type="Resource" path="res://data/terrain/plain.tres" id="8_q81ha"]
-[ext_resource type="Resource" path="res://data/terrain/forest.tres" id="9_hj8qc"]
-[ext_resource type="Resource" path="res://data/terrain/hill.tres" id="10_bbaqe"]
-[ext_resource type="Resource" path="res://data/terrain/sand.tres" id="11_f6hwc"]
-[ext_resource type="Resource" path="res://data/terrain/shallow.tres" id="12_ivgr4"]
-[ext_resource type="Resource" path="res://data/terrain/deep.tres" id="13_buy2y"]
-[ext_resource type="Resource" path="res://data/terrain/wall.tres" id="14_wwub8"]
-[ext_resource type="Script" path="res://data/defs/trigger_data.gd" id="15_xtsdj"]
-[ext_resource type="Script" path="res://data/defs/trigger_action.gd" id="16_usib2"]
+[ext_resource type="Script" path="res://data/defs/enemy_spawn.gd" id="1_k001j"]
+[ext_resource type="Resource" path="res://data/units/goblin_archer.tres" id="2_dl5ng"]
+[ext_resource type="Resource" path="res://data/units/goblin_chief.tres" id="3_oc7hu"]
+[ext_resource type="Resource" path="res://data/units/bandit.tres" id="4_qhx5v"]
+[ext_resource type="Resource" path="res://data/units/goblin.tres" id="5_wu21w"]
+[ext_resource type="Resource" path="res://data/units/goblin_venomer.tres" id="6_k7nag"]
+[ext_resource type="Script" path="res://data/defs/map_data.gd" id="7_q81ha"]
+[ext_resource type="Script" path="res://data/defs/terrain_data.gd" id="8_hj8qc"]
+[ext_resource type="Resource" path="res://data/terrain/plain.tres" id="9_bbaqe"]
+[ext_resource type="Resource" path="res://data/terrain/forest.tres" id="10_f6hwc"]
+[ext_resource type="Resource" path="res://data/terrain/hill.tres" id="11_ivgr4"]
+[ext_resource type="Resource" path="res://data/terrain/sand.tres" id="12_buy2y"]
+[ext_resource type="Resource" path="res://data/terrain/shallow.tres" id="13_wwub8"]
+[ext_resource type="Resource" path="res://data/terrain/deep.tres" id="14_xtsdj"]
+[ext_resource type="Resource" path="res://data/terrain/wall.tres" id="15_usib2"]
+[ext_resource type="Script" path="res://data/defs/trigger_data.gd" id="16_agfil"]
+[ext_resource type="Script" path="res://data/defs/trigger_action.gd" id="17_64glt"]
 
-[sub_resource type="Resource" id="Resource_agfil"]
-script = ExtResource("1_wmkg0")
-unit = ExtResource("2_k001j")
+[sub_resource type="Resource" id="Resource_qdf2i"]
+script = ExtResource("1_k001j")
+unit = ExtResource("2_dl5ng")
 at = Vector2i(2, 1)
 
-[sub_resource type="Resource" id="Resource_64glt"]
-script = ExtResource("1_wmkg0")
-unit = ExtResource("3_dl5ng")
+[sub_resource type="Resource" id="Resource_l50h8"]
+script = ExtResource("1_k001j")
+unit = ExtResource("3_oc7hu")
 level = 3
 at = Vector2i(9, 2)
 ai = 2
 tag = &"chief"
 is_leader = true
 
-[sub_resource type="Resource" id="Resource_qdf2i"]
-script = ExtResource("1_wmkg0")
-unit = ExtResource("4_oc7hu")
+[sub_resource type="Resource" id="Resource_36ele"]
+script = ExtResource("1_k001j")
+unit = ExtResource("4_qhx5v")
 at = Vector2i(6, 3)
 
-[sub_resource type="Resource" id="Resource_l50h8"]
-script = ExtResource("1_wmkg0")
-unit = ExtResource("5_qhx5v")
+[sub_resource type="Resource" id="Resource_wmcre"]
+script = ExtResource("1_k001j")
+unit = ExtResource("5_wu21w")
 at = Vector2i(10, 4)
 
-[sub_resource type="Resource" id="Resource_36ele"]
-script = ExtResource("1_wmkg0")
-unit = ExtResource("5_qhx5v")
+[sub_resource type="Resource" id="Resource_m7ae2"]
+script = ExtResource("1_k001j")
+unit = ExtResource("5_wu21w")
 at = Vector2i(2, 5)
 
-[sub_resource type="Resource" id="Resource_wmcre"]
-script = ExtResource("1_wmkg0")
-unit = ExtResource("2_k001j")
+[sub_resource type="Resource" id="Resource_44my4"]
+script = ExtResource("1_k001j")
+unit = ExtResource("6_k7nag")
 at = Vector2i(10, 6)
 
-[sub_resource type="Resource" id="Resource_m7ae2"]
-script = ExtResource("16_usib2")
+[sub_resource type="Resource" id="Resource_xdxhg"]
+script = ExtResource("17_64glt")
 key = &"ch03_intro"
 
-[sub_resource type="Resource" id="Resource_44my4"]
-script = ExtResource("16_usib2")
+[sub_resource type="Resource" id="Resource_naxa0"]
+script = ExtResource("17_64glt")
 key = &"chief_intro"
 
-[sub_resource type="Resource" id="Resource_xdxhg"]
-script = ExtResource("15_xtsdj")
-actions = Array[ExtResource("16_usib2")]([SubResource("Resource_m7ae2"), SubResource("Resource_44my4")])
+[sub_resource type="Resource" id="Resource_mds2e"]
+script = ExtResource("16_agfil")
+actions = Array[ExtResource("17_64glt")]([SubResource("Resource_xdxhg"), SubResource("Resource_naxa0")])
 
-[sub_resource type="Resource" id="Resource_naxa0"]
-script = ExtResource("16_usib2")
+[sub_resource type="Resource" id="Resource_u58we"]
+script = ExtResource("17_64glt")
 key = &"chief_phase2"
 
-[sub_resource type="Resource" id="Resource_mds2e"]
-script = ExtResource("16_usib2")
+[sub_resource type="Resource" id="Resource_g11ro"]
+script = ExtResource("17_64glt")
 kind = 8
 key = &"chief"
 
-[sub_resource type="Resource" id="Resource_u58we"]
-script = ExtResource("1_wmkg0")
-unit = ExtResource("5_qhx5v")
+[sub_resource type="Resource" id="Resource_b0kkk"]
+script = ExtResource("1_k001j")
+unit = ExtResource("5_wu21w")
 at = Vector2i(11, 1)
 
-[sub_resource type="Resource" id="Resource_g11ro"]
-script = ExtResource("16_usib2")
-kind = 0
-spawn = SubResource("Resource_u58we")
-
-[sub_resource type="Resource" id="Resource_b0kkk"]
-script = ExtResource("1_wmkg0")
-unit = ExtResource("2_k001j")
-at = Vector2i(10, 3)
-
 [sub_resource type="Resource" id="Resource_47qfr"]
-script = ExtResource("16_usib2")
+script = ExtResource("17_64glt")
 kind = 0
 spawn = SubResource("Resource_b0kkk")
 
 [sub_resource type="Resource" id="Resource_oflmf"]
-script = ExtResource("15_xtsdj")
-when = 3
-tag = &"chief"
-actions = Array[ExtResource("16_usib2")]([SubResource("Resource_naxa0"), SubResource("Resource_mds2e"), SubResource("Resource_g11ro"), SubResource("Resource_47qfr")])
+script = ExtResource("1_k001j")
+unit = ExtResource("2_dl5ng")
+at = Vector2i(10, 3)
 
 [sub_resource type="Resource" id="Resource_wgkpn"]
-script = ExtResource("16_usib2")
-key = &"chief_defeated"
+script = ExtResource("17_64glt")
+kind = 0
+spawn = SubResource("Resource_oflmf")
 
 [sub_resource type="Resource" id="Resource_bq4m6"]
-script = ExtResource("15_xtsdj")
+script = ExtResource("16_agfil")
+when = 3
+tag = &"chief"
+actions = Array[ExtResource("17_64glt")]([SubResource("Resource_u58we"), SubResource("Resource_g11ro"), SubResource("Resource_47qfr"), SubResource("Resource_wgkpn")])
+
+[sub_resource type="Resource" id="Resource_trjcd"]
+script = ExtResource("17_64glt")
+key = &"chief_defeated"
+
+[sub_resource type="Resource" id="Resource_r3ron"]
+script = ExtResource("16_agfil")
 when = 2
 tag = &"chief"
-actions = Array[ExtResource("16_usib2")]([SubResource("Resource_wgkpn")])
+actions = Array[ExtResource("17_64glt")]([SubResource("Resource_trjcd")])
 
 [resource]
-script = ExtResource("6_wu21w")
+script = ExtResource("7_q81ha")
 id = &"m03_chief_camp"
 size = Vector2i(12, 10)
 heights = PackedByteArray("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAAAAAAAAAAAAAAECAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
 terrain_ids = PackedByteArray("AAAAAAABAQAAAAAAAAAAAAAAAAAGBgYAAAAAAAIAAAAGAAAAAAEAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAICAAAAAAAAAAAAAAICAAAAAAAAAAABAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAA")
-terrain_types = Array[ExtResource("7_k7nag")]([ExtResource("8_q81ha"), ExtResource("9_hj8qc"), ExtResource("10_bbaqe"), ExtResource("11_f6hwc"), ExtResource("12_ivgr4"), ExtResource("13_buy2y"), ExtResource("14_wwub8")])
+terrain_types = Array[ExtResource("8_hj8qc")]([ExtResource("9_bbaqe"), ExtResource("10_f6hwc"), ExtResource("11_ivgr4"), ExtResource("12_buy2y"), ExtResource("13_wwub8"), ExtResource("14_xtsdj"), ExtResource("15_usib2")])
 player_spawns = Array[Vector2i]([Vector2i(0, 7), Vector2i(1, 7), Vector2i(0, 8), Vector2i(1, 8), Vector2i(0, 9), Vector2i(1, 9), Vector2i(2, 9), Vector2i(3, 9)])
-enemies = Array[ExtResource("1_wmkg0")]([SubResource("Resource_agfil"), SubResource("Resource_64glt"), SubResource("Resource_qdf2i"), SubResource("Resource_l50h8"), SubResource("Resource_36ele"), SubResource("Resource_wmcre")])
-triggers = Array[ExtResource("15_xtsdj")]([SubResource("Resource_xdxhg"), SubResource("Resource_oflmf"), SubResource("Resource_bq4m6")])
+enemies = Array[ExtResource("1_k001j")]([SubResource("Resource_qdf2i"), SubResource("Resource_l50h8"), SubResource("Resource_36ele"), SubResource("Resource_wmcre"), SubResource("Resource_m7ae2"), SubResource("Resource_44my4")])
+triggers = Array[ExtResource("16_agfil")]([SubResource("Resource_mds2e"), SubResource("Resource_bq4m6"), SubResource("Resource_r3ron")])
 objective = 1
 objective_tag = &"chief"

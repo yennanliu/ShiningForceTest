@@ -4,6 +4,8 @@ extends RefCounted
 
 const MAX_ITEMS := 4
 const XP_PER_LEVEL := 100
+const POISON := "poison"
+const SLEEP := "sleep"
 
 var id := 0                     # unique within a battle
 var data: UnitData
@@ -22,6 +24,7 @@ var ai: Enums.AiProfile = Enums.AiProfile.AGGRESSIVE
 var tag: StringName
 var is_leader := false
 var ai_controlled := false      # player-side guest moved by the computer
+var status: Dictionary = {}     # POISON / SLEEP -> turns left (cleared after battle)
 
 
 static func from_data(d: UnitData, p_faction: Enums.Faction = Enums.Faction.PLAYER) -> Unit:
@@ -116,7 +119,7 @@ func copy() -> Unit:
 
 
 func to_dict() -> Dictionary:
-	return {
+	var d := {
 		"id": id,
 		"data": String(data.id),
 		"faction": faction,
@@ -135,6 +138,9 @@ func to_dict() -> Dictionary:
 		"is_leader": is_leader,
 		"ai_controlled": ai_controlled,
 	}
+	if not status.is_empty():   # only when set, so older snapshots and saves stay identical
+		d["status"] = status.duplicate()
+	return d
 
 
 static func from_dict(d: Dictionary) -> Unit:
@@ -160,6 +166,9 @@ static func from_dict(d: Dictionary) -> Unit:
 	u.tag = StringName(d.get("tag", ""))
 	u.is_leader = d.get("is_leader", false)
 	u.ai_controlled = d.get("ai_controlled", false)
+	var st: Dictionary = d.get("status", {})
+	for k in st:
+		u.status[String(k)] = int(st[k])
 	return u
 
 

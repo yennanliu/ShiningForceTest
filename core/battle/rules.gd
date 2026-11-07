@@ -15,17 +15,51 @@ const XP_HEAL := 12               # (tune)
 const BOND_HIT := 2.0             # +% hit per bond tier (tune)
 const BOND_CRIT := 0.01           # +crit chance per tier (tune)
 const BOND_DMG := 0.02            # x(1 + 0.02 * tier) damage (tune)
+const ADV_HIT := 10.0             # +/-% hit for a weapon matchup (tune)
+const ADV_CRIT := 0.08            # +crit chance with the advantage (tune)
+const ADV_SPECIAL_MULT := 2.0     # special chance x2 with the advantage (tune)
+const POISON_TURNS := 3           # (tune)
+const POISON_FRACTION := 0.1      # of max HP per turn, min 1 (tune)
+const SLEEP_TURNS := 2            # turns skipped at most (tune)
 const STATS: Array[String] = ["hp", "mp", "atk", "def", "agi", "luk"]
 
 
 ## Chance to hit, 0..1.
 static func hit_chance(s: BattleState, a: Unit, t: Unit) -> float:
-	var pct := BASE_HIT + a.stats().luk - t.stats().agi / 2.0 + BOND_HIT * _bond(s, a)
+	var pct := BASE_HIT + a.stats().luk - t.stats().agi / 2.0 + BOND_HIT * _bond(s, a) + ADV_HIT * matchup(a, t)
 	return clampf(pct, MIN_HIT, MAX_HIT) / 100.0
 
 
-static func crit_chance(s: BattleState, a: Unit) -> float:
-	return CRIT_CHANCE + BOND_CRIT * _bond(s, a)
+static func crit_chance(s: BattleState, a: Unit, t: Unit = null) -> float:
+	var adv := ADV_CRIT if t != null and matchup(a, t) > 0 else 0.0
+	return CRIT_CHANCE + BOND_CRIT * _bond(s, a) + adv
+
+
+## Weapon matchup: +1 = attacker has the advantage ("!"), -1 = disadvantage, 0 = even.
+## Sword > axe > spear > sword. Spears and bows beat mounted units; bows beat flyers.
+static func matchup(a: Unit, t: Unit) -> int:
+	var aw := _wtype(a)
+	var tw := _wtype(t)
+	if _beats(aw, tw):
+		return 1
+	if _beats(tw, aw):
+		return -1
+	var tm := t.move_type()
+	if (aw == Enums.WeaponType.SPEAR or aw == Enums.WeaponType.BOW) and tm == Enums.MoveType.MOUNTED:
+		return 1
+	if aw == Enums.WeaponType.BOW and tm == Enums.MoveType.FLYING:
+		return 1
+	return 0
+
+
+static func _wtype(u: Unit) -> Enums.WeaponType:
+	var w := u.weapon()
+	return w.weapon_type if w != null else Enums.WeaponType.NONE
+
+
+static func _beats(x: Enums.WeaponType, y: Enums.WeaponType) -> bool:
+	var W := Enums.WeaponType
+	return (x == W.SWORD and y == W.AXE) or (x == W.AXE and y == W.SPEAR) or (x == W.SPEAR and y == W.SWORD)
 
 
 ## Damage before randomness and crits.
@@ -53,8 +87,9 @@ static func forecast(s: BattleState, a: Unit, t: Unit) -> Dictionary:
 	return {
 		"hit": hit_chance(s, a, t),
 		"dmg": damage_range(s, a, t),
-		"crit": crit_chance(s, a),
+		"crit": crit_chance(s, a, t),
 		"counter": can_counter(t, a),
+		"adv": matchup(a, t),
 	}
 
 
@@ -100,6 +135,33 @@ static func heal(t: Unit, amount: int, out: Array[BattleEvent]) -> void:
 	var gained := mini(amount, t.max_hp() - t.hp)
 	t.hp += gained
 	out.append(BattleEvent.make(BattleEvent.HEALED, {"unit_id": t.id, "amount": gained, "hp_after": t.hp}))
+
+
+# --- status effects (poison, sleep) and end-of-turn effects ------------------
+
+static func add_status(t: Unit, status: StringName, turns: int, out: Array[BattleEvent]) -> void:
+	t.status[status] = maxi(turns, t.status.get(status, 0))
+	out.append(BattleEvent.make(BattleEvent.STATUS_ADDED, {"unit_id": t.id, "status": String(status), "turns": t.status[status]}))
+
+
+static func end_status(t: Unit, status: StringName, out: Array[BattleEvent]) -> void:
+	if t.status.erase(status):
+		out.append(BattleEvent.make(BattleEvent.STATUS_ENDED, {"unit_id": t.id, "status": String(status)}))
+
+
+## Runs when `u`'s turn ends (also a skipped turn): ring regeneration, then poison.
+static func end_of_turn(s: BattleState, u: Unit, out: Array[BattleEvent]) -> void:
+	if not u.is_alive():
+		return
+	var r := u.ring()
+	if r != null and r.regen > 0 and u.hp < u.max_hp():
+		heal(u, r.regen, out)
+	if u.status.has(Unit.POISON):
+		_damage(s, u, maxi(1, floori(u.max_hp() * POISON_FRACTION)), out, {"poison": true})
+		if u.is_alive():
+			u.status[Unit.POISON] -= 1
+			if u.status[Unit.POISON] <= 0:
+				end_status(u, Unit.POISON, out)
 
 
 static func xp_for(actor: Unit, target: Unit, killed: bool) -> int:
@@ -161,9 +223,10 @@ static func check_outcome(s: BattleState) -> BattleState.Outcome:
 
 static func _strike(s: BattleState, a: Unit, t: Unit, counter: bool, double: bool, out: Array[BattleEvent]) -> void:
 	var hit := s.rng.chance(hit_chance(s, a, t))
-	var crit := hit and s.rng.chance(crit_chance(s, a))
+	var crit := hit and s.rng.chance(crit_chance(s, a, t))
 	var sp := a.weapon().special if a.weapon() != null else null
-	var special := hit and sp != null and s.rng.chance(sp.chance)
+	var sp_chance := (sp.chance * (ADV_SPECIAL_MULT if matchup(a, t) > 0 else 1.0)) if sp != null else 0.0
+	var special := hit and sp != null and s.rng.chance(sp_chance)
 	out.append(BattleEvent.make(BattleEvent.ATTACKED, {
 		"attacker_id": a.id, "target_id": t.id, "hit": hit, "crit": crit,
 		"counter": counter, "double": double, "special": SpecialData.Effect.keys()[sp.effect].to_lower() if special else "",
@@ -177,16 +240,26 @@ static func _strike(s: BattleState, a: Unit, t: Unit, counter: bool, double: boo
 	_damage(s, t, dmg, out)
 	if special and sp.effect == SpecialData.Effect.DRAIN and a.is_alive():
 		heal(a, dmg / 2, out)
+	if special and t.is_alive():
+		if sp.effect == SpecialData.Effect.POISON:
+			add_status(t, Unit.POISON, POISON_TURNS, out)
+		elif sp.effect == SpecialData.Effect.SLEEP:
+			add_status(t, Unit.SLEEP, SLEEP_TURNS, out)
 	if a.faction == Enums.Faction.PLAYER:
 		_assist_bonds(s, a, out)
 		gain_xp(s, a, xp_for(a, t, not t.is_alive()), out)
 
 
-static func _damage(s: BattleState, t: Unit, dmg: int, out: Array[BattleEvent]) -> void:
+static func _damage(s: BattleState, t: Unit, dmg: int, out: Array[BattleEvent], extra := {}) -> void:
 	t.hp = maxi(0, t.hp - dmg)
-	out.append(BattleEvent.make(BattleEvent.DAMAGED, {"unit_id": t.id, "amount": dmg, "hp_after": t.hp}))
+	var d := {"unit_id": t.id, "amount": dmg, "hp_after": t.hp}
+	d.merge(extra)
+	out.append(BattleEvent.make(BattleEvent.DAMAGED, d))
 	if not t.is_alive():
+		t.status.clear()
 		s.on_unit_died(t, out)
+	elif t.status.has(Unit.SLEEP) and not extra.get("poison", false):
+		end_status(t, Unit.SLEEP, out)
 
 
 ## Allies standing next to a unit that lands a hit grow closer.
