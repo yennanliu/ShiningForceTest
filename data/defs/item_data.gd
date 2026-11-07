@@ -16,4 +16,8 @@ enum Kind { WEAPON, RING, CONSUMABLE, KEY }
 @export var special: SpecialData
 ## HP restored (consumables).
 @export var heal_amount := 0
+## Cures poison (consumables).
+@export var cures_poison := false
+## HP restored at the end of each of the wearer's turns (rings).
+@export var regen := 0
 @export var price := 0

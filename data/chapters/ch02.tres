@@ -1,27 +1,28 @@
 [gd_resource type="Resource" script_class="ChapterData" format=3]
 
-[ext_resource type="Resource" path="res://data/maps/m02_millford.tres" id="1_4aiuy"]
-[ext_resource type="Resource" path="res://data/chapters/ch03.tres" id="2_xlr7w"]
-[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="3_pr38r"]
-[ext_resource type="Resource" path="res://data/units/eamon.tres" id="4_hubhd"]
-[ext_resource type="Resource" path="res://data/units/fiora.tres" id="5_c1ybv"]
-[ext_resource type="Script" path="res://data/defs/chapter_data.gd" id="6_h25uv"]
-[ext_resource type="Script" path="res://data/defs/item_data.gd" id="7_ngojo"]
-[ext_resource type="Resource" path="res://data/items/herb.tres" id="8_rdchw"]
-[ext_resource type="Resource" path="res://data/items/healing_seed.tres" id="9_xy1as"]
-[ext_resource type="Resource" path="res://data/items/hand_axe.tres" id="10_6ugum"]
-[ext_resource type="Resource" path="res://data/items/steel_sword.tres" id="11_yjvnt"]
-[ext_resource type="Resource" path="res://data/items/long_bow.tres" id="12_tclco"]
+[ext_resource type="Resource" path="res://data/maps/m02_millford.tres" id="1_xlr7w"]
+[ext_resource type="Resource" path="res://data/chapters/ch03.tres" id="2_pr38r"]
+[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="3_hubhd"]
+[ext_resource type="Resource" path="res://data/units/eamon.tres" id="4_c1ybv"]
+[ext_resource type="Resource" path="res://data/units/fiora.tres" id="5_h25uv"]
+[ext_resource type="Script" path="res://data/defs/chapter_data.gd" id="6_ngojo"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="7_rdchw"]
+[ext_resource type="Resource" path="res://data/items/herb.tres" id="8_xy1as"]
+[ext_resource type="Resource" path="res://data/items/antidote.tres" id="9_6ugum"]
+[ext_resource type="Resource" path="res://data/items/healing_seed.tres" id="10_yjvnt"]
+[ext_resource type="Resource" path="res://data/items/hand_axe.tres" id="11_tclco"]
+[ext_resource type="Resource" path="res://data/items/steel_sword.tres" id="12_uxy55"]
+[ext_resource type="Resource" path="res://data/items/long_bow.tres" id="13_p3mf6"]
 
 [resource]
-script = ExtResource("6_h25uv")
+script = ExtResource("6_ngojo")
 id = &"ch02"
 title = "Chapter 2: Wolves at Millford"
-battle = ExtResource("1_4aiuy")
-recruits_on_start = Array[ExtResource("3_pr38r")]([ExtResource("4_hubhd"), ExtResource("5_c1ybv")])
+battle = ExtResource("1_xlr7w")
+recruits_on_start = Array[ExtResource("3_hubhd")]([ExtResource("4_c1ybv"), ExtResource("5_h25uv")])
 reward_gold = 150
 town_name = "Millford"
 town_talk = Array[StringName]([&"town_mayor", &"town_child", &"town_hunter"])
-town_finds = Array[ExtResource("7_ngojo")]([ExtResource("8_rdchw"), ExtResource("12_tclco")])
-shop = Array[ExtResource("7_ngojo")]([ExtResource("8_rdchw"), ExtResource("9_xy1as"), ExtResource("10_6ugum"), ExtResource("11_yjvnt")])
-next = ExtResource("2_xlr7w")
+town_finds = Array[ExtResource("7_rdchw")]([ExtResource("8_xy1as"), ExtResource("13_p3mf6")])
+shop = Array[ExtResource("7_rdchw")]([ExtResource("8_xy1as"), ExtResource("9_6ugum"), ExtResource("10_yjvnt"), ExtResource("11_tclco"), ExtResource("12_uxy55")])
+next = ExtResource("2_pr38r")

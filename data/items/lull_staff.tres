@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_aefjw"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="2_eashn"]
+[ext_resource type="Script" path="res://data/defs/special_data.gd" id="3_p3ms0"]
+
+[sub_resource type="Resource" id="Resource_jxb8k"]
+script = ExtResource("1_aefjw")
+atk = 3
+
+[sub_resource type="Resource" id="Resource_b61eg"]
+script = ExtResource("3_p3ms0")
+effect = 2
+chance = 0.2
+
+[resource]
+script = ExtResource("2_eashn")
+id = &"lull_staff"
+display_name = "Lull Staff"
+kind = 0
+weapon_type = 5
+bonus = SubResource("Resource_jxb8k")
+special = SubResource("Resource_b61eg")
+price = 240

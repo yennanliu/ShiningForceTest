@@ -32,6 +32,8 @@ func execute(s: BattleState, out: Array[BattleEvent]) -> void:
 	out.append(BattleEvent.make(BattleEvent.ITEM_USED, {"unit_id": unit_id, "item_id": it.id, "target_id": target_id}))
 	if it.heal_amount > 0:
 		Rules.heal(t, it.heal_amount, out)
+	if it.cures_poison:
+		Rules.end_status(t, Unit.POISON, out)
 
 
 func type_name() -> String:

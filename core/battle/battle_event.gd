@@ -7,7 +7,7 @@ const ROUND_STARTED := &"round_started"   # {round}
 const TURN_STARTED := &"turn_started"     # {unit_id}
 const MOVED := &"moved"                   # {unit_id, path: Array[Vector2i]}
 const ATTACKED := &"attacked"             # {attacker_id, target_id, hit, crit, counter, double, special}
-const DAMAGED := &"damaged"               # {unit_id, amount, hp_after}
+const DAMAGED := &"damaged"               # {unit_id, amount, hp_after, poison?}
 const HEALED := &"healed"                 # {unit_id, amount, hp_after}
 const DIED := &"died"                     # {unit_id}
 const XP_GAINED := &"xp_gained"           # {unit_id, amount, xp_after}
@@ -20,6 +20,9 @@ const ITEM_FOUND := &"item_found"         # {unit_id, item_id}
 const EQUIPPED := &"equipped"             # {unit_id, item_id}
 const ITEM_USED := &"item_used"           # {unit_id, item_id, target_id}
 const TURN_ENDED := &"turn_ended"         # {unit_id}
+const STATUS_ADDED := &"status_added"     # {unit_id, status: "poison"|"sleep", turns}
+const STATUS_ENDED := &"status_ended"     # {unit_id, status}
+const TURN_SKIPPED := &"turn_skipped"     # {unit_id, reason: "sleep"}
 const BATTLE_ENDED := &"battle_ended"     # {outcome}
 
 var type: StringName

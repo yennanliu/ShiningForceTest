@@ -176,14 +176,25 @@ Each feature below lists its rules and the classes that own it. Values marked *(
 
 For `Attack(attacker → target)`:
 
-1. **Hit:** `hit% = clamp(90 + (atk.luk − tgt.agi / 2) − tgt.evade_bonus, 10, 99)`
+1. **Hit:** `hit% = clamp(90 + (atk.luk − tgt.agi / 2) − tgt.evade_bonus + 10 × matchup, 10, 99)`
 2. **Damage:** `dmg = max(1, floor((atk.attack − tgt.defense × (1 + land)) × rng.between(0.9, 1.1) × crit_mult × bond_mult))`
-3. **Crit:** chance `4% + bond crit bonus`, `crit_mult = 1.5`
-4. **Weapon special:** chance per weapon (5–15%): extra hit, status, or drain
+3. **Crit:** chance `4% + bond crit bonus (+8% with the matchup advantage)`, `crit_mult = 1.5`
+4. **Weapon special:** chance per weapon (5–20%, ×2 with the matchup advantage): extra hit, drain, poison or sleep
 5. **Double attack:** `6%` (+ class bonus) for a second strike
 6. **Counter:** if the target survives and the attacker is within the target's range: chance `8% + bond counter bonus`, resolved with the same steps
 
-Every step appends events (`Attacked`, `Damaged`, `Died`, `XpGained`…). `Rules.forecast()` computes hit %, the damage range and counter possibility **without** rolling the RNG, for the HUD.
+Every step appends events (`Attacked`, `Damaged`, `Died`, `XpGained`…). `Rules.forecast()` computes hit %, the damage range, counter possibility and the matchup (`adv`: +1 / 0 / −1) **without** rolling the RNG, for the HUD.
+
+**Matchup** (`Rules.matchup`, step 12): sword > axe > spear > sword; spears and bows beat mounted units; bows beat flying units. The HUD shows "!" for an advantage.
+
+**Status** (`Unit.status`: `"poison"` / `"sleep"` → turns left; written to `to_dict()` only when set, so older snapshots and saves are unchanged):
+
+| Status | From | Effect | Ends |
+| --- | --- | --- | --- |
+| Poison | `POISON` special | At the end of each of the unit's turns: lose `max(1, 10% max HP)`; can kill | After 3 turns, or an Antidote (`ItemData.cures_poison`) |
+| Sleep | `SLEEP` special | The unit's turns are skipped (`TurnSkipped`) | After 2 skipped turns, or when it takes non-poison damage |
+
+**End of turn** (`Rules.end_of_turn`, also on skipped turns): ring regeneration (`ItemData.regen`), then poison. Status is cleared when a unit dies and is never copied back to the campaign roster.
 
 ### 4.5 Magic and items — `Cast`, `UseItem`
 
@@ -538,7 +549,8 @@ func to_dict() -> Dictionary: ...            # for logs and golden tests
 | `Damaged` | `unit_id, amount, hp_after` | Number pop, HP bar |
 | `Healed` | `unit_id, amount, hp_after` | Green number |
 | `MpSpent` | `unit_id, amount, mp_after` | MP bar |
-| `StatusChanged` | `unit_id, status, on: bool` | Status icon |
+| `StatusAdded` / `StatusEnded` | `unit_id, status, turns` / `unit_id, status` | "P" / "Z" badge on the token, status in the unit panel |
+| `TurnSkipped` | `unit_id, reason` | "zzz" pop |
 | `Died` | `unit_id` | Fade out |
 | `XpGained` | `unit_id, amount` | XP bar |
 | `LeveledUp` | `unit_id, new_level, gains: Stats` | Level-up panel |

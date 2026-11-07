@@ -5,7 +5,7 @@ extends SceneTree
 ##
 ## Map legend:  . plain  f forest  ^ hill (h1)  H hill (h2)  : sand  ~ shallow  w deep  # wall
 ##              P player spawn (reading order)   $ treasure chest (on plain)
-##              enemies: g goblin  a goblin archer  l wolf  b bandit  B goblin chief (boss)
+##              enemies: g goblin  a goblin archer  v goblin venomer (poison bow)  l wolf  b bandit  B goblin chief (boss)
 ##              V villager (computer-controlled ally to protect)
 
 const D := "res://data/"
@@ -108,7 +108,7 @@ func _classes() -> void:
 
 
 func _item(id: StringName, kind: ItemData.Kind, wt: Enums.WeaponType, bonus: Array, rng: Vector2i,
-		heal: int, price: int, special: SpecialData = null) -> void:
+		heal: int, price: int, special: SpecialData = null, cures_poison := false, regen := 0) -> void:
 	var i := ItemData.new()
 	i.id = id
 	i.display_name = String(id).capitalize()
@@ -120,6 +120,8 @@ func _item(id: StringName, kind: ItemData.Kind, wt: Enums.WeaponType, bonus: Arr
 	i.heal_amount = heal
 	i.price = price
 	i.special = special
+	i.cures_poison = cures_poison
+	i.regen = regen
 	I[id] = _save(i, D + "items/%s.tres" % id)
 
 
@@ -134,6 +136,12 @@ func _items() -> void:
 	var drain := SpecialData.new()
 	drain.effect = SpecialData.Effect.DRAIN
 	drain.chance = 0.12
+	var poison := SpecialData.new()
+	poison.effect = SpecialData.Effect.POISON
+	poison.chance = 0.2
+	var sleep := SpecialData.new()
+	sleep.effect = SpecialData.Effect.SLEEP
+	sleep.chance = 0.2
 	_item(&"bronze_sword", K.WEAPON, W.SWORD, [5, 0], one, 0, 100)
 	_item(&"steel_sword", K.WEAPON, W.SWORD, [8, 0], one, 0, 300, extra)
 	_item(&"bronze_spear", K.WEAPON, W.SPEAR, [5, 0], one, 0, 110)
@@ -144,6 +152,11 @@ func _items() -> void:
 	_item(&"herb", K.CONSUMABLE, W.NONE, [], one, 10, 10)
 	_item(&"healing_seed", K.CONSUMABLE, W.NONE, [], one, 20, 30)
 	_item(&"power_ring", K.RING, W.NONE, [2, 1], one, 0, 400)
+	# step 12: status effects and regeneration
+	_item(&"venom_bow", K.WEAPON, W.BOW, [5, 0], bow, 0, 260, poison)
+	_item(&"lull_staff", K.WEAPON, W.STAFF, [3, 0], one, 0, 240, sleep)
+	_item(&"antidote", K.CONSUMABLE, W.NONE, [], one, 0, 20, null, true)
+	_item(&"vigor_band", K.RING, W.NONE, [0, 2], one, 0, 450, null, false, 2)
 
 
 ## base stats: [hp, mp, atk, def, agi, luk]
@@ -171,6 +184,7 @@ func _units() -> void:
 	# enemies and guests
 	_unit(&"goblin", "Goblin", &"swordsman", [14, 0, 8, 4, 6, 3], [&"bronze_sword"])
 	_unit(&"goblin_archer", "Goblin Archer", &"archer", [12, 0, 7, 3, 6, 3], [&"wooden_bow"])
+	_unit(&"goblin_stinger", "Goblin Stinger", &"archer", [12, 0, 6, 3, 6, 3], [&"venom_bow"])
 	_unit(&"wolf", "Wolf", &"beast", [13, 0, 9, 3, 9, 3], [])
 	_unit(&"bandit", "Bandit", &"warrior", [16, 0, 9, 4, 7, 4], [&"hand_axe"])
 	_unit(&"goblin_chief", "Goblin Chief", &"swordsman", [34, 0, 13, 7, 7, 5], [&"steel_sword"])
@@ -179,7 +193,7 @@ func _units() -> void:
 
 # --- maps ---------------------------------------------------------------------
 
-const ENEMY_LETTERS := {"g": &"goblin", "a": &"goblin_archer", "l": &"wolf", "b": &"bandit", "B": &"goblin_chief"}
+const ENEMY_LETTERS := {"g": &"goblin", "a": &"goblin_archer", "s": &"goblin_stinger", "l": &"wolf", "b": &"bandit", "B": &"goblin_chief"}
 
 
 ## Builds a MapData from an ASCII grid (tokens separated by spaces).
@@ -289,7 +303,7 @@ func _map_millford() -> MapData:
 		". # # . . . ^ . . g . .",
 		". . . . f . . . . . . l",
 		"P P . . . . . . f . . .",
-		"P P . . f . . . . . a .",
+		"P P . . f . . . . . s .",
 		"P P . . . . . . . . . .",
 	])
 	var m: MapData = g.map
@@ -313,7 +327,7 @@ func _map_chief() -> MapData:
 		". f . . ^ . b . . . . .",
 		". . . . . . . . . . g .",
 		". . g . f . . ^ ^ . . .",
-		". . . . . . . ^ H . a .",
+		". . . . . . . ^ H . s .",
 		"P P . . . f . . . . . .",
 		"P P . . . . . . f . . .",
 		"P P P P . . . . . . . .",
@@ -347,7 +361,7 @@ func _chapters(m1: MapData, m2: MapData, m3: MapData) -> void:
 	c3.battle = m3
 	c3.recruits_on_start = [U.garret, U.hale]
 	c3.reward_gold = 300
-	c3.shop = [I.herb, I.healing_seed, I.long_bow, I.power_ring]
+	c3.shop = [I.herb, I.antidote, I.healing_seed, I.long_bow, I.lull_staff, I.vigor_band]   # 6 fit the camp panel; Power Ring is a ch1 chest
 	_save(c3, D + "chapters/ch03.tres")
 	var c2 := ChapterData.new()
 	c2.id = &"ch02"
@@ -355,7 +369,7 @@ func _chapters(m1: MapData, m2: MapData, m3: MapData) -> void:
 	c2.battle = m2
 	c2.recruits_on_start = [U.eamon, U.fiora]
 	c2.reward_gold = 150
-	c2.shop = [I.herb, I.healing_seed, I.hand_axe, I.steel_sword]
+	c2.shop = [I.herb, I.antidote, I.healing_seed, I.hand_axe, I.steel_sword]
 	c2.town_name = "Millford"
 	c2.town_talk = [&"town_mayor", &"town_child", &"town_hunter"]
 	c2.town_finds = [I.herb, I.long_bow]

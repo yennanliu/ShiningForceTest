@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="1_rw45k"]
+
+[resource]
+script = ExtResource("1_rw45k")
+id = &"antidote"
+display_name = "Antidote"
+cures_poison = true
+price = 20

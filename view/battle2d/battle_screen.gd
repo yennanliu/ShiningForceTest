@@ -15,6 +15,7 @@ const TERRAIN_COLOR := {
 }
 const PLAYER_COLOR := Color("3b6fd8")
 const ENEMY_COLOR := Color("c8423a")
+const STATUS_COLORS := {Unit.POISON: Color("8be36b"), Unit.SLEEP: Color("8fb8ff")}
 const REACH_COLOR := Color(0.35, 0.65, 1.0, 0.40)
 const TARGET_COLOR := Color(1.0, 0.25, 0.2)
 const STEP_TIME := 0.07
@@ -254,6 +255,12 @@ func _play(events: Array[BattleEvent]) -> void:
 				_speech.visible = true
 				await _pause(1.8)
 				_speech.visible = false
+			BattleEvent.STATUS_ADDED:
+				_popup("POISON" if e.data.status == Unit.POISON else "SLEEP", e.data.unit_id, STATUS_COLORS[e.data.status])
+				await _pause(BEAT)
+			BattleEvent.TURN_SKIPPED:
+				_popup("zzz", e.data.unit_id, STATUS_COLORS[Unit.SLEEP])
+				await _pause(BEAT)
 			BattleEvent.LEVELED_UP:
 				Audio.play_sfx("level_up")
 				_popup("LEVEL UP", e.data.unit_id, Color("ffd34a"))
@@ -426,6 +433,16 @@ func _draw_unit(u: Unit) -> void:
 		draw_arc(c, rad + 6, 0, TAU, 40, Color("ffd34a"), 4.0)
 	if u.is_leader:
 		draw_string(_font, c + Vector2(-8, -rad - 4), "★", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color("ffd34a"))
+	# Status letters, top right of the token: P = poison, Z = sleep.
+	var sx := 0.0
+	for st: String in [Unit.POISON, Unit.SLEEP]:
+		if u.status.has(st):
+			var br := maxf(11.0, TILE * 0.17)
+			var at := c + Vector2(rad * 0.7 + sx, -rad * 0.7)
+			draw_circle(at, br, Color(0.05, 0.05, 0.08, 0.9))
+			draw_arc(at, br, 0, TAU, 24, STATUS_COLORS[st], 2.0)
+			draw_string(_font, at + Vector2(-br, br * 0.55), "P" if st == Unit.POISON else "Z", HORIZONTAL_ALIGNMENT_CENTER, br * 2, int(br * 1.5), STATUS_COLORS[st])
+			sx += br * 2 + 2
 	var letter := TextView._letter(u).to_upper()
 	draw_string(_font, c + Vector2(-rad, 11), letter, HORIZONTAL_ALIGNMENT_CENTER, rad * 2, 32, Color.WHITE)
 	var w := TILE * 0.7
@@ -601,11 +618,18 @@ func _update_panel() -> void:
 		var w := shown.weapon()
 		_stats_label.text = "MP %d/%d   ATK %d   DEF %d   AGI %d   MOV %d   %s" % [shown.mp, shown.max_mp(), st.atk, st.def, st.agi, shown.mov(), w.display_name if w else "-"]
 		_land_label.text = "Land effect: %d%%" % roundi(state.grid.land_effect(shown.pos) * 100)
+		if not shown.status.is_empty():
+			_land_label.text += "   Status: %s" % TextView.status_text(shown)
 	_forecast_label.text = ""
 	if hovered != null and hovered.id in _targets:
 		var fc := Rules.forecast(state, actor, hovered)
-		_forecast_label.text = "Attack %s: hit %d%%, damage %d–%d%s" % [
-			hovered.display_name(), roundi(fc.hit * 100), fc.dmg.x, fc.dmg.y, ", may counter" if fc.counter else ""]
+		var adv := ""
+		if fc.adv > 0:
+			adv = "  ! weapon advantage"
+		elif fc.adv < 0:
+			adv = "  ▼ weapon disadvantage"
+		_forecast_label.text = "Attack %s: hit %d%%, damage %d–%d%s%s" % [
+			hovered.display_name(), roundi(fc.hit * 100), fc.dmg.x, fc.dmg.y, ", may counter" if fc.counter else "", adv]
 	var mine := _player_turn() and not _busy
 	_wait_btn.disabled = not mine
 	_item_btn.disabled = not mine

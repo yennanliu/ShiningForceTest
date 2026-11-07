@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_68iha"]
+[ext_resource type="Resource" path="res://data/classes/archer.tres" id="2_4ifk5"]
+[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="3_4mr5r"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="4_b6ol2"]
+[ext_resource type="Resource" path="res://data/items/venom_bow.tres" id="5_cpc3o"]
+
+[sub_resource type="Resource" id="Resource_8yqsr"]
+script = ExtResource("1_68iha")
+hp = 12
+atk = 6
+def = 3
+agi = 6
+luk = 3
+
+[resource]
+script = ExtResource("3_4mr5r")
+id = &"goblin_stinger"
+display_name = "Goblin Stinger"
+class_data = ExtResource("2_4ifk5")
+base_stats = SubResource("Resource_8yqsr")
+starting_items = Array[ExtResource("4_b6ol2")]([ExtResource("5_cpc3o")])

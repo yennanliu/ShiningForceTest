@@ -1,21 +1,23 @@
 [gd_resource type="Resource" script_class="ChapterData" format=3]
 
-[ext_resource type="Resource" path="res://data/maps/m03_chief_camp.tres" id="1_1v02e"]
-[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="2_ysyuq"]
-[ext_resource type="Resource" path="res://data/units/garret.tres" id="3_f1cly"]
-[ext_resource type="Resource" path="res://data/units/hale.tres" id="4_5q80u"]
-[ext_resource type="Script" path="res://data/defs/chapter_data.gd" id="5_mohtd"]
-[ext_resource type="Script" path="res://data/defs/item_data.gd" id="6_kowxs"]
-[ext_resource type="Resource" path="res://data/items/herb.tres" id="7_e2n6l"]
-[ext_resource type="Resource" path="res://data/items/healing_seed.tres" id="8_bjch2"]
-[ext_resource type="Resource" path="res://data/items/long_bow.tres" id="9_5kgb2"]
-[ext_resource type="Resource" path="res://data/items/power_ring.tres" id="10_1rf8u"]
+[ext_resource type="Resource" path="res://data/maps/m03_chief_camp.tres" id="1_f1cly"]
+[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="2_5q80u"]
+[ext_resource type="Resource" path="res://data/units/garret.tres" id="3_mohtd"]
+[ext_resource type="Resource" path="res://data/units/hale.tres" id="4_kowxs"]
+[ext_resource type="Script" path="res://data/defs/chapter_data.gd" id="5_e2n6l"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="6_bjch2"]
+[ext_resource type="Resource" path="res://data/items/herb.tres" id="7_5kgb2"]
+[ext_resource type="Resource" path="res://data/items/antidote.tres" id="8_1rf8u"]
+[ext_resource type="Resource" path="res://data/items/healing_seed.tres" id="9_verii"]
+[ext_resource type="Resource" path="res://data/items/long_bow.tres" id="10_ogp7l"]
+[ext_resource type="Resource" path="res://data/items/lull_staff.tres" id="11_mmtte"]
+[ext_resource type="Resource" path="res://data/items/vigor_band.tres" id="12_es4s4"]
 
 [resource]
-script = ExtResource("5_mohtd")
+script = ExtResource("5_e2n6l")
 id = &"ch03"
 title = "Chapter 3: The Chief's Camp"
-battle = ExtResource("1_1v02e")
-recruits_on_start = Array[ExtResource("2_ysyuq")]([ExtResource("3_f1cly"), ExtResource("4_5q80u")])
+battle = ExtResource("1_f1cly")
+recruits_on_start = Array[ExtResource("2_5q80u")]([ExtResource("3_mohtd"), ExtResource("4_kowxs")])
 reward_gold = 300
-shop = Array[ExtResource("6_kowxs")]([ExtResource("7_e2n6l"), ExtResource("8_bjch2"), ExtResource("9_5kgb2"), ExtResource("10_1rf8u")])
+shop = Array[ExtResource("6_bjch2")]([ExtResource("7_5kgb2"), ExtResource("8_1rf8u"), ExtResource("9_verii"), ExtResource("10_ogp7l"), ExtResource("11_mmtte"), ExtResource("12_es4s4")])
