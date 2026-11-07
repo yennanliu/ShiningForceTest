@@ -52,7 +52,7 @@ var _spell_btn: Button
 var _continue_btn: Button
 var _suspend_btn: Button
 var _banner: Label
-var _speech: Label
+var _speech: DialogueBox
 
 
 func _ready() -> void:
@@ -250,11 +250,8 @@ func _play(events: Array[BattleEvent]) -> void:
 				_popup("+item", e.data.unit_id, Color("ffd34a"))
 				await _pause(BEAT * 2)
 			BattleEvent.SAID:
-				var l := Dialogue.line(e.data.line_id)
-				_speech.text = "%s:  %s" % [l.speaker, l.text]
-				_speech.visible = true
-				await _pause(1.8)
-				_speech.visible = false
+				_speech.instant = not animate
+				await _speech.say(e.data.line_id)
 			BattleEvent.STATUS_ADDED:
 				_popup("POISON" if e.data.status == Unit.POISON else "SLEEP", e.data.unit_id, STATUS_COLORS[e.data.status])
 				await _pause(BEAT)
@@ -561,19 +558,7 @@ func _build_ui() -> void:
 	_help_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	_help_label.custom_minimum_size = Vector2(panel.size.x, 0)
 
-	_speech = Label.new()
-	_speech.add_theme_font_size_override("font_size", 26)
-	_speech.autowrap_mode = TextServer.AUTOWRAP_WORD
-	var ssb := StyleBoxFlat.new()
-	ssb.bg_color = Color(0.05, 0.08, 0.2, 0.95)
-	ssb.border_color = Color("cbb98a")
-	ssb.set_border_width_all(3)
-	ssb.set_corner_radius_all(10)
-	ssb.set_content_margin_all(16)
-	_speech.add_theme_stylebox_override("normal", ssb)
-	_speech.custom_minimum_size = Vector2(panel.size.x, 0)
-	_speech.visible = false
-	panel.add_child(_speech)
+	_speech = DialogueBox.create(panel, Vector2(panel.size.x, 210))
 
 	_log = RichTextLabel.new()
 	_log.bbcode_enabled = true

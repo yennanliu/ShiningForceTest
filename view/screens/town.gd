@@ -1,7 +1,7 @@
 extends Control
 ## Town (simplified to a menu): talk to townspeople and search hidden spots.
 
-var _said: Label
+var _talk: DialogueBox
 
 
 func _ready() -> void:
@@ -13,7 +13,9 @@ func _ready() -> void:
 	UI.label(talk, "Talk", 26, UI.ACCENT)
 	for id in c.chapter.town_talk:
 		var l := Dialogue.line(id)
-		UI.button(talk, "Talk to %s" % l.speaker, func() -> void: _said.text = '%s: "%s"' % [l.speaker, l.text], 560)
+		UI.button(talk, "Talk to %s" % l.speaker, func() -> void:
+			_talk.modulate.a = 1.0
+			_talk.show_line(id), 560)
 	var search := UI.panel(col)
 	UI.center(search.get_parent())
 	UI.label(search, "Search", 26, UI.ACCENT)
@@ -21,14 +23,18 @@ func _ready() -> void:
 	for i in c.chapter.town_finds.size():
 		var b := UI.button(search, "Search the %s" % spots[i % spots.size()], func() -> void: _search(i), 560)
 		b.disabled = c.flags.get(c.found_key(i), false)
-	_said = UI.center(UI.label(col, "", 26)) as Label
-	_said.autowrap_mode = TextServer.AUTOWRAP_WORD
-	_said.custom_minimum_size = Vector2(1100, 0)
-	_said.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	UI.center(UI.button(col, "Back to camp", func() -> void: Game.goto(Game.Screen.CAMP)))
+	# Portrait dialogue (doc/03 step 14) under everything, so nothing gets pushed off screen.
+	_talk = DialogueBox.create(col, Vector2(1100, 210))
+	_talk.waits = false
+	UI.center(_talk)
+	_talk.visible = true          # keeps its space so the buttons never jump
+	_talk.modulate.a = 0.0        # invisible until someone talks or searches
+	_talk.advanced.connect(func() -> void: _talk.modulate.a = 0.0)
 
 
 func _search(i: int) -> void:
 	var item := Game.campaign.search(i)
-	_said.text = "You found %s!" % item.display_name if item else "Nothing here."
+	_talk.modulate.a = 1.0
+	_talk.show_text("Search", "You found %s!" % item.display_name if item else "Nothing here.")
 	get_tree().create_timer(1.2).timeout.connect(get_tree().reload_current_scene)

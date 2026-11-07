@@ -234,7 +234,7 @@ The rules (Core) are separate from the visuals (View). The View sends a **comman
 
 ### 15. Open questions
 
-- [ ] 3D rigged characters or 2D billboards on 3D maps? (Art lead, month 1)
+- [x] 3D rigged characters or 2D billboards on 3D maps? → **2D sprite billboards on a 3D map** (owner, 2026-11-07; [05 §2](05-art-direction.md#2-perspective-decision))
 - [ ] Final title and setting brief (Director + writer, month 3)
 - [ ] Gamepad support at slice or at v1? (Leads, month 4)
 - [ ] Console ports: in scope for v1 or after? (Leads, month 12)

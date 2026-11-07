@@ -3,6 +3,9 @@ extends Control
 
 var _checks := {}        # data id -> CheckBox
 var _status: Label
+var _talk: DialogueBox
+var _veil: ColorRect
+var _queue: Array[StringName] = []   # lines still to show (join lines on arrival)
 
 
 func _ready() -> void:
@@ -17,8 +20,7 @@ func _ready() -> void:
 		var key := StringName("met_" + String(d.id))
 		if not c.flags.get(key, false):
 			c.flags[key] = true
-			var j := Dialogue.line(StringName("join_" + String(d.id)))
-			UI.center(UI.label(col, '%s joins!  "%s"' % [d.display_name, j.text], 20, Color("9fd0ff")))
+			_queue.append(StringName("join_" + String(d.id)))
 
 	var cols := HBoxContainer.new()
 	cols.add_theme_constant_override("separation", 24)
@@ -41,8 +43,8 @@ func _ready() -> void:
 		var chat := StringName("camp_%s_%s" % [u.data.id, c.chapter.id])
 		if Dialogue.has(chat):
 			UI.button(row, "Talk", func() -> void:
-				var l := Dialogue.line(chat)
-				_status.text = '%s: "%s"' % [l.speaker, l.text], 120)
+				_queue.clear()
+				_talk.show_line(chat), 120)
 		if c.party.can_promote(u):
 			for to in u.class_data.promotes_to:
 				UI.button(row, "Promote → %s" % to.display_name, func() -> void: _promote(u, to), 300)
@@ -68,6 +70,28 @@ func _ready() -> void:
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD
 	_status.custom_minimum_size = Vector2(1500, 0)
 	_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	# Portrait dialogue over the header (doc/03 step 14); click it for the next line.
+	# A dark band covers the header while someone is talking, so no text peeks out.
+	_veil = ColorRect.new()
+	_veil.color = UI.BG
+	_veil.position = Vector2.ZERO
+	_veil.size = Vector2(1920, 245)
+	_veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_veil)
+	_talk = DialogueBox.create(self, Vector2(1300, 215))
+	_talk.waits = false
+	_talk.position = Vector2((1920 - 1300) / 2.0, 15)
+	_talk.advanced.connect(_next_line)
+	_talk.visibility_changed.connect(func() -> void: _veil.visible = _talk.visible)
+	_next_line()
+	_veil.visible = _talk.visible
+
+
+func _next_line() -> void:
+	if _queue.is_empty():
+		_talk.visible = false
+	else:
+		_talk.show_line(_queue.pop_front())
 
 
 func _apply_deploy() -> void:

@@ -2,6 +2,7 @@ extends SceneTree
 ## Saves a PNG of a screen with demo game state (needs a GPU / window).
 ##   godot --path . -s res://tools/screenshot.gd -- --screen=camp --out=camp.png
 ## Screens: title, camp, battle, results, town, settings.  Add --bench to measure FPS.
+## --skip-anim: animation speed "skip" (dialogue shows whole lines).
 ## --demo-status (battle): poisons the acting unit and puts an enemy to sleep, to check the status badges.
 
 
@@ -12,6 +13,8 @@ func _initialize() -> void:
 		if a.begins_with("--screen="): screen = a.trim_prefix("--screen=")
 		elif a.begins_with("--out="): out = a.trim_prefix("--out=")
 	await process_frame
+	if "--skip-anim" in OS.get_cmdline_user_args():   # text and moves appear at once
+		Settings.anim_speed_index = 2
 	var game: Node = root.get_node("Game")
 	game.change_scenes = false
 	game.new_game()
@@ -21,11 +24,16 @@ func _initialize() -> void:
 				game.campaign._advance_chapter()
 	if screen == "results":
 		game.last_result = game.campaign.finish_battle(Fixtures.win_battle(game.campaign))
-	var path: String = {
+	var screens := {
 		"title": "res://view/screens/title.tscn", "camp": "res://view/screens/camp.tscn",
 		"results": "res://view/screens/results.tscn", "battle": "res://view/battle2d/battle_screen.tscn",
 		"town": "res://view/screens/town.tscn", "settings": "res://view/screens/settings.tscn",
-	}[screen]
+	}
+	if not screens.has(screen):   # quit instead of leaving an empty window open
+		printerr("screenshot: unknown --screen=%s (use %s)" % [screen, ", ".join(screens.keys())])
+		quit(1)
+		return
+	var path: String = screens[screen]
 	if screen == "battle":
 		game.battle = game.campaign.start_battle(11)
 		if "--demo-status" in OS.get_cmdline_user_args():
