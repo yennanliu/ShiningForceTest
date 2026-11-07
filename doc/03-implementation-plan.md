@@ -149,22 +149,22 @@ Simplifications compared with doc 02 (kept simple to run first):
 
 **Tasks**
 
-- [ ] `Pathfinder.reachable` (Dijkstra, move cost, jump limit, allies passable, enemies blocking)
-- [ ] `Pathfinder.path_to` (rebuilds the path from `came_from`)
-- [ ] `Pathfinder.attack_tiles` (Manhattan ring `min..max`)
-- [ ] Microbenchmark on a 32×32 map
+- [x] `Pathfinder.reachable` (bucket-queue Dijkstra, move cost, jump limit, allies passable, enemies blocking)
+- [x] `Pathfinder.path_to` (rebuilds the path from `came_from`)
+- [x] `Pathfinder.attack_tiles` (Manhattan ring `min..max`) + `distance`
+- [x] Microbenchmark on a 32×32 map
 
 **Validation**
 
-| Check | Pass when |
-| --- | --- |
-| Terrain cost | Foot unit, MOV 5, all plains → exactly the 61 tiles within distance 5 (open map) |
-| Forest | A forest tile costs 2 for foot and 1 for flying (test both) |
-| Height | A height-3 step blocks a jump-2 unit; jump-3 passes |
-| Blocking | Can pass through an ally but not stop on it; cannot pass an enemy |
-| Path | `path_to` returns a contiguous path whose total cost equals `reachable[to]` |
-| Bow ring | Range (2, 3) excludes adjacent tiles |
-| Speed | `reachable` < 2 ms on 32×32 (median of 100 runs) |
+| Check | Pass when | Result |
+| --- | --- | --- |
+| Terrain cost | Foot unit, MOV 5, all plains → exactly the 61 tiles within distance 5 (open map) | ✅ `test_open_map_diamond_of_61_tiles` |
+| Forest | A forest tile costs 2 for foot and 1 for flying (test both) | ✅ `test_forest_costs_*` |
+| Height | A height-3 step blocks a jump-2 unit; jump-3 passes | ✅ `test_height_limits_jump` |
+| Blocking | Can pass through an ally but not stop on it; cannot pass an enemy; dead units don't block | ✅ `test_pass_through_ally_but_not_stop`, `test_enemy_blocks`, `test_dead_units_do_not_block`, `test_wall_is_impassable` |
+| Path | `path_to` returns a contiguous path whose total cost equals `reachable[to]` | ✅ checked for every reachable tile on the fixture map |
+| Bow ring | Range (2, 3) excludes adjacent tiles | ✅ `test_bow_ring_excludes_adjacent` |
+| Speed | `reachable` < 2 ms on 32×32 (median of 100 runs) | ✅ 1.25 ms with MOV 10 |
 
 ---
 
@@ -394,7 +394,7 @@ Each step becomes a GitHub milestone. Each task is an issue labeled with its ste
 | 0 Bootstrap | Claude | 2026-11-07 | ✅ Done |
 | 1 Data schema | Claude | 2026-11-07 | ✅ Done |
 | 2 Battle model | Claude | 2026-11-07 | ✅ Done |
-| 3 Pathfinding | | | Not started |
+| 3 Pathfinding | Claude | 2026-11-07 | ✅ Done |
 | 4 Commands & rules | | | Not started |
 | 5 AI + headless (Gate A) | | | Not started |
 | 6 Grey-box view (Gate B) | | | Not started |

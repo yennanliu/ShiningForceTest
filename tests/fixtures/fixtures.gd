@@ -37,6 +37,32 @@ static func battle(p_seed := 1) -> BattleState:
 	return b
 
 
+## An all-plain map with optional per-tile overrides: {Vector2i: [terrain_id, height]}.
+## Terrain ids: 0 plain, 1 forest, 2 hill, 3 wall.
+static func open_map(size: Vector2i, overrides := {}) -> MapData:
+	var m := MapData.new()
+	m.id = &"open"
+	m.size = size
+	m.terrain_types = [
+		load("res://data/terrain/plain.tres"), load("res://data/terrain/forest.tres"),
+		load("res://data/terrain/hill.tres"), load("res://data/terrain/wall.tres"),
+	]
+	m.heights.resize(size.x * size.y)
+	m.terrain_ids.resize(size.x * size.y)
+	for t: Vector2i in overrides:
+		m.terrain_ids[m.index(t)] = overrides[t][0]
+		m.heights[m.index(t)] = overrides[t][1]
+	m.player_spawns = [Vector2i.ZERO]
+	return m
+
+
+## A player unit (hero data) placed on a fresh grid.
+static func unit_on(g: Grid, at: Vector2i, faction := Enums.Faction.PLAYER, id := "hero") -> Unit:
+	var u := Unit.from_data(unit_data(id), faction)
+	g.place(u, at)
+	return u
+
+
 static func all_paths() -> PackedStringArray:
 	var out := PackedStringArray()
 	for f in DirAccess.get_files_at(DIR):
