@@ -24,6 +24,8 @@ Project skills in [`.claude/skills/`](.claude/skills/) give Claude Code a role t
 | [`game-artist`](.claude/skills/game-artist/SKILL.md) | Game artist | Map backgrounds, scenery, town/camp/title art, battle effects |
 | [`game-2d-3d-artist`](.claude/skills/game-2d-3d-artist/SKILL.md) | 2D/3D artist | Sprites, tiles, portraits, icons, 3D models; asset specs, import, performance |
 | [`game-ui-ux-designer`](.claude/skills/game-ui-ux-designer/SKILL.md) | UI/UX designer | Screens, HUD, menus, controls, accessibility, flow |
+| [`game-developer`](.claude/skills/game-developer/SKILL.md) | Game developer | Build features and fixes in core, content, views and tools, within the architecture rules |
+| [`game-qa`](.claude/skills/game-qa/SKILL.md) | QA | Validate: tests, sim, screenshots, export/smoke, CI, edge cases, bug reports, evidence in `doc/03` |
 
 Example: *"Use game-manager to plan the next polish round"*, or type `/game-ui-ux-designer review the camp screen`.
 
