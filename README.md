@@ -61,9 +61,15 @@ A 1280×720 window opens on the title screen. Choose **New Game → Camp → Sta
 | Attack | Click a red-outlined enemy (hover it for the forecast) | Cursor onto the enemy + Space / A |
 | Wait (end turn) | Wait button | W / B |
 | Use a herb / cast a spell | Use Herb / Spell buttons | I / X · S / Y |
+| Next dialogue line | Click | Space / A · Enter / Start |
+| Skip a battle close-up | Click | Space / A · Enter / Start · Esc |
 | After the battle | Continue button | Enter / Start |
 
 Win by defeating the enemies (chapter 3: the Goblin Chief). If Aldric (★) falls, you retreat to camp and keep your XP.
+
+Each attack or spell plays a short close-up. Choose **Settings → Battle scenes: on / player only / off**.
+
+**Sound is off while debugging.** Running from source (and every tool or test) is silent; exported builds play sound. Hear it anyway with `godot --path . -- --sound`; silence any build with `-- --mute` or `BANNER_MUTE=1`.
 
 **No GPU? Play in the terminal instead:**
 

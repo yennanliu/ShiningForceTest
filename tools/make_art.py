@@ -8,6 +8,8 @@ Outputs:
     assets/textures/units/<id>.png          432x256 sheet: 9 frames x 4 directions of 48x64
     assets/textures/portraits/<id>.png      256x256 (drawn on 64x64, scaled x4); <id>_<mood>.png
     assets/textures/icons/head_<name>.png   24x24 head bubbles: poison, sleep, adv, bond; leader star
+    assets/textures/battle/<id>.png         2112x192 cut-in poses: 11 frames of 192x192, facing left
+    assets/textures/backdrops/<kind>.png    1280x600 cut-in backdrops (plain, forest, hill, sand, shallow, ruins)
 Final art replaces these files one for one (same names and sizes).
 """
 import os
@@ -453,6 +455,90 @@ def head_icon(name):
 HEAD_ICONS = ["poison", "sleep", "adv", "bond", "leader"]
 
 
+# --- battle poses for the cut-in scene (doc/05 §8, step 16) ---------------------------
+# 11 frames of 192x192, side view facing LEFT (the code mirrors them for the left side):
+BATTLE_POSES = [
+    dict(), dict(bob=1),                                             # 0-1 idle
+    dict(arm="raise"), dict(arm="raise", lean=-2),                   # 2-3 wind up
+    dict(arm="thrust", lean=2), dict(arm="thrust", lean=3),          # 4-5 strike
+    dict(arm="raise"), dict(arm="raise", bob=1), dict(arm="thrust"),  # 6-8 cast
+    dict(hurt=True, lean=-3),                                        # 9 hurt
+    dict(lean=-4, step=1),                                           # 10 dodge
+]
+
+
+def battle_sheet(cid):
+    sheet = Canvas(64 * len(BATTLE_POSES), 64)
+    for i, pose in enumerate(BATTLE_POSES):
+        sheet.blit(frame(cid, "left", pose), i * 64 + 8, 0)
+    return sheet.scaled(3)
+
+
+# --- cut-in backdrops: 320x150 pixel art, exported x4 = 1280x600 -------------------------
+
+def _bands(c, top, bottom, colors):
+    h = (bottom - top) / len(colors)
+    for i, col in enumerate(colors):
+        c.rect(0, int(top + i * h), c.w - 1, int(top + (i + 1) * h), col)
+
+
+def _ridge(c, base, amp, f1, f2, phase, col):
+    import math
+    for x in range(c.w):
+        y = base - amp * (0.6 * math.sin(x * f1 + phase) + 0.4 * math.sin(x * f2 + phase * 2.3))
+        c.rect(x, int(y), x, base + 60, col)
+
+
+def backdrop(kind):
+    W, H, GROUND = 320, 150, 104
+    c = Canvas(W, H)
+    sky = [hexc(h) for h in ("#6fa8dc", "#83b6e2", "#98c4e8", "#aed2ee", "#c4dff3", "#d8eaf6")]
+    _bands(c, 0, GROUND, sky)
+    _ridge(c, 74, 12, 0.031, 0.083, 0.7, hexc("#8fa7c4"))              # far mountains
+    terr = {"plain": "#7cb35a", "forest": "#3f7f3a", "hill": "#b08e5c", "sand": "#d9c48a",
+            "shallow": "#5aa0d8", "ruins": "#8a9a6a"}[kind]
+    ground = hexc(terr)
+    if kind == "forest":
+        _ridge(c, 92, 6, 0.05, 0.13, 1.9, hexc("#2f5f30"))
+        for i, x in enumerate(range(-6, W + 6, 15)):
+            h = 26 + (i * 7) % 12
+            c.poly([(x - 9, 98), (x + 2, 98 - h), (x + 13, 98)], hexc("#2f6a33") if i % 2 else hexc("#27582b"))
+            c.rect(x + 1, 98, x + 3, 104, hexc("#4a3428"))
+    elif kind in ("plain", "ruins"):
+        _ridge(c, 94, 8, 0.022, 0.071, 2.4, hexc("#5f9b46"))
+    elif kind == "hill":
+        _ridge(c, 96, 22, 0.018, 0.047, 0.3, hexc("#8f7046"))
+        _ridge(c, 100, 10, 0.035, 0.09, 1.1, hexc("#a3824f"))
+    elif kind == "sand":
+        _ridge(c, 98, 10, 0.02, 0.055, 1.7, hexc("#c9b27a"))
+        _ridge(c, 102, 5, 0.04, 0.1, 0.4, hexc("#e2d09b"))
+    elif kind == "shallow":
+        _ridge(c, 96, 5, 0.03, 0.08, 2.0, hexc("#5f9b46"))
+    if kind == "ruins":
+        stone, dark = hexc("#9a9a94"), hexc("#6b6b6b")
+        for x, h in ((40, 40), (86, 22), (210, 46), (262, 30)):
+            c.rect(x, 104 - h, x + 12, 104, stone)
+            c.rect(x + 9, 104 - h, x + 12, 104, dark)
+            c.rect(x - 2, 104 - h - 3, x + 14, 104 - h, stone)
+        c.rect(120, 90, 180, 104, stone)
+        for x in range(120, 181, 10):
+            c.rect(x, 90, x, 104, dark)
+    c.rect(0, GROUND, W - 1, H - 1, ground)
+    c.rect(0, GROUND, W - 1, GROUND + 1, shade(ground, 0.85))
+    for i in range(70):   # ground texture, deterministic
+        x, y = (i * 97) % W, GROUND + 4 + (i * 53) % (H - GROUND - 6)
+        if kind == "shallow":
+            c.rect(x, y, x + 6, y, light(ground, 0.35))
+        elif kind == "sand":
+            c.set(x, y, shade(ground, 0.85))
+        else:
+            c.rect(x, y, x, y + 2, shade(ground, 0.8))
+    return c.scaled(4)
+
+
+BACKDROPS = ["plain", "forest", "hill", "sand", "shallow", "ruins"]
+
+
 def main():
     units = os.path.join(ROOT, "assets", "textures", "units")
     portraits = os.path.join(ROOT, "assets", "textures", "portraits")
@@ -462,14 +548,22 @@ def main():
     os.makedirs(icons, exist_ok=True)
     for name in HEAD_ICONS:
         head_icon(name).save_png(os.path.join(icons, "head_%s.png" % name))
+    battle = os.path.join(ROOT, "assets", "textures", "battle")
+    backdrops = os.path.join(ROOT, "assets", "textures", "backdrops")
+    os.makedirs(battle, exist_ok=True)
+    os.makedirs(backdrops, exist_ok=True)
+    for kind in BACKDROPS:
+        backdrop(kind).save_png(os.path.join(backdrops, kind + ".png"))
     for cid in P.SPRITES:
         sprite_sheet(cid).save_png(os.path.join(units, cid + ".png"))
+        battle_sheet(cid).save_png(os.path.join(battle, cid + ".png"))
     for cid in P.PORTRAITS:
         portrait(cid).save_png(os.path.join(portraits, cid + ".png"))
         for mood in P.MOODS.get(cid, []):
             portrait(cid, mood).save_png(os.path.join(portraits, "%s_%s.png" % (cid, mood)))
-    print("art written: %d sprite sheets, %d portraits, %d head icons" % (
-        len(P.SPRITES), len(P.PORTRAITS) + sum(len(v) for v in P.MOODS.values()), len(HEAD_ICONS)))
+    print("art written: %d sprite sheets, %d battle sheets, %d portraits, %d head icons, %d backdrops" % (
+        len(P.SPRITES), len(P.SPRITES), len(P.PORTRAITS) + sum(len(v) for v in P.MOODS.values()),
+        len(HEAD_ICONS), len(BACKDROPS)))
 
 
 if __name__ == "__main__":

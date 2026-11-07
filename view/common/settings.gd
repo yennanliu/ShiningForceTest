@@ -3,11 +3,14 @@ class_name Settings
 
 const PATH := "user://settings.cfg"
 const SPEEDS := [1.0, 2.0, 0.0]   # 0 = skip animations
+## Battle close-up scenes (step 16).
+enum Scenes { ON, PLAYER_ONLY, OFF }
 
 static var music_volume := 0.8
 static var sfx_volume := 0.8
 static var fullscreen := false
 static var anim_speed_index := 0
+static var battle_scenes: int = Scenes.ON
 static var path := PATH
 
 
@@ -23,6 +26,7 @@ static func load_settings() -> void:
 	sfx_volume = cfg.get_value("audio", "sfx", sfx_volume)
 	fullscreen = cfg.get_value("video", "fullscreen", fullscreen)
 	anim_speed_index = clampi(cfg.get_value("game", "anim_speed", anim_speed_index), 0, SPEEDS.size() - 1)
+	battle_scenes = clampi(cfg.get_value("game", "battle_scenes", battle_scenes), 0, Scenes.size() - 1)
 
 
 static func save_settings() -> Error:
@@ -31,6 +35,7 @@ static func save_settings() -> Error:
 	cfg.set_value("audio", "sfx", sfx_volume)
 	cfg.set_value("video", "fullscreen", fullscreen)
 	cfg.set_value("game", "anim_speed", anim_speed_index)
+	cfg.set_value("game", "battle_scenes", battle_scenes)
 	return cfg.save(path)
 
 
