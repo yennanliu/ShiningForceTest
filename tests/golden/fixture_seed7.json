@@ -76,23 +76,23 @@
     },
     {
       "to": [
+        1,
+        1
+      ],
+      "type": "Move",
+      "unit_id": 8
+    },
+    {
+      "target_id": 3,
+      "type": "Attack",
+      "unit_id": 8
+    },
+    {
+      "to": [
         2,
         0
       ],
       "type": "Move",
-      "unit_id": 8
-    },
-    {
-      "target_id": 1,
-      "type": "Attack",
-      "unit_id": 8
-    },
-    {
-      "to": [
-        3,
-        1
-      ],
-      "type": "Move",
       "unit_id": 7
     },
     {
@@ -101,40 +101,81 @@
       "unit_id": 7
     },
     {
-      "to": [
-        3,
-        2
-      ],
-      "type": "Move",
+      "target_id": 8,
+      "type": "Attack",
       "unit_id": 1
+    },
+    {
+      "to": [
+        0,
+        0
+      ],
+      "type": "Move",
+      "unit_id": 3
     },
     {
       "target_id": 7,
       "type": "Attack",
-      "unit_id": 1
+      "unit_id": 3
+    },
+    {
+      "to": [
+        0,
+        2
+      ],
+      "type": "Move",
+      "unit_id": 5
+    },
+    {
+      "target_id": 1,
+      "type": "Attack",
+      "unit_id": 5
+    },
+    {
+      "target_id": 3,
+      "type": "Attack",
+      "unit_id": 6
     },
     {
       "to": [
         3,
-        3
+        0
       ],
       "type": "Move",
-      "unit_id": 3
+      "unit_id": 2
     },
     {
-      "target_id": 5,
+      "target_id": 7,
       "type": "Attack",
-      "unit_id": 3
+      "unit_id": 2
     },
     {
-      "target_id": 1,
+      "target_id": 3,
       "type": "Attack",
       "unit_id": 8
     },
     {
+      "target_id": 8,
+      "type": "Attack",
+      "unit_id": 1
+    },
+    {
       "to": [
-        3,
-        1
+        1,
+        2
+      ],
+      "type": "Move",
+      "unit_id": 2
+    },
+    {
+      "target_id": 5,
+      "type": "Attack",
+      "unit_id": 2
+    },
+    {
+      "to": [
+        0,
+        0
       ],
       "type": "Move",
       "unit_id": 6
@@ -143,14 +184,19 @@
       "target_id": 1,
       "type": "Attack",
       "unit_id": 6
+    },
+    {
+      "target_id": 1,
+      "type": "Attack",
+      "unit_id": 5
     }
   ],
   "final": {
     "actor": 0,
     "flags": {},
-    "moved": true,
+    "moved": false,
     "outcome": 2,
-    "round": 2,
+    "round": 3,
     "units": [
       {
         "ai": 0,
@@ -175,8 +221,8 @@
         "level": 1,
         "mp": 0,
         "pos": [
-          3,
-          2
+          0,
+          1
         ],
         "ring_slot": -1,
         "tag": "",
@@ -212,7 +258,7 @@
         "ring_slot": -1,
         "tag": "",
         "weapon_slot": 0,
-        "xp": 0
+        "xp": 58
       },
       {
         "ai": 0,
@@ -227,7 +273,7 @@
         "class": "archer",
         "data": "archer",
         "faction": 0,
-        "hp": 16,
+        "hp": 0,
         "id": 3,
         "is_leader": false,
         "items": [
@@ -236,13 +282,13 @@
         "level": 1,
         "mp": 0,
         "pos": [
-          3,
-          3
+          0,
+          0
         ],
         "ring_slot": -1,
         "tag": "",
         "weapon_slot": 0,
-        "xp": 0
+        "xp": 10
       },
       {
         "ai": 0,
@@ -287,7 +333,7 @@
         "class": "swordsman",
         "data": "goblin",
         "faction": 1,
-        "hp": 14,
+        "hp": 4,
         "id": 5,
         "is_leader": true,
         "items": [
@@ -297,8 +343,8 @@
         "level": 1,
         "mp": 0,
         "pos": [
-          2,
-          1
+          0,
+          2
         ],
         "ring_slot": -1,
         "tag": "boss",
@@ -328,8 +374,8 @@
         "level": 1,
         "mp": 0,
         "pos": [
-          3,
-          1
+          0,
+          0
         ],
         "ring_slot": -1,
         "tag": "",
@@ -358,8 +404,8 @@
         "level": 1,
         "mp": 0,
         "pos": [
-          3,
-          1
+          2,
+          0
         ],
         "ring_slot": -1,
         "tag": "",
@@ -379,7 +425,7 @@
         "class": "archer",
         "data": "goblin_archer",
         "faction": 1,
-        "hp": 12,
+        "hp": 0,
         "id": 8,
         "is_leader": false,
         "items": [
@@ -388,8 +434,8 @@
         "level": 1,
         "mp": 0,
         "pos": [
-          2,
-          0
+          1,
+          1
         ],
         "ring_slot": -1,
         "tag": "",

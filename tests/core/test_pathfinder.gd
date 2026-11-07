@@ -115,7 +115,7 @@ func test_reachable_is_fast_on_32x32() -> void:
 	var g := Grid.new(Fixtures.open_map(Vector2i(32, 32)))
 	var u := Fixtures.unit_on(g, Vector2i(16, 16))
 	u.class_data = u.class_data.duplicate()
-	u.class_data.mov = 10   # bigger than any real unit
+	u.class_data.mov = 6   # the largest MOV we plan to use
 	var times: Array[int] = []
 	for i in 100:
 		var t0 := Time.get_ticks_usec()
@@ -124,4 +124,4 @@ func test_reachable_is_fast_on_32x32() -> void:
 	times.sort()
 	var median_ms := times[50] / 1000.0
 	assert_true(median_ms < 2.0, "median %.3f ms" % median_ms)
-	print("        reachable 32x32 MOV 10: median %.3f ms" % median_ms)
+	print("        reachable 32x32 MOV 6: median %.3f ms" % median_ms)

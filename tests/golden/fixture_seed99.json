@@ -45,7 +45,7 @@
       "unit_id": 8
     },
     {
-      "target_id": 1,
+      "target_id": 4,
       "type": "Attack",
       "unit_id": 8
     },
@@ -71,8 +71,7 @@
       "unit_id": 6
     },
     {
-      "target_id": 4,
-      "type": "Attack",
+      "type": "Wait",
       "unit_id": 6
     },
     {
@@ -114,9 +113,27 @@
       "unit_id": 1
     },
     {
+      "target_id": 1,
+      "type": "Attack",
+      "unit_id": 8
+    },
+    {
       "to": [
         3,
-        3
+        0
+      ],
+      "type": "Move",
+      "unit_id": 7
+    },
+    {
+      "target_id": 1,
+      "type": "Attack",
+      "unit_id": 7
+    },
+    {
+      "to": [
+        0,
+        0
       ],
       "type": "Move",
       "unit_id": 3
@@ -127,9 +144,17 @@
       "unit_id": 3
     },
     {
-      "target_id": 1,
+      "to": [
+        3,
+        0
+      ],
+      "type": "Move",
+      "unit_id": 2
+    },
+    {
+      "target_id": 8,
       "type": "Attack",
-      "unit_id": 8
+      "unit_id": 2
     },
     {
       "to": [
@@ -194,7 +219,7 @@
         "ring_slot": -1,
         "tag": "",
         "weapon_slot": 0,
-        "xp": 10
+        "xp": 20
       },
       {
         "ai": 0,
@@ -219,13 +244,13 @@
         "level": 1,
         "mp": 0,
         "pos": [
-          1,
-          2
+          3,
+          0
         ],
         "ring_slot": -1,
         "tag": "",
         "weapon_slot": 0,
-        "xp": 0
+        "xp": 10
       },
       {
         "ai": 0,
@@ -249,8 +274,8 @@
         "level": 1,
         "mp": 0,
         "pos": [
-          3,
-          3
+          0,
+          0
         ],
         "ring_slot": -1,
         "tag": "",
@@ -331,7 +356,7 @@
         "class": "swordsman",
         "data": "goblin",
         "faction": 1,
-        "hp": 14,
+        "hp": 4,
         "id": 6,
         "is_leader": false,
         "items": [
@@ -372,7 +397,7 @@
         "mp": 0,
         "pos": [
           3,
-          1
+          0
         ],
         "ring_slot": -1,
         "tag": "",
@@ -392,7 +417,7 @@
         "class": "archer",
         "data": "goblin_archer",
         "faction": 1,
-        "hp": 12,
+        "hp": 1,
         "id": 8,
         "is_leader": false,
         "items": [

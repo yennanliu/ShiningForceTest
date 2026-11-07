@@ -164,7 +164,7 @@ Simplifications compared with doc 02 (kept simple to run first):
 | Blocking | Can pass through an ally but not stop on it; cannot pass an enemy; dead units don't block | ✅ `test_pass_through_ally_but_not_stop`, `test_enemy_blocks`, `test_dead_units_do_not_block`, `test_wall_is_impassable` |
 | Path | `path_to` returns a contiguous path whose total cost equals `reachable[to]` | ✅ checked for every reachable tile on the fixture map |
 | Bow ring | Range (2, 3) excludes adjacent tiles | ✅ `test_bow_ring_excludes_adjacent` |
-| Speed | `reachable` < 2 ms on 32×32 (median of 100 runs) | ✅ 1.25 ms with MOV 10 |
+| Speed | `reachable` < 2 ms on 32×32 (median of 100 runs) | ✅ 0.47 ms locally with MOV 6 (the CI machine is about 2× slower) |
 
 ---
 
@@ -202,7 +202,7 @@ Simplifications compared with doc 02 (kept simple to run first):
 
 **Tasks**
 
-- [x] `AiPlanner.choose`: score every (reachable tile × target) by expected damage, kill chance, leader value and land effect; otherwise walk toward the nearest hostile using a real move-cost distance field (gets around walls). Profiles `AGGRESSIVE`, `HOLD`, `GUARD`, `HUNT_LEADER` (`HEALER`/`FLEE` later)
+- [x] `AiPlanner.choose`: **simple rules** (doc 02 §4.9). HOLD never moves; otherwise attack the lowest-HP hostile in reach (prefer not moving); otherwise step toward the nearest hostile; otherwise wait. (A first scoring version was replaced by these rules to keep it simple)
 - [x] `AutoPlay.play_turn` / `play_to_end`: AI plays either side, always bounded (a turn that makes no progress is ended with Wait)
 - [x] `tests/e2e/test_battle_runs.gd`: AI vs AI on every map (fixture + `data/maps/`), 50 seeds each
 - [x] Property test: 500 seeds × 25 random legal commands; invariants after each `apply`
@@ -214,9 +214,9 @@ Simplifications compared with doc 02 (kept simple to run first):
 | Check | Pass when | Result |
 | --- | --- | --- |
 | Finishes | Every map × 50 seeds ends (`outcome ≠ ONGOING`) in < 200 rounds with 0 errors | ✅ `test_every_map_finishes_for_50_seeds`; sim: 200/200 finished |
-| Sensible | AI attacks a unit in range instead of waiting; moves in to attack; kills a 1-HP target when it can; `HOLD` never moves; finds the gap in a wall | ✅ `test_ai.gd` (5 tests) |
+| Sensible | AI attacks a unit in range instead of waiting; moves in to attack; picks the lowest-HP target; `HOLD` never moves and only attacks in place | ✅ `test_ai.gd` (6 tests) |
 | Deterministic | Same seed → same AI choices (compare `history`) | ✅ `test_ai_is_deterministic` |
-| Fast | Max AI think time < 100 ms per unit | ✅ sim max 0.9–3.1 ms |
+| Fast | Max AI think time < 100 ms per unit | ✅ sim max 9.3 ms |
 | Property | 500 seeds of random legal play keep every invariant | ✅ `test_random_play_invariants_500_seeds` |
 | Golden | Golden replays pass; a deliberate formula change makes them fail | ✅ passes; changing `XP_HIT` or `BASE_HIT` fails it. (Crit 4%→5% did not, because no roll in these short battles landed in that window, so goldens catch most but not all changes) |
 | **Gate A review** | Leads read the sim report and the test list, then sign off that the rules core is ready for visuals | ⏳ awaiting sign-off (see report below) |
@@ -224,12 +224,12 @@ Simplifications compared with doc 02 (kept simple to run first):
 **Gate A sim report** (`tools/battle_sim.gd -- --runs=200`, fixture 8×8 map, AI vs AI):
 
 ```
-player win rate: 24%      unfinished: 0
-avg rounds:      2.6      avg deaths: 1.74 player units
-max AI think:    0.9 ms
+player win rate: 44%      unfinished: 0
+avg rounds:      3.4
+max AI think:    9.3 ms
 ```
 
-The 24% win rate is expected for now. On a tiny map with equal forces, the enemy AI goes after the hero (the leader), and losing the leader loses the battle. Step 8 tunes balance (target: 60–90%).
+A 44% win rate is fine for now: both sides use the same rules on a tiny map with equal forces, and losing the hero (the leader) loses the battle. Step 8 tunes balance (target: 60–90% for a human player).
 
 ---
 

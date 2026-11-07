@@ -221,18 +221,16 @@ Actions: `SPAWN`, `SAY`, `SET_FLAG`, `SET_OBJECTIVE`, `RECRUIT`, `WIN`, `LOSE`. 
 
 ### 4.9 Enemy AI — `AiPlanner`
 
-```
-for each reachable tile t (including staying put):
-    for each legal ending action a from t:
-        score = w_dmg·expected_damage + w_kill·kill_chance + w_leader·threat_to_leader
-              − w_risk·expected_damage_taken_next_round + w_land·land_effect(t)
-              + profile_bias(a, t)
-return argmax → [Move(t), a]
-```
+Plain rules, no scoring model (kept simple on purpose; we can grow it later):
 
-- The profile (`AGGRESSIVE`, `GUARD(area)`, `HOLD`, `HUNT_LEADER`, `HEALER`, `FLEE`) sets the weights and a bias.
-- Expected values use `Rules.forecast()`, never the battle RNG. Ties are broken by a fixed order (lower tile index), so AI choices stay deterministic.
-- Budget: < 100 ms per unit (§12). If too slow, prune to the top N tiles by distance to targets.
+1. `HOLD` units never move; they attack only what is already in range.
+2. If any hostile can be attacked this turn, attack the one with the **lowest HP** (ties: the leader, then the lowest id). Prefer attacking without moving.
+3. Otherwise, move to the reachable tile closest (Manhattan distance) to the nearest hostile.
+4. Otherwise, wait.
+
+- No RNG and a fixed iteration order, so the same state always gives the same plan.
+- The same rules drive player units in AI-vs-AI tests (`AutoPlay`).
+- Known limit: rule 3 uses straight-line distance, so units can stall behind long walls. Maps avoid long dead-end walls for now.
 
 ### 4.10 Victory and defeat — `Rules.check_outcome`
 
@@ -581,7 +579,6 @@ static func attack_tiles(g: Grid, from: Vector2i, reach: Vector2i) -> Array[Vect
 ```gdscript
 class_name AiPlanner
 static func choose(s: BattleState, u: Unit) -> Array[Command]: ...   # e.g. [Move, Attack] or [Wait]
-static func score(s: BattleState, u: Unit, at: Vector2i, action: Command) -> float: ...
 ```
 
 ```gdscript
