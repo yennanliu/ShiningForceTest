@@ -590,25 +590,31 @@ The owner asked for three things the reference genre does well (screenshots shar
 
 **Tasks**
 
-- [ ] **Sprite drawing** in `battle_screen._draw_unit` (`game-2d-3d-artist` + `game-developer`):
-    - Draw the sheet frame for the unit's facing (from its last move direction) on top of a faction ring under the feet
-    - Keep the HP bar under the ring and the acting-unit gold ring
-    - Idle animation runs at 2 fps and holds still when the animation setting is *skip*
-- [ ] **Walk / attack / hurt frames**, played from `MOVED` / `ATTACKED` / `DAMAGED` events. No core change
-- [ ] **Head icon bubble** (`game-ui-ux-designer`): one bubble above the head, shown in priority order sleep > poison > matchup "!" (while hovering a target) > bond ♥ (adjacent bonded ally). Replaces the P/Z badges from step 12
-- [ ] **Readability rules from doc/05** (`game-art-design`):
-    - Sprites never cover the HP bar or the cursor
-    - Units stay recognizable in grayscale, by the faction ring shape: solid for players, notched for enemies
-- [ ] **Screenshots** of chapters 1–3 for doc/03; fps bench
+- [x] **Sprite drawing** (`game-2d-3d-artist` + `game-developer`). Sprites, bases, HP bars and icons draw on their own layer (`_units_layer`, Nearest filter for crisp pixels; text keeps smooth filtering). Cursor, coordinates and popups draw on an overlay above it:
+    - The sheet frame for the unit's facing, on a faction base under the feet. Units draw back to front (by row)
+    - The HP bar sits under the base; the acting unit gets a gold ring around its base
+    - Idle animation runs at 2 fps and holds still when the animation setting is *skip* or animations are off
+    - Facing: at the start, toward the other side's center; then the last move step; attacker and target turn to face each other
+    - A unit without a sheet falls back to the old circle token
+- [x] **Walk / attack / hurt frames**, played from `MOVED` / `ATTACKED` / `CAST` / `DAMAGED` events (hurt also tints red). No core change: `git diff main -- core data` is empty
+- [x] **Head icon bubble** (`game-ui-ux-designer`): one bubble above the head, shown in priority order sleep > poison > matchup "!" (while hovering a target) > bond ♥ (adjacent bonded ally). Replaces the P/Z badges from step 12. Icons are 24×24 pixel art from `tools/make_art.py` (`assets/textures/icons/head_*.png`): a drop, a Z, a "!", a heart and a leader star. Each has its own shape, not just its own color; the star moved next to the HP bar
+- [x] **Readability rules from doc/05** (`game-art-design`):
+    - Sprites never cover the HP bar or the cursor: HP bars and icons draw in a second pass after every sprite, and the cursor is on the overlay
+    - Units stay recognizable in grayscale. *Changed from the plan:* the notched enemy ring did **not** pass the grayscale test (both rings came out as grey blobs). Now players stand on a **light round ring** and enemies on a **dark diamond**: shape and brightness both differ. doc/05 §7 is updated
+- [x] **Screenshots** of chapters 1–3 for doc/03; fps bench
+- [x] Fixed the known issue from step 12 (`game-ui-ux-designer`): the unit panel was blank while the opening lines played. It now shows the first unit right away
+
+![Chapter 1](images/step15_ch1.png) ![Chapter 2](images/step15_ch2.png)
+![Chapter 3 with sleep (Z) and poison (drop) bubbles; leader stars by the HP bars](images/step15_ch3.png) ![Chapter 3 in grayscale: light round rings = party, dark diamonds = enemies](images/step15_grayscale.png)
 
 **Validation**
 
 | Check | Pass when | Result |
 | --- | --- | --- |
-| Readable | In a 1-second glance test (5 screenshots, 3 people), faction, acting unit and low HP are named correctly ≥ 90% | |
-| Grayscale | Grayscale screenshot: player and enemy still distinguishable | |
-| Performance | ≥ 60 fps on the battle screen with 20 animated sprites (`--bench`) | |
-| Tests | `tools/test.sh` + `check_layers.sh` green; nothing in `core/` changed | |
+| Readable | In a 1-second glance test (5 screenshots, 3 people), faction, acting unit and low HP are named correctly ≥ 90% | ⏳ owner (needs 3 people) |
+| Grayscale | Grayscale screenshot: player and enemy still distinguishable | ✅ after the round/diamond change (image above); the first version (notched ring) failed |
+| Performance | ≥ 60 fps on the battle screen with 20 animated sprites (`--bench`) | ✅ 120 fps (vsync cap) on chapter 3, Apple M4: 15 animated sprites at the start, the most any slice map has. A 20-sprite map waits for new content |
+| Tests | `tools/test.sh` + `check_layers.sh` green; nothing in `core/` changed | ✅ 151 passed, 0 failed (+7 in `tests/view/test_battle_sprites.gd`); `layer check: OK`; `smoke play: OK`; no diff in `core/` or `data/` |
 | Look (human) | Owner compares to the step 12 screenshot and approves | ⏳ owner |
 
 ## Step 16 — Battle cut-in scene (image B)
@@ -699,6 +705,6 @@ Each step becomes a GitHub milestone. Each task is an issue labeled with its ste
 | 12 Design round 1 | Claude | 2026-11-07 | ✅ Done (playtest of matchups/status ⏳ owner) |
 | 13 Art direction + pipeline | game-art-design, game-2d-3d-artist | 2026-11-07 | ✅ Done (style sign-off ⏳ owner) |
 | 14 Portrait dialogue | game-ui-ux-designer, game-developer | 2026-11-07 | ✅ Done (playtest ⏳ owner) |
-| 15 Map sprites + head icons | game-2d-3d-artist, game-developer | — | ⬜ Next (sheets already generated in step 13) |
-| 16 Battle cut-in scene | game-developer, game-ui-ux-designer, game-artist | — | ⬜ Planned |
+| 15 Map sprites + head icons | game-2d-3d-artist, game-developer | 2026-11-07 | ✅ Done (glance test + look ⏳ owner) |
+| 16 Battle cut-in scene | game-developer, game-ui-ux-designer, game-artist | — | ⬜ Next |
 | 17 3D isometric map | game-developer, game-artist | — | ⬜ Planned (final art ⏳ artist) |

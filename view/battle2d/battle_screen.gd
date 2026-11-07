@@ -1,5 +1,5 @@
 extends Control
-## 2D top-down battle screen. Draws the map with simple shapes (no art yet) and
+## 2D top-down battle screen. Draws the map, pixel-art units (doc/05, step 15) and
 ## takes mouse/keyboard input. A View-layer client of the core: it sends Commands
 ## and plays the BattleEvents that come back (doc/02 §2).
 ##
@@ -20,6 +20,18 @@ const REACH_COLOR := Color(0.35, 0.65, 1.0, 0.40)
 const TARGET_COLOR := Color(1.0, 0.25, 0.2)
 const STEP_TIME := 0.07
 const BEAT := 0.25
+## Sprite sheet layout (doc/05 §8): rows = facing, columns = frames.
+const FRAME := Vector2(48, 64)
+const DOWN := 0
+const LEFT := 1
+const RIGHT := 2
+const UP := 3
+const IDLE_FRAMES := [0, 1]
+const WALK_FRAMES := [2, 3, 4, 5]
+const ATTACK_FRAMES := [6, 7]
+const HURT_FRAME := 8
+const SPRITE_HEIGHT := 1.15   # x TILE (doc/05 §7)
+const FEET := 0.22            # feet sit 0.22 x TILE below the tile center (72% down the tile)
 
 ## Off in tests: everything runs instantly, no tweens or timers.
 var animate := true
@@ -30,6 +42,12 @@ var _seed := 1
 var TILE := MAX_TILE                 # recomputed per map so it always fits
 var _panel: VBoxContainer
 var _unit_px := {}        # unit id -> Vector2 (drawn center, animated)
+var _facing := {}         # unit id -> DOWN / LEFT / RIGHT / UP (from moves and attacks)
+var _pose := {}           # unit id -> sheet column while walking / attacking / hurt
+var _hurt := {}           # unit id -> true while flashing
+var _idle := 0            # 0/1, the idle frame everyone shows (2 fps)
+var _units_layer: Control # sprites, rings, HP bars, head icons (Nearest filter for pixel art)
+var _overlay: Control     # cursor, coordinates, popups (always on top of sprites)
 var _popups: Array = []   # [{text, pos, color, age}]
 var _hover := Vector2i(-1, -1)
 var _busy := false
@@ -97,7 +115,9 @@ func begin(s: BattleState) -> void:
 	var title: String = Game.campaign.chapter.title if Game.campaign != null and Game.campaign.chapter != null else "Demo battle"
 	_log_line("[b]%s[/b] — %s; keep the Hero alive." % [title, goal])
 	if state.round_number() == 0:
-		await _play(state.start())
+		var opening := state.start()
+		_update_panel()   # show the first unit while the opening lines play (was blank before)
+		await _play(opening)
 	else:
 		_log_line("(resumed)")
 	await _advance()
@@ -231,18 +251,40 @@ func _play(events: Array[BattleEvent]) -> void:
 				await _animate_move(e.data.unit_id, e.data.path)
 			BattleEvent.DAMAGED:
 				_popup("-%d" % e.data.amount, e.data.unit_id, Color("ff5a4a"))
+				_pose[e.data.unit_id] = HURT_FRAME
+				_hurt[e.data.unit_id] = true
+				queue_redraw()
 				await _pause(BEAT)
+				_pose.erase(e.data.unit_id)
+				_hurt.erase(e.data.unit_id)
 			BattleEvent.HEALED:
 				Audio.play_sfx("heal")
 				_popup("+%d" % e.data.amount, e.data.unit_id, Color("6dff7a"))
 				await _pause(BEAT)
 			BattleEvent.ATTACKED:
+				var a_id: int = e.data.attacker_id
+				_face_each_other(a_id, e.data.target_id)
+				_pose[a_id] = ATTACK_FRAMES[0]
+				queue_redraw()
+				await _pause(BEAT * 0.25)
+				_pose[a_id] = ATTACK_FRAMES[1]
+				queue_redraw()
 				Audio.play_sfx("miss" if not e.data.hit else ("crit" if e.data.crit else "hit"))
 				if not e.data.hit:
 					_popup("miss", e.data.target_id, Color.WHITE)
 				await _pause(BEAT * 0.6)
+				_pose.erase(a_id)
+			BattleEvent.CAST:
+				var caster := state.unit(e.data.unit_id)
+				if caster != null:
+					_facing[caster.id] = facing_toward(Vector2(_v(e.data.at) - caster.pos), _facing.get(caster.id, DOWN))
+					_pose[caster.id] = ATTACK_FRAMES[0]
+					queue_redraw()
+					await _pause(BEAT * 0.4)
+					_pose.erase(caster.id)
 			BattleEvent.SPAWNED:
 				_unit_px[e.data.unit_id] = _center(e.data.at)
+				_facing[e.data.unit_id] = _initial_facing(state.unit(e.data.unit_id))
 				_popup("!", e.data.unit_id, Color("ffd34a"))
 				await _pause(BEAT * 2)
 			BattleEvent.ITEM_FOUND:
@@ -269,15 +311,62 @@ func _play(events: Array[BattleEvent]) -> void:
 
 
 func _animate_move(id: int, path: Array) -> void:
+	if path.size() >= 2:
+		_facing[id] = facing_toward(Vector2(_v(path[-1]) - _v(path[-2])), _facing.get(id, DOWN))
 	if not animate or path.size() < 2:
 		_unit_px[id] = _center(path[-1])
 		return
 	var tw := create_tween()
 	for i in range(1, path.size()):
+		var step := Vector2(_v(path[i]) - _v(path[i - 1]))
+		tw.tween_callback(func() -> void: _facing[id] = facing_toward(step, _facing.get(id, DOWN)))
 		tw.tween_method(func(v: Vector2) -> void:
 			_unit_px[id] = v
+			_pose[id] = WALK_FRAMES[(Time.get_ticks_msec() / 90) % WALK_FRAMES.size()]
 			queue_redraw(), _center(path[i - 1]), _center(path[i]), STEP_TIME / Settings.anim_speed())
 	await tw.finished
+	_pose.erase(id)
+	queue_redraw()
+
+
+## Facing for a direction: the larger axis wins; `fallback` when there's no direction.
+static func facing_toward(d: Vector2, fallback: int = DOWN) -> int:
+	if d == Vector2.ZERO:
+		return fallback
+	if absf(d.x) > absf(d.y):
+		return RIGHT if d.x > 0 else LEFT
+	return DOWN if d.y > 0 else UP
+
+
+## Source rect of a frame in a sprite sheet.
+static func frame_rect(facing: int, column: int) -> Rect2:
+	return Rect2(Vector2(column, facing) * FRAME, FRAME)
+
+
+func _face_each_other(a_id: int, t_id: int) -> void:
+	var a := state.unit(a_id)
+	var t := state.unit(t_id)
+	if a == null or t == null:
+		return
+	_facing[a_id] = facing_toward(Vector2(t.pos - a.pos), _facing.get(a_id, DOWN))
+	_facing[t_id] = facing_toward(Vector2(a.pos - t.pos), _facing.get(t_id, DOWN))
+
+
+## At the start, everyone looks toward the other side's center.
+func _initial_facing(u: Unit) -> int:
+	if u == null:
+		return DOWN
+	var sum := Vector2.ZERO
+	var n := 0
+	for o in state.living():
+		if (o.faction == Enums.Faction.PLAYER) != (u.faction == Enums.Faction.PLAYER):
+			sum += Vector2(o.pos)
+			n += 1
+	return facing_toward(sum / n - Vector2(u.pos), DOWN) if n > 0 else DOWN
+
+
+static func _v(t: Variant) -> Vector2i:
+	return t as Vector2i if t is Vector2i else Vector2i(t[0], t[1])
 
 
 func _pause(seconds: float) -> void:
@@ -290,6 +379,12 @@ func _popup(text: String, unit_id: int, color: Color) -> void:
 
 
 func _process(delta: float) -> void:
+	var idle := 0
+	if animate and Settings.anim_speed() > 0.0:
+		idle = (Time.get_ticks_msec() / 500) % IDLE_FRAMES.size()
+	if idle != _idle and _units_layer != null:
+		_idle = idle
+		_units_layer.queue_redraw()
 	if _popups.is_empty():
 		return
 	for p in _popups:
@@ -365,20 +460,42 @@ func _draw() -> void:
 			draw_rect(_tile_rect(t).grow(-3), REACH_COLOR)
 	for id in _targets:
 		draw_rect(_tile_rect(state.unit(id).pos).grow(-3), TARGET_COLOR, false, 5.0)
+	# Units and the overlay are child layers, drawn on top of this one.
+	_units_layer.queue_redraw()
+	_overlay.queue_redraw()
+
+
+## Cursor, coordinates and popups: always above the sprites (doc/05 §7).
+func _draw_overlay(ci: CanvasItem) -> void:
+	if state == null:
+		return
+	var g := state.grid
 	if g.in_bounds(_hover):
-		draw_rect(_tile_rect(_hover).grow(-1), Color(1, 1, 1, 0.9), false, 2.0)
-	for u in state.units():
-		if u.is_alive():
-			_draw_unit(u)
+		ci.draw_rect(_tile_rect(_hover).grow(-1), Color(1, 1, 1, 0.9), false, 2.0)
 	for x in g.size.x:
-		draw_string(_font, MAP_ORIGIN + Vector2(x * TILE + TILE / 2.0 - 6, -10), str(x), HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(1, 1, 1, 0.5))
+		ci.draw_string(_font, MAP_ORIGIN + Vector2(x * TILE + TILE / 2.0 - 6, -10), str(x), HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(1, 1, 1, 0.5))
 	for y in g.size.y:
-		draw_string(_font, MAP_ORIGIN + Vector2(-30, y * TILE + TILE / 2.0 + 7), str(y), HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(1, 1, 1, 0.5))
+		ci.draw_string(_font, MAP_ORIGIN + Vector2(-30, y * TILE + TILE / 2.0 + 7), str(y), HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(1, 1, 1, 0.5))
 	for p in _popups:
 		var pos: Vector2 = p.pos + Vector2(-20, -50 - p.age * 40)
 		var c: Color = p.color
 		c.a = 1.0 - p.age / 0.9
-		draw_string(_font, pos, p.text, HORIZONTAL_ALIGNMENT_LEFT, -1, 34, c)
+		ci.draw_string(_font, pos, p.text, HORIZONTAL_ALIGNMENT_LEFT, -1, 34, c)
+
+
+## Units back to front, then every HP bar / icon on top, so a sprite never hides them.
+func _draw_units(ci: CanvasItem) -> void:
+	if state == null:
+		return
+	var alive := state.units().filter(func(u: Unit) -> bool: return u.is_alive())
+	alive.sort_custom(func(a: Unit, b: Unit) -> bool:
+		var ya: float = _unit_px.get(a.id, _center(a.pos)).y
+		var yb: float = _unit_px.get(b.id, _center(b.pos)).y
+		return ya < yb or (ya == yb and a.id < b.id))
+	for u: Unit in alive:
+		_draw_unit_body(ci, u)
+	for u: Unit in alive:
+		_draw_unit_hud(ci, u)
 
 
 func _draw_tile(t: Vector2i) -> void:
@@ -419,35 +536,99 @@ func _draw_tile(t: Vector2i) -> void:
 		draw_string(_font, r.position + Vector2(6, TILE - 8), "h%d" % h, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(0, 0, 0, 0.55))
 
 
-func _draw_unit(u: Unit) -> void:
+## Foot ring (solid = player, notched = enemy), gold ring for the actor, then the sprite.
+func _draw_unit_body(ci: CanvasItem, u: Unit) -> void:
 	var c: Vector2 = _unit_px.get(u.id, _center(u.pos))
 	var col := PLAYER_COLOR if u.faction == Enums.Faction.PLAYER else ENEMY_COLOR
-	var rad := TILE * 0.34
-	draw_circle(c + Vector2(3, 4), rad, Color(0, 0, 0, 0.35))
-	draw_circle(c, rad, col)
-	draw_arc(c, rad, 0, TAU, 40, col.lightened(0.4), 2.0)
+	var feet := c + Vector2(0, TILE * FEET)
+	var rr := TILE * 0.36
+	ci.draw_set_transform(feet, 0.0, Vector2(1.0, 0.42))
+	ci.draw_circle(Vector2.ZERO, rr + 3, Color(0, 0, 0, 0.35))
+	# Faction base (doc/05 §7): players a LIGHT ROUND ring, enemies a DARK DIAMOND,
+	# so shape and brightness both differ and the read survives grayscale.
+	if u.faction == Enums.Faction.PLAYER:
+		ci.draw_circle(Vector2.ZERO, rr, Color(col.lightened(0.25), 0.6))
+		ci.draw_arc(Vector2.ZERO, rr, 0, TAU, 40, col.lightened(0.6), 6.0)
+	else:
+		var d := rr * 1.2
+		var pts := PackedVector2Array([Vector2(d, 0), Vector2(0, d), Vector2(-d, 0), Vector2(0, -d)])
+		ci.draw_colored_polygon(pts, Color(col.darkened(0.45), 0.75))
+		pts.append(pts[0])
+		ci.draw_polyline(pts, col.darkened(0.15), 5.0)
 	if u == state.current_actor():
-		draw_arc(c, rad + 6, 0, TAU, 40, Color("ffd34a"), 4.0)
-	if u.is_leader:
-		draw_string(_font, c + Vector2(-8, -rad - 4), "★", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color("ffd34a"))
-	# Status letters, top right of the token: P = poison, Z = sleep.
-	var sx := 0.0
-	for st: String in [Unit.POISON, Unit.SLEEP]:
-		if u.status.has(st):
-			var br := maxf(11.0, TILE * 0.17)
-			var at := c + Vector2(rad * 0.7 + sx, -rad * 0.7)
-			draw_circle(at, br, Color(0.05, 0.05, 0.08, 0.9))
-			draw_arc(at, br, 0, TAU, 24, STATUS_COLORS[st], 2.0)
-			draw_string(_font, at + Vector2(-br, br * 0.55), "P" if st == Unit.POISON else "Z", HORIZONTAL_ALIGNMENT_CENTER, br * 2, int(br * 1.5), STATUS_COLORS[st])
-			sx += br * 2 + 2
-	var letter := TextView._letter(u).to_upper()
-	draw_string(_font, c + Vector2(-rad, 11), letter, HORIZONTAL_ALIGNMENT_CENTER, rad * 2, 32, Color.WHITE)
+		ci.draw_arc(Vector2.ZERO, rr + 9, 0, TAU, 48, Color("ffd34a"), 5.0)
+	ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	var tex := Art.sprite_sheet(u.data.id)
+	if tex == null:
+		_draw_token(ci, u, c)
+		return
+	var h := TILE * SPRITE_HEIGHT
+	var w := h * FRAME.x / FRAME.y
+	var dest := Rect2(feet.x - w / 2.0, feet.y - h * 60.0 / FRAME.y, w, h)
+	var tint := Color(1, 0.5, 0.5) if _hurt.has(u.id) else Color.WHITE
+	ci.draw_texture_rect_region(tex, dest, frame_rect(_facing.get(u.id, DOWN), _frame(u)), tint)
+
+
+func _frame(u: Unit) -> int:
+	return _pose.get(u.id, IDLE_FRAMES[_idle])
+
+
+## HP bar under the feet, leader star beside it, one head bubble above the head.
+func _draw_unit_hud(ci: CanvasItem, u: Unit) -> void:
+	var c: Vector2 = _unit_px.get(u.id, _center(u.pos))
 	var w := TILE * 0.7
-	var bar := Rect2(c + Vector2(-w / 2, rad + 6), Vector2(w, 7))
-	draw_rect(bar, Color(0, 0, 0, 0.6))
+	var bar := Rect2(c + Vector2(-w / 2, TILE * 0.39), Vector2(w, 7))
+	ci.draw_rect(bar.grow(1), Color(0, 0, 0, 0.7))
 	var frac := float(u.hp) / u.max_hp()
 	var hp_col := Color("5ad65a") if frac > 0.5 else (Color("e8c440") if frac > 0.25 else Color("e04a3a"))
-	draw_rect(Rect2(bar.position, Vector2(w * frac, 7)), hp_col)
+	ci.draw_rect(Rect2(bar.position, Vector2(w * frac, 7)), hp_col)
+	var star := TILE * 0.3
+	if u.is_leader:
+		_draw_icon(ci, "leader", Rect2(bar.position + Vector2(-star - 2, 3.5 - star / 2), Vector2(star, star)))
+	var icon := head_icon(u)
+	if icon != "":
+		var s := maxf(24.0, TILE * 0.4)
+		var head_top := c.y + TILE * FEET - TILE * SPRITE_HEIGHT * 50.0 / FRAME.y
+		if Art.sprite_sheet(u.data.id) == null:
+			head_top = c.y - TILE * 0.36
+		_draw_icon(ci, icon, Rect2(c.x - s / 2, head_top - s + 2, s, s))
+
+
+## One bubble per unit, most important first (doc/03 step 15):
+## sleep > poison > "!" (hovered target you're strong against) > ♥ (bonded ally next to the actor).
+func head_icon(u: Unit) -> String:
+	if u.status.has(Unit.SLEEP):
+		return "sleep"
+	if u.status.has(Unit.POISON):
+		return "poison"
+	var actor := state.current_actor() if state != null else null
+	if actor == null or not _player_turn():
+		return ""
+	if u.id in _targets and state.grid.in_bounds(_hover) and state.grid.unit_at(_hover) == u and Rules.matchup(actor, u) > 0:
+		return "adv"
+	if u != actor and u.faction == actor.faction and Pathfinder.distance(u.pos, actor.pos) == 1 \
+			and state.bonds.tier(actor.data.id, u.data.id) > 0:
+		return "bond"
+	return ""
+
+
+func _draw_icon(ci: CanvasItem, name: String, r: Rect2) -> void:
+	var tex := Art.head_icon(name)
+	if tex != null:
+		ci.draw_texture_rect(tex, r, false)
+	else:   # no icon file: a letter in a dark circle
+		ci.draw_circle(r.get_center(), r.size.x / 2, Color(0.05, 0.05, 0.08, 0.9))
+		ci.draw_string(_font, r.position + Vector2(0, r.size.y * 0.75), name.substr(0, 1).to_upper(), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, int(r.size.y * 0.7), Color.WHITE)
+
+
+## Fallback when a unit has no sprite sheet: the step 6 token (circle + letter).
+func _draw_token(ci: CanvasItem, u: Unit, c: Vector2) -> void:
+	var col := PLAYER_COLOR if u.faction == Enums.Faction.PLAYER else ENEMY_COLOR
+	var rad := TILE * 0.34
+	ci.draw_circle(c, rad, col)
+	ci.draw_arc(c, rad, 0, TAU, 40, col.lightened(0.4), 2.0)
+	var letter := TextView._letter(u).to_upper()
+	ci.draw_string(_font, c + Vector2(-rad, 11), letter, HORIZONTAL_ALIGNMENT_CENTER, rad * 2, 32, Color.WHITE)
 
 
 func _tile_rect(t: Vector2i) -> Rect2:
@@ -466,8 +647,12 @@ func _tile_at(p: Vector2) -> Vector2i:
 
 func _sync_positions() -> void:
 	_unit_px.clear()
+	_pose.clear()
+	_hurt.clear()
 	for u in state.units():
 		_unit_px[u.id] = _center(u.pos)
+		if not _facing.has(u.id) or state.round_number() == 0:
+			_facing[u.id] = _initial_facing(u)
 
 
 # --- side panel --------------------------------------------------------------
@@ -487,6 +672,15 @@ func _layout() -> void:
 	_banner.size = Vector2(map_px.x, 200)
 
 
+func _layer(painter: Callable) -> Control:
+	var c := Control.new()
+	c.set_anchors_preset(Control.PRESET_FULL_RECT)
+	c.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(c)
+	c.draw.connect(func() -> void: painter.call(c))
+	return c
+
+
 func _ensure_ui() -> void:
 	if _log == null:
 		_font = ThemeDB.fallback_font
@@ -496,6 +690,9 @@ func _ensure_ui() -> void:
 func _build_ui() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	_units_layer = _layer(_draw_units)
+	_units_layer.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST   # crisp pixel art
+	_overlay = _layer(_draw_overlay)
 	var map_w := 8 * TILE
 	var panel := VBoxContainer.new()
 	_panel = panel
