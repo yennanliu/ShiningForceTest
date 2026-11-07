@@ -5,10 +5,12 @@ const DIR := "res://tests/fixtures/"
 
 
 static func map() -> MapData:
+	_register()
 	return load(DIR + "map_8x8.tres")
 
 
 static func unit_data(id: String) -> UnitData:
+	_register()
 	return load(DIR + "unit_%s.tres" % id)
 
 
@@ -20,9 +22,28 @@ static func class_data(id: String) -> ClassData:
 	return load(DIR + "class_%s.tres" % id)
 
 
+## hero (leader), knight, archer, scout.
+static func party() -> Array[Unit]:
+	var out: Array[Unit] = []
+	for id in ["hero", "knight", "archer", "scout"]:
+		out.append(Unit.from_data(unit_data(id)))
+	out[0].is_leader = true
+	return out
+
+
+static func battle(p_seed := 1) -> BattleState:
+	var b := BattleState.new(map(), party(), p_seed)
+	b.start()
+	return b
+
+
 static func all_paths() -> PackedStringArray:
 	var out := PackedStringArray()
 	for f in DirAccess.get_files_at(DIR):
 		if f.ends_with(".tres"):
 			out.append(DIR + f)
 	return out
+
+
+static func _register() -> void:
+	Content.register_dir(DIR)

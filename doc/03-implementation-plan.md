@@ -123,21 +123,23 @@ Simplifications compared with doc 02 (kept simple to run first):
 
 **Tasks**
 
-- [ ] `Rng` (seeded; `between`, `chance`, `pick`)
-- [ ] `Unit` (stats with equipment, `copy`, `to_dict`/`from_dict`)
-- [ ] `Grid` (built from `MapData`; height, terrain, occupancy, neighbors)
-- [ ] `TurnQueue` (initiative = `agi × between(0.875, 1.125)`, tie rules, `peek`)
-- [ ] `BattleState._init`, `start()`, `units()`, `unit(id)`, `current_actor()`, plus an `assert_invariants()` debug helper
+- [x] `Rng` (seeded; `between`, `chance`, `roll`, `pick`)
+- [x] `Unit` (stats with equipment, `copy`, `to_dict`/`from_dict`)
+- [x] `Grid` (built from `MapData`; height, terrain, occupancy, neighbors)
+- [x] `TurnQueue` (initiative = `agi × between(0.875, 1.125)`, tie rules, `peek`)
+- [x] `BattleState._init`, `start()`, `units()`, `living()`, `unit(id)`, `current_actor()`, plus a `check_invariants()` helper
+- [x] **Added:** `Content` registry (`core/content.gd`) that resolves ids to Resources, so `Unit.to_dict()` stores ids, not paths
 
 **Validation**
 
-| Check | Pass when |
-| --- | --- |
-| Determinism | Two `Rng(42)`s produce identical sequences of 1,000 values |
-| Grid | Unit tests: bounds, height, terrain lookup, `unit_at` after `place`/`vacate` |
-| Turn order | Same seed → same order; a unit with higher AGI goes first in > 90% of 1,000 seeds; dead units are skipped |
-| Build | `BattleState.new(fixture_map, party, 1)` places 8 units on spawns; invariants hold |
-| Serialization | `Unit.from_dict(u.to_dict())` equals `u` |
+| Check | Pass when | Result |
+| --- | --- | --- |
+| Determinism | Two `Rng(42)`s produce identical sequences of 1,000 values | ✅ `test_rng_same_seed_same_sequence` |
+| Grid | Unit tests: bounds, height, terrain lookup, `unit_at` after `place`/`vacate` | ✅ `test_grid_lookups`, `_neighbors`, `_occupancy` |
+| Turn order | Same seed → same order; a unit with higher AGI goes first in > 90% of 1,000 seeds; dead units are skipped | ✅ `test_turn_order_*` (4 tests) |
+| Build | `BattleState.new(fixture_map, party, 1)` places 8 units on spawns; invariants hold | ✅ `test_battle_builds_from_map` |
+| Serialization | `Unit.from_dict(u.to_dict())` equals `u` | ✅ `test_unit_dict_round_trip` |
+| Isolation | A battle copies the party; the caller's units are unchanged | ✅ `test_battle_does_not_change_callers_party` |
 
 ---
 
@@ -391,7 +393,7 @@ Each step becomes a GitHub milestone. Each task is an issue labeled with its ste
 | --- | --- | --- | --- |
 | 0 Bootstrap | Claude | 2026-11-07 | ✅ Done |
 | 1 Data schema | Claude | 2026-11-07 | ✅ Done |
-| 2 Battle model | | | Not started |
+| 2 Battle model | Claude | 2026-11-07 | ✅ Done |
 | 3 Pathfinding | | | Not started |
 | 4 Commands & rules | | | Not started |
 | 5 AI + headless (Gate A) | | | Not started |
