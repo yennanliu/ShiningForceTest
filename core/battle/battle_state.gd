@@ -1,6 +1,7 @@
 class_name BattleState
 extends RefCounted
-## One battle. Holds all battle state. From step 4 on, apply(cmd) is the only way to change it.
+## One battle. apply(cmd) is the ONLY way to change it (doc/02 §2).
+## Same map + party + seed + commands = same result, every time.
 
 enum Outcome { ONGOING, WON, LOST }
 
@@ -9,9 +10,12 @@ var grid: Grid
 var rng: Rng
 var queue := TurnQueue.new()
 var flags: Dictionary = {}
+var history: Array[Command] = []      # every applied command, for replays
 
 var _units: Array[Unit] = []
 var _actor: Unit
+var _moved := false
+var _outcome := Outcome.ONGOING
 var _next_id := 1
 
 
@@ -29,6 +33,67 @@ func _init(p_map: MapData, party: Array[Unit], p_seed: int) -> void:
 		spawn_enemy(e)
 
 
+## Rebuilds a battle by replaying commands (suspend saves, golden tests, bug reports).
+static func replay(p_map: MapData, party: Array[Unit], p_seed: int, cmds: Array) -> BattleState:
+	var b := BattleState.new(p_map, party, p_seed)
+	b.start()
+	for c in cmds:
+		var cmd: Command = c if c is Command else Command.from_dict(c)
+		b.apply(cmd)
+	return b
+
+
+## Starts round 1. Returns the opening events.
+func start() -> Array[BattleEvent]:
+	var out: Array[BattleEvent] = []
+	_next_turn(out)
+	return out
+
+
+## THE entry point. Returns what happened, in order. Empty = command rejected.
+func apply(cmd: Command) -> Array[BattleEvent]:
+	var out: Array[BattleEvent] = []
+	if not _accepts(cmd):
+		print_verbose("BattleState: rejected %s" % cmd)
+		return out
+	cmd.execute(self, out)
+	history.append(cmd)
+	_outcome = Rules.check_outcome(self)
+	if _outcome != Outcome.ONGOING:
+		out.append(BattleEvent.make(BattleEvent.BATTLE_ENDED, {"outcome": _outcome}))
+		_actor = null
+		return out
+	if cmd.ends_turn() or not _actor.is_alive():
+		out.append(BattleEvent.make(BattleEvent.TURN_ENDED, {"unit_id": _actor.id}))
+		_next_turn(out)
+	return out
+
+
+## Every command the unit could legally issue right now (for the HUD and AI).
+func legal_commands(u: Unit) -> Array[Command]:
+	var out: Array[Command] = []
+	if u != _actor or _outcome != Outcome.ONGOING:
+		return out
+	if not _moved:
+		for t: Vector2i in Pathfinder.reachable(grid, u):
+			if t != u.pos:
+				out.append(MoveCommand.to_tile(u.id, t))
+	for t in living():
+		var c := AttackCommand.on(u.id, t.id)
+		if c.is_valid(self):
+			out.append(c)
+	for i in u.items.size():
+		var eq := EquipCommand.slot_of(u.id, i)
+		if eq.is_valid(self):
+			out.append(eq)
+		for ally in living(u.faction):
+			var use := UseItemCommand.on(u.id, i, ally.id)
+			if use.is_valid(self):
+				out.append(use)
+	out.append(WaitCommand.by(u.id))
+	return out
+
+
 func spawn_enemy(e: EnemySpawn) -> Unit:
 	var u := Unit.from_data(e.unit, Enums.Faction.ENEMY)
 	u.level = e.level
@@ -39,9 +104,8 @@ func spawn_enemy(e: EnemySpawn) -> Unit:
 	return u
 
 
-## Starts round 1 and picks the first actor.
-func start() -> void:
-	_start_round()
+func outcome() -> Outcome:
+	return _outcome
 
 
 func units() -> Array[Unit]:
@@ -63,8 +127,35 @@ func current_actor() -> Unit:
 	return _actor
 
 
+func has_moved() -> bool:
+	return _moved
+
+
 func round_number() -> int:
 	return queue.round_number
+
+
+## Called by commands only.
+func mark_moved() -> void:
+	_moved = true
+
+
+## Called by Rules when a unit's HP reaches 0.
+func on_unit_died(u: Unit, out: Array[BattleEvent]) -> void:
+	grid.vacate(u.pos)
+	out.append(BattleEvent.make(BattleEvent.DIED, {"unit_id": u.id}))
+
+
+## Plain-data picture of the whole battle (for tests and golden files).
+func snapshot() -> Dictionary:
+	return {
+		"round": round_number(),
+		"actor": _actor.id if _actor != null else 0,
+		"moved": _moved,
+		"outcome": _outcome,
+		"flags": flags.duplicate(),
+		"units": _units.map(func(u: Unit) -> Dictionary: return u.to_dict()),
+	}
 
 
 ## Debug/test helper: returns broken invariants (empty = all good).
@@ -77,6 +168,8 @@ func check_invariants() -> PackedStringArray:
 		if u.mp < 0 or u.mp > u.max_mp():
 			errs.append("unit %d mp %d out of 0..%d" % [u.id, u.mp, u.max_mp()])
 		if not u.is_alive():
+			if grid.unit_at(u.pos) == u:
+				errs.append("dead unit %d still on the grid" % u.id)
 			continue
 		if not grid.in_bounds(u.pos):
 			errs.append("unit %d out of bounds at %s" % [u.id, u.pos])
@@ -85,9 +178,27 @@ func check_invariants() -> PackedStringArray:
 		seen[u.pos] = u.id
 		if grid.unit_at(u.pos) != u:
 			errs.append("grid does not know unit %d at %s" % [u.id, u.pos])
-	if _actor != null and not _actor.is_alive():
-		errs.append("current actor %d is dead" % _actor.id)
+	if _outcome == Outcome.ONGOING and (_actor == null or not _actor.is_alive()):
+		errs.append("no living actor while the battle is ongoing")
 	return errs
+
+
+func _accepts(cmd: Command) -> bool:
+	if cmd == null or _outcome != Outcome.ONGOING or _actor == null:
+		return false
+	if cmd.unit_id != _actor.id:
+		return false
+	return cmd.is_valid(self)
+
+
+func _next_turn(out: Array[BattleEvent]) -> void:
+	_moved = false
+	_actor = queue.next()
+	if _actor == null:
+		queue.start_round(_units, rng)
+		out.append(BattleEvent.make(BattleEvent.ROUND_STARTED, {"round": queue.round_number}))
+		_actor = queue.next()
+	out.append(BattleEvent.make(BattleEvent.TURN_STARTED, {"unit_id": _actor.id}))
 
 
 func _add(u: Unit, at: Vector2i) -> void:
@@ -95,8 +206,3 @@ func _add(u: Unit, at: Vector2i) -> void:
 	_next_id += 1
 	_units.append(u)
 	grid.place(u, at)
-
-
-func _start_round() -> void:
-	queue.start_round(_units, rng)
-	_actor = queue.next()

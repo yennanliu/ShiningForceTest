@@ -523,6 +523,11 @@ class Wait extends Command:
 
 ```gdscript
 class_name BattleEvent extends RefCounted
+## One generic class: a type constant + a data dict (simple to log, compare and replay).
+const DAMAGED := &"damaged"                  # one constant per row in the table below
+var type: StringName
+var data: Dictionary
+static func make(type: StringName, data: Dictionary = {}) -> BattleEvent: ...
 func to_dict() -> Dictionary: ...            # for logs and golden tests
 ```
 

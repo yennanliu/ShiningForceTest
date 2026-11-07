@@ -1,0 +1,46 @@
+class_name BattleEvent
+extends RefCounted
+## Something that happened in a battle. The core returns these from apply();
+## the view plays them in order. Kept generic on purpose: a type + a data dict.
+
+const ROUND_STARTED := &"round_started"   # {round}
+const TURN_STARTED := &"turn_started"     # {unit_id}
+const MOVED := &"moved"                   # {unit_id, path: Array[Vector2i]}
+const ATTACKED := &"attacked"             # {attacker_id, target_id, hit, crit, counter}
+const DAMAGED := &"damaged"               # {unit_id, amount, hp_after}
+const HEALED := &"healed"                 # {unit_id, amount, hp_after}
+const DIED := &"died"                     # {unit_id}
+const XP_GAINED := &"xp_gained"           # {unit_id, amount, xp_after}
+const EQUIPPED := &"equipped"             # {unit_id, item_id}
+const ITEM_USED := &"item_used"           # {unit_id, item_id, target_id}
+const TURN_ENDED := &"turn_ended"         # {unit_id}
+const BATTLE_ENDED := &"battle_ended"     # {outcome}
+
+var type: StringName
+var data: Dictionary
+
+
+static func make(p_type: StringName, p_data: Dictionary = {}) -> BattleEvent:
+	var e := BattleEvent.new()
+	e.type = p_type
+	e.data = p_data
+	return e
+
+
+func to_dict() -> Dictionary:
+	var d := {"type": String(type)}
+	for k in data:
+		d[k] = _plain(data[k])
+	return d
+
+
+func _to_string() -> String:
+	return str(to_dict())
+
+
+static func _plain(v: Variant) -> Variant:
+	if v is Vector2i:
+		return [v.x, v.y]
+	if v is Array:
+		return v.map(_plain)
+	return v

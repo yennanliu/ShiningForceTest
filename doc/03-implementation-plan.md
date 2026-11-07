@@ -174,24 +174,25 @@ Simplifications compared with doc 02 (kept simple to run first):
 
 **Tasks**
 
-- [ ] `Command` base + `Move`, `Attack`, `Equip`, `UseItem`, `Wait` (`Cast` comes in step 8), with `is_valid`, `execute`, `to_dict`/`from_dict`
-- [ ] `BattleEvent` types from [02 §5.4](02-eng-design.md#54-events-corebattleeventsgd), with `to_dict`
-- [ ] `BattleState.apply`: validate → execute → outcome check → turn advance → append to `history`
-- [ ] `BattleState.legal_commands(u)`
-- [ ] `Rules`: hit, damage, crit, double, counter, land effect, `forecast` (no RNG), `check_outcome` (rout, leader dies)
-- [ ] `BattleState.replay(map, party, seed, cmds)`
+- [x] `Command` base + `MoveCommand`, `AttackCommand`, `EquipCommand`, `UseItemCommand`, `WaitCommand` (`Cast` comes in step 8), with `is_valid`, `execute`, `to_dict`/`from_dict`. One file each in `core/battle/commands/`
+- [x] `BattleEvent` with `to_dict`. **Simplified:** one generic class (`type` + `data` dict, type constants such as `BattleEvent.DAMAGED`) instead of a class per event
+- [x] `BattleState.apply`: validate → execute → record in `history` → outcome check → turn advance
+- [x] `BattleState.legal_commands(u)`, `snapshot()`, `check_invariants()`
+- [x] `Rules`: hit, damage, crit, counter, land effect, XP, heal, `forecast` (no RNG, returns a Dictionary), `check_outcome` (rout, defeat boss, leader dies). **Deferred to step 8:** double attacks and weapon specials
+- [x] `BattleState.replay(map, party, seed, cmds)`
 
 **Validation**
 
-| Check | Pass when |
-| --- | --- |
-| Contract | Invalid command (wrong turn, out of range, dead unit) → `[]`, state unchanged (compare `to_dict` before/after) |
-| Turn shape | `Move` then `Attack` works; a second `Move` is rejected; `Wait` ends the turn |
-| Formulas | Table tests with a fixed seed: min/max damage, hit clamped to 10–99, land effect lowers damage, minimum 1 damage |
-| Forecast | `forecast().dmg` contains the damage actually dealt in 1,000 seeded attacks |
-| Events | Killing blow emits `Attacked → Damaged → Died → XpGained` in that order |
-| Replay | Scripted 20-command battle: `replay()` state equals live state (`to_dict`) |
-| Invariants | After every `apply` in all tests |
+| Check | Pass when | Result |
+| --- | --- | --- |
+| Contract | Invalid command (wrong turn, out of range, ally, too far, bad slot, null) → `[]`, state unchanged (`snapshot()` before/after) | ✅ `test_invalid_commands_are_rejected_without_changes` |
+| Turn shape | `Move` then `Attack` works; a second `Move` is rejected; `Wait` ends the turn; rounds advance | ✅ `test_turn_shape_move_then_act`, `test_wait_ends_turn`, `test_rounds_advance` |
+| Formulas | Hit clamped to 10–99, damage range, minimum 1 damage, land effect lowers damage, XP clamped | ✅ `test_hit_chance_is_clamped`, `test_damage_range_and_minimum`, `test_land_effect_lowers_damage`, `test_xp_formula` |
+| Forecast | `forecast().dmg` contains the damage actually dealt in 1,000 seeded attacks; forecast never uses the RNG | ✅ `test_forecast_contains_actual_damage`, `test_forecast_does_not_touch_rng` |
+| Events | Killing blow emits `attacked → damaged → died → xp_gained` in that order | ✅ `test_killing_blow_event_order` |
+| Items | Herb heals and is consumed; equip keeps the turn; class weapon rules hold | ✅ `test_use_item_heals_and_consumes`, `test_equip_does_not_end_turn` |
+| Outcome | All enemies dead → WON; leader dead → LOST; no commands after the end | ✅ `test_win_when_all_enemies_die`, `test_lose_when_leader_dies` |
+| Replay + invariants | 20 seeds × up to 60 random legal commands: invariants hold after every `apply`, and `replay()` from command dicts gives an identical `snapshot()` | ✅ `test_random_play_keeps_invariants_and_replays` |
 
 ---
 
@@ -395,7 +396,7 @@ Each step becomes a GitHub milestone. Each task is an issue labeled with its ste
 | 1 Data schema | Claude | 2026-11-07 | ✅ Done |
 | 2 Battle model | Claude | 2026-11-07 | ✅ Done |
 | 3 Pathfinding | Claude | 2026-11-07 | ✅ Done |
-| 4 Commands & rules | | | Not started |
+| 4 Commands & rules | Claude | 2026-11-07 | ✅ Done |
 | 5 AI + headless (Gate A) | | | Not started |
 | 6 Grey-box view (Gate B) | | | Not started |
 | 7 Campaign & saves | | | Not started |

@@ -90,6 +90,13 @@ func display_name() -> String:
 	return data.display_name
 
 
+## Removes an item and keeps the equipped slots pointing at the right items.
+func remove_item(slot: int) -> void:
+	items.remove_at(slot)
+	weapon_slot = _shift(weapon_slot, slot)
+	ring_slot = _shift(ring_slot, slot)
+
+
 func copy() -> Unit:
 	return Unit.from_dict(to_dict())
 
@@ -138,6 +145,12 @@ static func from_dict(d: Dictionary) -> Unit:
 	u.tag = StringName(d.get("tag", ""))
 	u.is_leader = d.get("is_leader", false)
 	return u
+
+
+static func _shift(equipped: int, removed: int) -> int:
+	if equipped == removed:
+		return -1
+	return equipped - 1 if equipped > removed else equipped
 
 
 func _first_slot(kind: ItemData.Kind) -> int:

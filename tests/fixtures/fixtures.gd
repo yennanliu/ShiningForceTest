@@ -63,6 +63,32 @@ static func unit_on(g: Grid, at: Vector2i, faction := Enums.Faction.PLAYER, id :
 	return u
 
 
+## A small battle on an open map. Players (hero, knight, archer, scout order) at
+## `players`, goblins at `enemies`. Hero is the leader.
+static func duel(players: Array, enemies: Array, p_seed := 1, size := Vector2i(8, 8), overrides := {}) -> BattleState:
+	var m := open_map(size, overrides)
+	m.player_spawns.clear()
+	for p: Vector2i in players:
+		m.player_spawns.append(p)
+	for e: Vector2i in enemies:
+		var sp := EnemySpawn.new()
+		sp.unit = unit_data("goblin")
+		sp.at = e
+		m.enemies.append(sp)
+	var b := BattleState.new(m, party(), p_seed)
+	b.start()
+	return b
+
+
+## Lets everyone else Wait until `u` is the acting unit.
+static func act_as(b: BattleState, u: Unit) -> void:
+	for i in 100:
+		if b.current_actor() == u:
+			return
+		b.apply(WaitCommand.by(b.current_actor().id))
+	assert(false, "unit %d never got a turn" % u.id)
+
+
 static func all_paths() -> PackedStringArray:
 	var out := PackedStringArray()
 	for f in DirAccess.get_files_at(DIR):
