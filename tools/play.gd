@@ -9,7 +9,7 @@ func _initialize() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--seed="):
 			seed = int(a.trim_prefix("--seed="))
-	var state := BattleState.new(Fixtures.map(), Fixtures.party(), seed)
+	var state := Campaign.new_game(load("res://data/chapters/ch01.tres")).start_battle(seed)
 	var game := TerminalGame.new(state, func() -> String: return OS.read_string_from_stdin(), func(t: String) -> void: print(t))
 	game.run()
 	quit()

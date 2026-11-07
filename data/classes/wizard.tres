@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="ClassData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_vsxoy"]
+[ext_resource type="Script" path="res://data/defs/class_data.gd" id="2_dg5rh"]
+[ext_resource type="Script" path="res://data/defs/spell_data.gd" id="3_4r6a1"]
+[ext_resource type="Resource" path="res://data/spells/blaze.tres" id="4_0dwyy"]
+[ext_resource type="Resource" path="res://data/spells/freeze.tres" id="5_2cpbk"]
+
+[sub_resource type="Resource" id="Resource_04jd1"]
+script = ExtResource("1_vsxoy")
+hp = 23
+mp = 35
+atk = 10
+def = 10
+agi = 15
+luk = 13
+
+[resource]
+script = ExtResource("2_dg5rh")
+id = &"wizard"
+display_name = "Wizard"
+weapon_types = Array[int]([5])
+growth = SubResource("Resource_04jd1")
+spells = Array[ExtResource("3_4r6a1")]([ExtResource("4_0dwyy"), ExtResource("5_2cpbk")])

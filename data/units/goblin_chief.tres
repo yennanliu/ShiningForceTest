@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_yvn6t"]
+[ext_resource type="Resource" path="res://data/classes/swordsman.tres" id="2_yahxj"]
+[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="3_1e287"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="4_0cqxv"]
+[ext_resource type="Resource" path="res://data/items/steel_sword.tres" id="5_u55q0"]
+
+[sub_resource type="Resource" id="Resource_rywwn"]
+script = ExtResource("1_yvn6t")
+hp = 34
+atk = 13
+def = 7
+agi = 7
+luk = 5
+
+[resource]
+script = ExtResource("3_1e287")
+id = &"goblin_chief"
+display_name = "Goblin Chief"
+class_data = ExtResource("2_yahxj")
+base_stats = SubResource("Resource_rywwn")
+starting_items = Array[ExtResource("4_0cqxv")]([ExtResource("5_u55q0")])

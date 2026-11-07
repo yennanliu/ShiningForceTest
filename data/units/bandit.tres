@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_ydkdc"]
+[ext_resource type="Resource" path="res://data/classes/warrior.tres" id="2_igh1o"]
+[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="3_3d7v8"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="4_72b1h"]
+[ext_resource type="Resource" path="res://data/items/hand_axe.tres" id="5_yfr5v"]
+
+[sub_resource type="Resource" id="Resource_ntm28"]
+script = ExtResource("1_ydkdc")
+hp = 16
+atk = 9
+def = 4
+agi = 7
+luk = 4
+
+[resource]
+script = ExtResource("3_3d7v8")
+id = &"bandit"
+display_name = "Bandit"
+class_data = ExtResource("2_igh1o")
+base_stats = SubResource("Resource_ntm28")
+starting_items = Array[ExtResource("4_72b1h")]([ExtResource("5_yfr5v")])

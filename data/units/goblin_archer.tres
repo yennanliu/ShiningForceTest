@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_hq22i"]
+[ext_resource type="Resource" path="res://data/classes/archer.tres" id="2_yt7vo"]
+[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="3_vaoic"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="4_pxumh"]
+[ext_resource type="Resource" path="res://data/items/wooden_bow.tres" id="5_silwq"]
+
+[sub_resource type="Resource" id="Resource_txhi4"]
+script = ExtResource("1_hq22i")
+hp = 12
+atk = 7
+def = 3
+agi = 6
+luk = 3
+
+[resource]
+script = ExtResource("3_vaoic")
+id = &"goblin_archer"
+display_name = "Goblin Archer"
+class_data = ExtResource("2_yt7vo")
+base_stats = SubResource("Resource_txhi4")
+starting_items = Array[ExtResource("4_pxumh")]([ExtResource("5_silwq")])

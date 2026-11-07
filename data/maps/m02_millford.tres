@@ -1,0 +1,122 @@
+[gd_resource type="Resource" script_class="MapData" format=4]
+
+[ext_resource type="Script" path="res://data/defs/enemy_spawn.gd" id="1_cesgk"]
+[ext_resource type="Resource" path="res://data/units/villager.tres" id="2_5anqx"]
+[ext_resource type="Resource" path="res://data/units/wolf.tres" id="3_q1e73"]
+[ext_resource type="Resource" path="res://data/units/goblin.tres" id="4_6xscp"]
+[ext_resource type="Resource" path="res://data/units/goblin_archer.tres" id="5_wuogi"]
+[ext_resource type="Script" path="res://data/defs/map_data.gd" id="6_rd1ch"]
+[ext_resource type="Script" path="res://data/defs/terrain_data.gd" id="7_bw835"]
+[ext_resource type="Resource" path="res://data/terrain/plain.tres" id="8_2ggxj"]
+[ext_resource type="Resource" path="res://data/terrain/forest.tres" id="9_k7rx1"]
+[ext_resource type="Resource" path="res://data/terrain/hill.tres" id="10_c81c6"]
+[ext_resource type="Resource" path="res://data/terrain/sand.tres" id="11_02rs8"]
+[ext_resource type="Resource" path="res://data/terrain/shallow.tres" id="12_4v1at"]
+[ext_resource type="Resource" path="res://data/terrain/deep.tres" id="13_ymjrn"]
+[ext_resource type="Resource" path="res://data/terrain/wall.tres" id="14_p7gp0"]
+[ext_resource type="Script" path="res://data/defs/trigger_data.gd" id="15_vpsee"]
+[ext_resource type="Script" path="res://data/defs/trigger_action.gd" id="16_h71t2"]
+
+[sub_resource type="Resource" id="Resource_pebug"]
+script = ExtResource("1_cesgk")
+unit = ExtResource("2_5anqx")
+at = Vector2i(3, 3)
+ai = 5
+tag = &"villager"
+
+[sub_resource type="Resource" id="Resource_g5wpl"]
+script = ExtResource("1_cesgk")
+unit = ExtResource("3_q1e73")
+at = Vector2i(10, 0)
+
+[sub_resource type="Resource" id="Resource_vuns7"]
+script = ExtResource("1_cesgk")
+unit = ExtResource("3_q1e73")
+at = Vector2i(8, 2)
+
+[sub_resource type="Resource" id="Resource_2bvws"]
+script = ExtResource("1_cesgk")
+unit = ExtResource("4_6xscp")
+at = Vector2i(11, 3)
+
+[sub_resource type="Resource" id="Resource_w5ji3"]
+script = ExtResource("1_cesgk")
+unit = ExtResource("4_6xscp")
+at = Vector2i(9, 5)
+
+[sub_resource type="Resource" id="Resource_awf2b"]
+script = ExtResource("1_cesgk")
+unit = ExtResource("3_q1e73")
+at = Vector2i(11, 6)
+
+[sub_resource type="Resource" id="Resource_0y6yn"]
+script = ExtResource("1_cesgk")
+unit = ExtResource("5_wuogi")
+at = Vector2i(10, 8)
+
+[sub_resource type="Resource" id="Resource_6ms7o"]
+script = ExtResource("16_h71t2")
+key = &"ch02_intro"
+
+[sub_resource type="Resource" id="Resource_mo54u"]
+script = ExtResource("16_h71t2")
+key = &"ch02_villager"
+
+[sub_resource type="Resource" id="Resource_6tboh"]
+script = ExtResource("15_vpsee")
+actions = Array[ExtResource("16_h71t2")]([SubResource("Resource_6ms7o"), SubResource("Resource_mo54u")])
+
+[sub_resource type="Resource" id="Resource_r63va"]
+script = ExtResource("16_h71t2")
+key = &"ch02_wolves"
+
+[sub_resource type="Resource" id="Resource_fmaxe"]
+script = ExtResource("1_cesgk")
+unit = ExtResource("3_q1e73")
+at = Vector2i(11, 0)
+
+[sub_resource type="Resource" id="Resource_u1wgu"]
+script = ExtResource("16_h71t2")
+kind = 0
+spawn = SubResource("Resource_fmaxe")
+
+[sub_resource type="Resource" id="Resource_1ivep"]
+script = ExtResource("1_cesgk")
+unit = ExtResource("3_q1e73")
+at = Vector2i(11, 9)
+
+[sub_resource type="Resource" id="Resource_lft1d"]
+script = ExtResource("16_h71t2")
+kind = 0
+spawn = SubResource("Resource_1ivep")
+
+[sub_resource type="Resource" id="Resource_rnr52"]
+script = ExtResource("15_vpsee")
+on_round = 3
+actions = Array[ExtResource("16_h71t2")]([SubResource("Resource_r63va"), SubResource("Resource_u1wgu"), SubResource("Resource_lft1d")])
+
+[sub_resource type="Resource" id="Resource_evq3w"]
+script = ExtResource("16_h71t2")
+key = &"ch02_villager_down"
+
+[sub_resource type="Resource" id="Resource_tq2fp"]
+script = ExtResource("16_h71t2")
+kind = 6
+
+[sub_resource type="Resource" id="Resource_3kyn5"]
+script = ExtResource("15_vpsee")
+when = 2
+tag = &"villager"
+actions = Array[ExtResource("16_h71t2")]([SubResource("Resource_evq3w"), SubResource("Resource_tq2fp")])
+
+[resource]
+script = ExtResource("6_rd1ch")
+id = &"m02_millford"
+size = Vector2i(12, 10)
+heights = PackedByteArray("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+terrain_ids = PackedByteArray("AAAAAAEBAAAAAAAAAAYGAAAAAAAAAAAAAAYAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAYAAAAAAgAAAAAAAAYGAAAAAgAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAA")
+terrain_types = Array[ExtResource("7_bw835")]([ExtResource("8_2ggxj"), ExtResource("9_k7rx1"), ExtResource("10_c81c6"), ExtResource("11_02rs8"), ExtResource("12_4v1at"), ExtResource("13_ymjrn"), ExtResource("14_p7gp0")])
+player_spawns = Array[Vector2i]([Vector2i(0, 7), Vector2i(1, 7), Vector2i(0, 8), Vector2i(1, 8), Vector2i(0, 9), Vector2i(1, 9)])
+enemies = Array[ExtResource("1_cesgk")]([SubResource("Resource_g5wpl"), SubResource("Resource_vuns7"), SubResource("Resource_2bvws"), SubResource("Resource_w5ji3"), SubResource("Resource_awf2b"), SubResource("Resource_0y6yn")])
+allies = Array[ExtResource("1_cesgk")]([SubResource("Resource_pebug")])
+triggers = Array[ExtResource("15_vpsee")]([SubResource("Resource_6tboh"), SubResource("Resource_rnr52"), SubResource("Resource_3kyn5")])

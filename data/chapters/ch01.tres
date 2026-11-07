@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="ChapterData" format=3]
+
+[ext_resource type="Resource" path="res://data/maps/m01_ruins_road.tres" id="1_tecy1"]
+[ext_resource type="Resource" path="res://data/chapters/ch02.tres" id="2_2o1dg"]
+[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="3_42x5t"]
+[ext_resource type="Resource" path="res://data/units/aldric.tres" id="4_7in6t"]
+[ext_resource type="Resource" path="res://data/units/brina.tres" id="5_h0ioe"]
+[ext_resource type="Resource" path="res://data/units/corin.tres" id="6_4wd8s"]
+[ext_resource type="Resource" path="res://data/units/dara.tres" id="7_bo1d0"]
+[ext_resource type="Script" path="res://data/defs/chapter_data.gd" id="8_qre2a"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="9_fd2kk"]
+[ext_resource type="Resource" path="res://data/items/herb.tres" id="10_1lwlg"]
+[ext_resource type="Resource" path="res://data/items/bronze_sword.tres" id="11_ar1sg"]
+[ext_resource type="Resource" path="res://data/items/bronze_spear.tres" id="12_fjhlh"]
+[ext_resource type="Resource" path="res://data/items/wooden_bow.tres" id="13_347o4"]
+[ext_resource type="Resource" path="res://data/items/healing_seed.tres" id="14_ktppi"]
+
+[resource]
+script = ExtResource("8_qre2a")
+id = &"ch01"
+title = "Chapter 1: The Ruins Road"
+battle = ExtResource("1_tecy1")
+recruits_on_start = Array[ExtResource("3_42x5t")]([ExtResource("4_7in6t"), ExtResource("5_h0ioe"), ExtResource("6_4wd8s"), ExtResource("7_bo1d0")])
+reward_gold = 100
+town_name = "Riverside"
+town_talk = Array[StringName]([&"town_elder", &"town_smith"])
+town_finds = Array[ExtResource("9_fd2kk")]([ExtResource("14_ktppi")])
+shop = Array[ExtResource("9_fd2kk")]([ExtResource("10_1lwlg"), ExtResource("11_ar1sg"), ExtResource("12_fjhlh"), ExtResource("13_347o4")])
+next = ExtResource("2_2o1dg")

@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ClassData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_6seil"]
+[ext_resource type="Script" path="res://data/defs/class_data.gd" id="2_6ivc7"]
+[ext_resource type="Resource" path="res://data/classes/wizard.tres" id="3_1aw3n"]
+[ext_resource type="Script" path="res://data/defs/spell_data.gd" id="4_oh764"]
+[ext_resource type="Resource" path="res://data/spells/blaze.tres" id="5_a5vvi"]
+
+[sub_resource type="Resource" id="Resource_et4w3"]
+script = ExtResource("1_6seil")
+hp = 20
+mp = 30
+atk = 8
+def = 8
+agi = 13
+luk = 12
+
+[resource]
+script = ExtResource("2_6ivc7")
+id = &"mage"
+display_name = "Mage"
+weapon_types = Array[int]([5])
+growth = SubResource("Resource_et4w3")
+spells = Array[ExtResource("4_oh764")]([ExtResource("5_a5vvi")])
+promotes_to = Array[ExtResource("2_6ivc7")]([ExtResource("3_1aw3n")])

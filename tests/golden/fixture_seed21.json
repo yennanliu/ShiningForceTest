@@ -190,6 +190,7 @@
     "units": [
       {
         "ai": 0,
+        "ai_controlled": false,
         "base": {
           "agi": 8,
           "atk": 10,
@@ -221,6 +222,7 @@
       },
       {
         "ai": 0,
+        "ai_controlled": false,
         "base": {
           "agi": 6,
           "atk": 9,
@@ -252,6 +254,7 @@
       },
       {
         "ai": 0,
+        "ai_controlled": false,
         "base": {
           "agi": 7,
           "atk": 9,
@@ -282,6 +285,7 @@
       },
       {
         "ai": 0,
+        "ai_controlled": false,
         "base": {
           "agi": 9,
           "atk": 8,
@@ -312,6 +316,7 @@
       },
       {
         "ai": 0,
+        "ai_controlled": false,
         "base": {
           "agi": 6,
           "atk": 8,
@@ -343,6 +348,7 @@
       },
       {
         "ai": 0,
+        "ai_controlled": false,
         "base": {
           "agi": 6,
           "atk": 8,
@@ -374,6 +380,7 @@
       },
       {
         "ai": 0,
+        "ai_controlled": false,
         "base": {
           "agi": 6,
           "atk": 7,
@@ -404,6 +411,7 @@
       },
       {
         "ai": 0,
+        "ai_controlled": false,
         "base": {
           "agi": 6,
           "atk": 7,

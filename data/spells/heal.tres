@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="SpellData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/spell_level.gd" id="1_xmgm2"]
+[ext_resource type="Script" path="res://data/defs/spell_data.gd" id="2_fq6n4"]
+
+[sub_resource type="Resource" id="Resource_116tl"]
+script = ExtResource("1_xmgm2")
+mp_cost = 3
+power = 12
+spell_range = Vector2i(0, 1)
+
+[sub_resource type="Resource" id="Resource_esm3o"]
+script = ExtResource("1_xmgm2")
+mp_cost = 6
+power = 20
+spell_range = Vector2i(0, 2)
+
+[resource]
+script = ExtResource("2_fq6n4")
+id = &"heal"
+display_name = "Heal"
+heals = true
+levels = Array[ExtResource("1_xmgm2")]([SubResource("Resource_116tl"), SubResource("Resource_esm3o")])

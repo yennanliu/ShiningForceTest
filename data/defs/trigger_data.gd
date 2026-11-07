@@ -15,3 +15,5 @@ enum When { ROUND_START, UNIT_ENTERS, UNIT_DIES, HP_BELOW }
 @export var hp_percent := 50
 @export var actions: Array[TriggerAction] = []
 @export var repeat := false
+## If this flag is set, the trigger no longer fires (e.g. chests after the ruins are looted).
+@export var unless_flag: StringName

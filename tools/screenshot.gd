@@ -14,6 +14,10 @@ func _initialize() -> void:
 	var game: Node = root.get_node("Game")
 	game.change_scenes = false
 	game.new_game()
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--chapter="):
+			for i in int(a.trim_prefix("--chapter=")) - 1:
+				game.campaign._advance_chapter()
 	if screen == "results":
 		game.last_result = game.campaign.finish_battle(Fixtures.win_battle(game.campaign))
 	var path: String = {

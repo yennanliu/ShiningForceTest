@@ -16,6 +16,7 @@ const BOND_CHANGED := &"bond_changed"     # {a_id, b_id, tier}
 const CAST := &"cast"                     # {unit_id, spell_id, level, at}
 const SPAWNED := &"spawned"               # {unit_id, at}
 const SAID := &"said"                     # {line_id}
+const ITEM_FOUND := &"item_found"         # {unit_id, item_id}
 const EQUIPPED := &"equipped"             # {unit_id, item_id}
 const ITEM_USED := &"item_used"           # {unit_id, item_id, target_id}
 const TURN_ENDED := &"turn_ended"         # {unit_id}

@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_tyrnw"]
+[ext_resource type="Resource" path="res://data/classes/archer.tres" id="2_x114o"]
+[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="3_0loya"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="4_omhw2"]
+[ext_resource type="Resource" path="res://data/items/wooden_bow.tres" id="5_qcu5o"]
+[ext_resource type="Resource" path="res://data/items/herb.tres" id="6_0v8fs"]
+
+[sub_resource type="Resource" id="Resource_sb30v"]
+script = ExtResource("1_tyrnw")
+hp = 16
+atk = 8
+def = 4
+agi = 9
+luk = 8
+
+[resource]
+script = ExtResource("3_0loya")
+id = &"hale"
+display_name = "Hale"
+class_data = ExtResource("2_x114o")
+base_stats = SubResource("Resource_sb30v")
+starting_items = Array[ExtResource("4_omhw2")]([ExtResource("5_qcu5o"), ExtResource("6_0v8fs")])

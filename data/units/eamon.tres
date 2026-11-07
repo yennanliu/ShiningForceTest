@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_gjosg"]
+[ext_resource type="Resource" path="res://data/classes/mage.tres" id="2_rn5im"]
+[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="3_0872e"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="4_k8s66"]
+[ext_resource type="Resource" path="res://data/items/wooden_staff.tres" id="5_asei1"]
+
+[sub_resource type="Resource" id="Resource_65juc"]
+script = ExtResource("1_gjosg")
+hp = 14
+mp = 16
+atk = 4
+def = 3
+agi = 6
+luk = 6
+
+[resource]
+script = ExtResource("3_0872e")
+id = &"eamon"
+display_name = "Eamon"
+class_data = ExtResource("2_rn5im")
+base_stats = SubResource("Resource_65juc")
+starting_items = Array[ExtResource("4_k8s66")]([ExtResource("5_asei1")])

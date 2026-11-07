@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="ClassData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_gho34"]
+[ext_resource type="Script" path="res://data/defs/class_data.gd" id="2_ja1bg"]
+[ext_resource type="Script" path="res://data/defs/spell_data.gd" id="3_eb5mq"]
+
+[sub_resource type="Resource" id="Resource_wm3ht"]
+script = ExtResource("1_gho34")
+hp = 38
+atk = 25
+def = 28
+agi = 14
+luk = 10
+
+[resource]
+script = ExtResource("2_ja1bg")
+id = &"paladin"
+display_name = "Paladin"
+move_type = 2
+mov = 6
+weapon_types = Array[int]([3])
+growth = SubResource("Resource_wm3ht")

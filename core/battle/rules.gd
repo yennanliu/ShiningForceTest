@@ -148,7 +148,7 @@ static func check_outcome(s: BattleState) -> BattleState.Outcome:
 					return BattleState.Outcome.WON
 		Enums.Objective.REACH_AREA:
 			for u in players:
-				if s.map.objective_area.has_point(u.pos):
+				if s.map.objective_area.has_point(u.pos) and (s.map.objective_tag == &"" or u.tag == s.map.objective_tag):
 					return BattleState.Outcome.WON
 		Enums.Objective.SURVIVE_ROUNDS:
 			if s.round_number() > s.map.objective_rounds:

@@ -13,10 +13,27 @@ static func run(s: BattleState, out: Array[BattleEvent]) -> void:
 		if _met(s, t):
 			s.fired[i] = s.round_number()
 			for a in t.actions:
-				_do(s, a, out)
+				_do(s, t, a, out)
+
+
+## Tiles of chests (GIVE-on-enter triggers) that can still be opened, for the views.
+static func open_chests(s: BattleState) -> Array[Vector2i]:
+	var out: Array[Vector2i] = []
+	for i in s.map.triggers.size():
+		var t := s.map.triggers[i]
+		if t.when != TriggerData.When.UNIT_ENTERS or s.fired.has(i):
+			continue
+		if t.unless_flag != &"" and s.flags.get(t.unless_flag, false):
+			continue
+		for a in t.actions:
+			if a.kind == TriggerAction.Kind.GIVE:
+				out.append(t.area.position)
+	return out
 
 
 static func _met(s: BattleState, t: TriggerData) -> bool:
+	if t.unless_flag != &"" and s.flags.get(t.unless_flag, false):
+		return false
 	match t.when:
 		TriggerData.When.ROUND_START:
 			return s.round_number() >= t.on_round
@@ -35,7 +52,16 @@ static func _met(s: BattleState, t: TriggerData) -> bool:
 	return false
 
 
-static func _do(s: BattleState, a: TriggerAction, out: Array[BattleEvent]) -> void:
+## The player unit inside the trigger's area (for GIVE), else the first living player unit.
+static func _who(s: BattleState, t: TriggerData) -> Unit:
+	var players := s.living(Enums.Faction.PLAYER)
+	for u in players:
+		if t.when == TriggerData.When.UNIT_ENTERS and t.area.has_point(u.pos):
+			return u
+	return players[0] if not players.is_empty() else null
+
+
+static func _do(s: BattleState, t: TriggerData, a: TriggerAction, out: Array[BattleEvent]) -> void:
 	match a.kind:
 		TriggerAction.Kind.SPAWN:
 			if a.spawn != null and s.grid.unit_at(a.spawn.at) == null:
@@ -49,5 +75,17 @@ static func _do(s: BattleState, a: TriggerAction, out: Array[BattleEvent]) -> vo
 			s.forced_outcome = BattleState.Outcome.WON
 		TriggerAction.Kind.LOSE:
 			s.forced_outcome = BattleState.Outcome.LOST
+		TriggerAction.Kind.GIVE:
+			var u := _who(s, t)
+			if u != null and a.item != null:
+				if u.items.size() < Unit.MAX_ITEMS:
+					u.items.append(a.item)
+				else:
+					s.flags[&"overflow_" + String(a.item.id)] = true
+				out.append(BattleEvent.make(BattleEvent.ITEM_FOUND, {"unit_id": u.id, "item_id": a.item.id}))
+		TriggerAction.Kind.SET_AI:
+			for u in s.living():
+				if u.tag == a.key:
+					u.ai = a.ai
 		_:
 			push_warning("MapScript: action %s not supported yet" % a.kind)

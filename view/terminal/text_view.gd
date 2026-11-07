@@ -23,7 +23,7 @@ static func render(s: BattleState) -> String:
 	lines.append("")
 	lines.append_array(_map_lines(s))
 	lines.append("")
-	lines.append("  .plain f forest ^hill #wall   UPPER = you, lower = enemy, + = can move, * = acting")
+	lines.append("  .plain f forest ^hill #wall $chest   UPPER = you, lower = enemy, + = can move, * = acting")
 	lines.append("")
 	lines.append_array(_unit_lines(s))
 	return "\n".join(lines)
@@ -54,6 +54,8 @@ static func describe(e: BattleEvent, s: BattleState) -> String:
 			return "  %s and %s grow closer (bond %d)" % [_name(s, d.a_id), _name(s, d.b_id), d.tier]
 		BattleEvent.SPAWNED:
 			return "Reinforcements! %s appears at %s" % [_name(s, d.unit_id), _xy(d.at)]
+		BattleEvent.ITEM_FOUND:
+			return "  %s found %s!" % [_name(s, d.unit_id), d.item_id]
 		BattleEvent.SAID:
 			var l := Dialogue.line(d.line_id)
 			return '%s: "%s"' % [l.speaker, l.text]
@@ -129,6 +131,7 @@ static func _map_lines(s: BattleState) -> PackedStringArray:
 	var out: PackedStringArray = []
 	var g := s.grid
 	var actor := s.current_actor()
+	var chests := MapScript.open_chests(s)
 	var reach := {}
 	if actor != null and actor.faction == Enums.Faction.PLAYER and not s.has_moved():
 		reach = Pathfinder.reachable(g, actor)
@@ -144,6 +147,8 @@ static func _map_lines(s: BattleState) -> PackedStringArray:
 			var c: String
 			if u != null:
 				c = "*" if u == actor else _letter(u)
+			elif chests.has(t):
+				c = "$"
 			elif reach.has(t):
 				c = "+"
 			else:

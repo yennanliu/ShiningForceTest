@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_a1agg"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="2_5slob"]
+[ext_resource type="Script" path="res://data/defs/special_data.gd" id="3_si37i"]
+
+[sub_resource type="Resource" id="Resource_2snuf"]
+script = ExtResource("1_a1agg")
+atk = 8
+
+[sub_resource type="Resource" id="Resource_twps6"]
+script = ExtResource("3_si37i")
+chance = 0.15
+
+[resource]
+script = ExtResource("2_5slob")
+id = &"steel_sword"
+display_name = "Steel Sword"
+kind = 0
+weapon_type = 1
+bonus = SubResource("Resource_2snuf")
+special = SubResource("Resource_twps6")
+price = 300

@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_xsn3w"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="2_q632y"]
+[ext_resource type="Script" path="res://data/defs/special_data.gd" id="3_cump0"]
+
+[sub_resource type="Resource" id="Resource_rvrom"]
+script = ExtResource("1_xsn3w")
+atk = 7
+
+[sub_resource type="Resource" id="Resource_xxubn"]
+script = ExtResource("3_cump0")
+effect = 3
+chance = 0.12
+
+[resource]
+script = ExtResource("2_q632y")
+id = &"long_bow"
+display_name = "Long Bow"
+kind = 0
+weapon_type = 4
+bonus = SubResource("Resource_rvrom")
+attack_range = Vector2i(2, 3)
+special = SubResource("Resource_xxubn")
+price = 280

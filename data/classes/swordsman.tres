@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="ClassData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_qu7dj"]
+[ext_resource type="Script" path="res://data/defs/class_data.gd" id="2_gdudp"]
+[ext_resource type="Resource" path="res://data/classes/swordmaster.tres" id="3_hy3e8"]
+[ext_resource type="Script" path="res://data/defs/spell_data.gd" id="4_aqgfo"]
+
+[sub_resource type="Resource" id="Resource_unqxc"]
+script = ExtResource("1_qu7dj")
+hp = 30
+atk = 24
+def = 18
+agi = 15
+luk = 10
+
+[resource]
+script = ExtResource("2_gdudp")
+id = &"swordsman"
+display_name = "Swordsman"
+weapon_types = Array[int]([1])
+growth = SubResource("Resource_unqxc")
+promotes_to = Array[ExtResource("2_gdudp")]([ExtResource("3_hy3e8")])

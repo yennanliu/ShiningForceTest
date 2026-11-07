@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_pe2dj"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="2_pgv37"]
+
+[sub_resource type="Resource" id="Resource_r6dcu"]
+script = ExtResource("1_pe2dj")
+atk = 5
+
+[resource]
+script = ExtResource("2_pgv37")
+id = &"bronze_sword"
+display_name = "Bronze Sword"
+kind = 0
+weapon_type = 1
+bonus = SubResource("Resource_r6dcu")
+price = 100

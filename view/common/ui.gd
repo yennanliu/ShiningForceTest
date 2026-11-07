@@ -21,6 +21,7 @@ static func button(parent: Node, text: String, cb: Callable, width := 360) -> Bu
 	b.text = text
 	b.add_theme_font_size_override("font_size", 28)
 	b.custom_minimum_size = Vector2(width, 64)
+	b.pressed.connect(func() -> void: Audio.play_sfx("select"))
 	b.pressed.connect(cb)
 	parent.add_child(b)
 	return b
@@ -65,3 +66,27 @@ static func center(node: Control) -> Control:
 
 static func time_text(seconds: int) -> String:
 	return "%d:%02d" % [seconds / 3600, (seconds / 60) % 60]
+
+
+## The game's look: dark-blue panels and buttons with a gold edge.
+static func make_theme() -> Theme:
+	var t := Theme.new()
+	t.set_stylebox("normal", "Button", _box(Color("22357a"), PANEL_BORDER.darkened(0.3)))
+	t.set_stylebox("hover", "Button", _box(Color("2d45a0"), ACCENT))
+	t.set_stylebox("pressed", "Button", _box(Color("17245a"), ACCENT))
+	t.set_stylebox("disabled", "Button", _box(Color("1a2040"), Color(1, 1, 1, 0.1)))
+	t.set_stylebox("focus", "Button", StyleBoxEmpty.new())
+	t.set_color("font_color", "Button", Color.WHITE)
+	t.set_color("font_disabled_color", "Button", Color(1, 1, 1, 0.35))
+	t.set_color("font_hover_color", "Button", ACCENT)
+	return t
+
+
+static func _box(bg: Color, border: Color) -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = bg
+	sb.border_color = border
+	sb.set_border_width_all(2)
+	sb.set_corner_radius_all(8)
+	sb.set_content_margin_all(10)
+	return sb

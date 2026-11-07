@@ -8,7 +8,7 @@ func _new() -> Campaign:
 
 func test_new_game_recruits_and_deploys() -> void:
 	var c := _new()
-	assert_eq(c.chapter.id, &"ch01")
+	assert_eq(c.chapter.id, &"fx01")
 	assert_eq(c.party.roster.size(), 4)
 	assert_eq(c.party.leader().data.id, &"hero")
 	assert_eq(c.party.deployed, [&"hero", &"knight", &"archer", &"scout"])
@@ -44,7 +44,7 @@ func test_win_gives_gold_xp_and_next_chapter() -> void:
 	assert_true(r.won())
 	assert_eq(r.gold, 100)
 	assert_eq(c.inventory.gold, 100)
-	assert_eq(c.chapter.id, &"ch02")
+	assert_eq(c.chapter.id, &"fx02")
 	assert_eq(c.battles_won, 1)
 	var total_xp := 0
 	for id in r.xp:
@@ -64,7 +64,7 @@ func test_loss_keeps_xp_and_chapter() -> void:
 			var xp_before := c.party.roster.map(func(u: Unit) -> int: return u.xp)
 			var r := c.finish_battle(b)
 			assert_false(r.won())
-			assert_eq(c.chapter.id, &"ch01", "retreat: same chapter")
+			assert_eq(c.chapter.id, &"fx01", "retreat: same chapter")
 			assert_eq(c.inventory.gold, 0)
 			assert_true(r.fallen.has(&"hero"), "leader fell")
 			for u in c.party.roster:

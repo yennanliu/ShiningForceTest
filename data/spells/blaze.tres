@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="SpellData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/spell_level.gd" id="1_kjitc"]
+[ext_resource type="Script" path="res://data/defs/spell_data.gd" id="2_iietu"]
+
+[sub_resource type="Resource" id="Resource_jgym6"]
+script = ExtResource("1_kjitc")
+mp_cost = 4
+
+[sub_resource type="Resource" id="Resource_byov6"]
+script = ExtResource("1_kjitc")
+mp_cost = 8
+power = 14
+area = 1
+
+[resource]
+script = ExtResource("2_iietu")
+id = &"blaze"
+display_name = "Blaze"
+levels = Array[ExtResource("1_kjitc")]([SubResource("Resource_jgym6"), SubResource("Resource_byov6")])

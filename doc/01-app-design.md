@@ -156,7 +156,7 @@ stateDiagram-v2
 | Saves | JSON in `user://saves/` | Readable, easy to version and migrate |
 | Tests | Built-in headless runner (`tools/test.sh`, ~100 lines, no dependencies) | Runs the full rules core and whole battles without a window |
 | Assets | Blender `.glb`, Aseprite `.png`, `.ogg` | Godot imports them natively |
-| Repo / CI | Git + Git LFS, GitHub Actions | Every push runs the tests and produces a playable build |
+| Repo / CI | Git, GitHub Actions | Every push runs the tests and produces a playable build |
 
 ### 10. Architecture at a glance
 

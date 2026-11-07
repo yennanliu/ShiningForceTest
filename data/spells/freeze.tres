@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="SpellData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/spell_level.gd" id="1_mtisg"]
+[ext_resource type="Script" path="res://data/defs/spell_data.gd" id="2_lt7xi"]
+
+[sub_resource type="Resource" id="Resource_xw4b1"]
+script = ExtResource("1_mtisg")
+mp_cost = 5
+power = 12
+
+[sub_resource type="Resource" id="Resource_xs62b"]
+script = ExtResource("1_mtisg")
+mp_cost = 9
+power = 17
+spell_range = Vector2i(1, 3)
+area = 1
+
+[resource]
+script = ExtResource("2_lt7xi")
+id = &"freeze"
+display_name = "Freeze"
+levels = Array[ExtResource("1_mtisg")]([SubResource("Resource_xw4b1"), SubResource("Resource_xs62b")])

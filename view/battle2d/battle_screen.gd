@@ -6,7 +6,8 @@ extends Control
 ## Run:        godot --path .                       (main scene)
 ## Screenshot: godot --path . -- --screenshot=out.png --demo-turns=6 --seed=7
 
-const TILE := 96
+const MAX_TILE := 96
+const MAP_AREA := Vector2(1040, 900)   # room for the map on the left
 const MAP_ORIGIN := Vector2(60, 140)
 const TERRAIN_COLOR := {
 	&"plain": Color("7cb35a"), &"forest": Color("3f7f3a"), &"hill": Color("b08e5c"),
@@ -25,6 +26,8 @@ var auto_start := true
 var state: BattleState
 
 var _seed := 1
+var TILE := MAX_TILE                 # recomputed per map so it always fits
+var _panel: VBoxContainer
 var _unit_px := {}        # unit id -> Vector2 (drawn center, animated)
 var _popups: Array = []   # [{text, pos, color, age}]
 var _hover := Vector2i(-1, -1)
@@ -75,13 +78,14 @@ func _ready() -> void:
 ## Starts a stand-alone demo battle (no campaign).
 func start_battle(p_seed: int) -> void:
 	_seed = p_seed
-	await begin(BattleState.new(Fixtures.map(), Fixtures.party(), p_seed))
+	await begin(Campaign.new_game(load(Game.FIRST_CHAPTER)).start_battle(p_seed))
 
 
 ## Plays the given (not yet started) battle.
 func begin(s: BattleState) -> void:
 	_ensure_ui()
 	state = s
+	_layout()
 	_popups.clear()
 	_log.clear()
 	_banner.visible = false
@@ -197,8 +201,7 @@ func _advance() -> void:
 
 
 func _player_turn() -> bool:
-	var a := state.current_actor()
-	return a != null and a.faction == Enums.Faction.PLAYER and state.outcome() == BattleState.Outcome.ONGOING
+	return state.human_turn()
 
 
 func _refresh() -> void:
@@ -229,15 +232,21 @@ func _play(events: Array[BattleEvent]) -> void:
 				_popup("-%d" % e.data.amount, e.data.unit_id, Color("ff5a4a"))
 				await _pause(BEAT)
 			BattleEvent.HEALED:
+				Audio.play_sfx("heal")
 				_popup("+%d" % e.data.amount, e.data.unit_id, Color("6dff7a"))
 				await _pause(BEAT)
 			BattleEvent.ATTACKED:
+				Audio.play_sfx("miss" if not e.data.hit else ("crit" if e.data.crit else "hit"))
 				if not e.data.hit:
 					_popup("miss", e.data.target_id, Color.WHITE)
 				await _pause(BEAT * 0.6)
 			BattleEvent.SPAWNED:
 				_unit_px[e.data.unit_id] = _center(e.data.at)
 				_popup("!", e.data.unit_id, Color("ffd34a"))
+				await _pause(BEAT * 2)
+			BattleEvent.ITEM_FOUND:
+				Audio.play_sfx("chest")
+				_popup("+item", e.data.unit_id, Color("ffd34a"))
 				await _pause(BEAT * 2)
 			BattleEvent.SAID:
 				var l := Dialogue.line(e.data.line_id)
@@ -246,9 +255,11 @@ func _play(events: Array[BattleEvent]) -> void:
 				await _pause(1.8)
 				_speech.visible = false
 			BattleEvent.LEVELED_UP:
+				Audio.play_sfx("level_up")
 				_popup("LEVEL UP", e.data.unit_id, Color("ffd34a"))
 				await _pause(BEAT * 2)
 			BattleEvent.BATTLE_ENDED:
+				Audio.play_sfx("victory" if e.data.outcome == BattleState.Outcome.WON else "defeat")
 				_show_banner(e.data.outcome)
 		queue_redraw()
 
@@ -340,6 +351,11 @@ func _draw() -> void:
 	for y in g.size.y:
 		for x in g.size.x:
 			_draw_tile(Vector2i(x, y))
+	for t in MapScript.open_chests(state):
+		var r := _tile_rect(t).grow(-26)
+		draw_rect(r, Color("8a5a2b"))
+		draw_rect(r, Color("ffd34a"), false, 3.0)
+		draw_line(r.position + Vector2(0, r.size.y * 0.4), r.position + Vector2(r.size.x, r.size.y * 0.4), Color("ffd34a"), 2.0)
 	for t: Vector2i in _reach:
 		if g.unit_at(t) == null:
 			draw_rect(_tile_rect(t).grow(-3), REACH_COLOR)
@@ -370,13 +386,31 @@ func _draw_tile(t: Vector2i) -> void:
 	draw_rect(r, base.lightened(h * 0.08))
 	draw_rect(r, base.darkened(0.35), false, 1.0)
 	var c := r.get_center()
+	var seed := t.x * 73 + t.y * 151
+	if id == &"plain":
+		for k in 5:
+			var p := r.position + Vector2((seed * (k + 3) * 37) % (TILE - 12) + 6, (seed * (k + 5) * 53) % (TILE - 12) + 6)
+			draw_line(p, p + Vector2(2, -6), base.darkened(0.2), 2.0)
+	elif id == &"sand":
+		for k in 8:
+			draw_circle(r.position + Vector2((seed * (k + 2) * 41) % TILE, (seed * (k + 7) * 29) % TILE), 1.5, base.darkened(0.2))
+	elif id == &"shallow" or id == &"deep":
+		for k in 3:
+			var y := r.position.y + 20 + k * 26
+			draw_arc(Vector2(r.position.x + 30 + (k % 2) * 30, y), 10, PI * 1.1, PI * 1.9, 8, base.lightened(0.3), 2.0)
 	if id == &"forest":
 		for off in [Vector2(-18, -10), Vector2(16, -14), Vector2(0, 14)]:
 			draw_circle(c + off, 15, base.darkened(0.3))
 	elif id == &"hill":
 		draw_colored_polygon(PackedVector2Array([c + Vector2(-28, 22), c + Vector2(0, -24), c + Vector2(28, 22)]), base.darkened(0.25))
 	elif id == &"wall":
-		draw_rect(r.grow(-10), base.darkened(0.3))
+		for row in 4:
+			var y := r.position.y + row * TILE / 4.0
+			draw_line(Vector2(r.position.x, y), Vector2(r.end.x, y), base.darkened(0.4), 2.0)
+			var off := (TILE / 4.0) if row % 2 == 0 else 0.0
+			for col in 3:
+				var x := r.position.x + off + col * TILE / 2.0
+				draw_line(Vector2(x, y), Vector2(x, y + TILE / 4.0), base.darkened(0.4), 2.0)
 	if h > 0:
 		draw_string(_font, r.position + Vector2(6, TILE - 8), "h%d" % h, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(0, 0, 0, 0.55))
 
@@ -424,6 +458,21 @@ func _sync_positions() -> void:
 
 # --- side panel --------------------------------------------------------------
 
+## Picks a tile size that fits the map, then places the side panel and banner.
+func _layout() -> void:
+	var sz := state.map.size
+	TILE = mini(MAX_TILE, floori(minf(MAP_AREA.x / sz.x, MAP_AREA.y / sz.y)))
+	var map_px := Vector2(sz) * TILE
+	var x := MAP_ORIGIN.x + map_px.x + 50
+	var w := 1920 - x - 50
+	for c in [_help_label, _log, _speech]:   # shrink children first, or the panel can't shrink
+		c.custom_minimum_size.x = w
+	_panel.position = Vector2(x, 40)
+	_panel.size = Vector2(w, 1000)
+	_banner.position = MAP_ORIGIN + Vector2(0, map_px.y / 2.0 - 90)
+	_banner.size = Vector2(map_px.x, 200)
+
+
 func _ensure_ui() -> void:
 	if _log == null:
 		_font = ThemeDB.fallback_font
@@ -435,6 +484,7 @@ func _build_ui() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	var map_w := 8 * TILE
 	var panel := VBoxContainer.new()
+	_panel = panel
 	panel.position = Vector2(MAP_ORIGIN.x + map_w + 60, 40)
 	panel.size = Vector2(1920 - panel.position.x - 60, 1000)
 	panel.add_theme_constant_override("separation", 14)
@@ -459,7 +509,7 @@ func _build_ui() -> void:
 	var hp_tag := _label(hp_row, 24)
 	hp_tag.text = "HP"
 	_hp_bar = ProgressBar.new()
-	_hp_bar.custom_minimum_size = Vector2(360, 26)
+	_hp_bar.custom_minimum_size = Vector2(300, 26)
 	_hp_bar.show_percentage = false
 	var fill := StyleBoxFlat.new()
 	fill.bg_color = Color("5ad65a")
@@ -478,7 +528,7 @@ func _build_ui() -> void:
 	_forecast_label.add_theme_color_override("font_color", Color("ffb0a0"))
 
 	var buttons := HBoxContainer.new()
-	buttons.add_theme_constant_override("separation", 12)
+	buttons.add_theme_constant_override("separation", 8)
 	panel.add_child(buttons)
 	_wait_btn = _button(buttons, "Wait  [W]", wait_turn)
 	_item_btn = _button(buttons, "Use Herb  [I]", use_item)
@@ -494,10 +544,24 @@ func _build_ui() -> void:
 	_help_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	_help_label.custom_minimum_size = Vector2(panel.size.x, 0)
 
+	_speech = Label.new()
+	_speech.add_theme_font_size_override("font_size", 26)
+	_speech.autowrap_mode = TextServer.AUTOWRAP_WORD
+	var ssb := StyleBoxFlat.new()
+	ssb.bg_color = Color(0.05, 0.08, 0.2, 0.95)
+	ssb.border_color = Color("cbb98a")
+	ssb.set_border_width_all(3)
+	ssb.set_corner_radius_all(10)
+	ssb.set_content_margin_all(16)
+	_speech.add_theme_stylebox_override("normal", ssb)
+	_speech.custom_minimum_size = Vector2(panel.size.x, 0)
+	_speech.visible = false
+	panel.add_child(_speech)
+
 	_log = RichTextLabel.new()
 	_log.bbcode_enabled = true
 	_log.scroll_following = true
-	_log.custom_minimum_size = Vector2(panel.size.x, 380)
+	_log.custom_minimum_size = Vector2(panel.size.x, 340)
 	_log.add_theme_font_size_override("normal_font_size", 20)
 	_log.add_theme_font_size_override("bold_font_size", 20)
 	panel.add_child(_log)
@@ -512,20 +576,6 @@ func _build_ui() -> void:
 	_banner.visible = false
 	add_child(_banner)
 
-	_speech = Label.new()
-	_speech.add_theme_font_size_override("font_size", 28)
-	_speech.autowrap_mode = TextServer.AUTOWRAP_WORD
-	var ssb := StyleBoxFlat.new()
-	ssb.bg_color = Color(0.05, 0.08, 0.2, 0.92)
-	ssb.border_color = Color("cbb98a")
-	ssb.set_border_width_all(3)
-	ssb.set_corner_radius_all(10)
-	ssb.set_content_margin_all(16)
-	_speech.add_theme_stylebox_override("normal", ssb)
-	_speech.position = MAP_ORIGIN + Vector2(0, map_w + 16)
-	_speech.size = Vector2(map_w, 90)
-	_speech.visible = false
-	add_child(_speech)
 
 
 func _update_panel() -> void:
@@ -592,8 +642,8 @@ func _label(parent: Node, font_size: int) -> Label:
 func _button(parent: Node, text: String, cb: Callable) -> Button:
 	var b := Button.new()
 	b.text = text
-	b.add_theme_font_size_override("font_size", 24)
-	b.custom_minimum_size = Vector2(200, 56)
+	b.add_theme_font_size_override("font_size", 22)
+	b.custom_minimum_size = Vector2(150, 52)
 	b.focus_mode = Control.FOCUS_NONE
 	b.pressed.connect(cb)
 	parent.add_child(b)

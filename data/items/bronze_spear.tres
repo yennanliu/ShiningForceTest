@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_itovl"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="2_y30bo"]
+
+[sub_resource type="Resource" id="Resource_c1s12"]
+script = ExtResource("1_itovl")
+atk = 5
+
+[resource]
+script = ExtResource("2_y30bo")
+id = &"bronze_spear"
+display_name = "Bronze Spear"
+kind = 0
+weapon_type = 3
+bonus = SubResource("Resource_c1s12")
+price = 110

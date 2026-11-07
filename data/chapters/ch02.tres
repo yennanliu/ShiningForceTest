@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="ChapterData" format=3]
+
+[ext_resource type="Resource" path="res://data/maps/m02_millford.tres" id="1_4aiuy"]
+[ext_resource type="Resource" path="res://data/chapters/ch03.tres" id="2_xlr7w"]
+[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="3_pr38r"]
+[ext_resource type="Resource" path="res://data/units/eamon.tres" id="4_hubhd"]
+[ext_resource type="Resource" path="res://data/units/fiora.tres" id="5_c1ybv"]
+[ext_resource type="Script" path="res://data/defs/chapter_data.gd" id="6_h25uv"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="7_ngojo"]
+[ext_resource type="Resource" path="res://data/items/herb.tres" id="8_rdchw"]
+[ext_resource type="Resource" path="res://data/items/healing_seed.tres" id="9_xy1as"]
+[ext_resource type="Resource" path="res://data/items/hand_axe.tres" id="10_6ugum"]
+[ext_resource type="Resource" path="res://data/items/steel_sword.tres" id="11_yjvnt"]
+[ext_resource type="Resource" path="res://data/items/long_bow.tres" id="12_tclco"]
+
+[resource]
+script = ExtResource("6_h25uv")
+id = &"ch02"
+title = "Chapter 2: Wolves at Millford"
+battle = ExtResource("1_4aiuy")
+recruits_on_start = Array[ExtResource("3_pr38r")]([ExtResource("4_hubhd"), ExtResource("5_c1ybv")])
+reward_gold = 150
+town_name = "Millford"
+town_talk = Array[StringName]([&"town_mayor", &"town_child", &"town_hunter"])
+town_finds = Array[ExtResource("7_ngojo")]([ExtResource("8_rdchw"), ExtResource("12_tclco")])
+shop = Array[ExtResource("7_ngojo")]([ExtResource("8_rdchw"), ExtResource("9_xy1as"), ExtResource("10_6ugum"), ExtResource("11_yjvnt")])
+next = ExtResource("2_xlr7w")

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_bse6f"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="2_kub6j"]
+
+[sub_resource type="Resource" id="Resource_8ktxf"]
+script = ExtResource("1_bse6f")
+atk = 6
+
+[resource]
+script = ExtResource("2_kub6j")
+id = &"hand_axe"
+display_name = "Hand Axe"
+kind = 0
+weapon_type = 2
+bonus = SubResource("Resource_8ktxf")
+price = 120

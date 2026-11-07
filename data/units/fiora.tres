@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_4j054"]
+[ext_resource type="Resource" path="res://data/classes/swordsman.tres" id="2_1ir5s"]
+[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="3_848f2"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="4_vd717"]
+[ext_resource type="Resource" path="res://data/items/bronze_sword.tres" id="5_ojig8"]
+
+[sub_resource type="Resource" id="Resource_fjgvy"]
+script = ExtResource("1_4j054")
+hp = 18
+atk = 9
+def = 5
+agi = 10
+luk = 7
+
+[resource]
+script = ExtResource("3_848f2")
+id = &"fiora"
+display_name = "Fiora"
+class_data = ExtResource("2_1ir5s")
+base_stats = SubResource("Resource_fjgvy")
+starting_items = Array[ExtResource("4_vd717")]([ExtResource("5_ojig8")])

@@ -34,6 +34,13 @@ func _init(p_map: MapData, party: Array[Unit], p_seed: int) -> void:
 		_add(u, p_map.player_spawns[i])
 	for e in p_map.enemies:
 		spawn_enemy(e)
+	for a in p_map.allies:
+		var g := Unit.from_data(a.unit, Enums.Faction.PLAYER)
+		g.level = a.level
+		g.ai = a.ai
+		g.tag = a.tag
+		g.ai_controlled = true
+		_add(g, a.at)
 
 
 ## Rebuilds a battle by replaying commands (suspend saves, golden tests, bug reports).
@@ -136,6 +143,11 @@ func unit(id: int) -> Unit:
 
 func current_actor() -> Unit:
 	return _actor
+
+
+## True when a human should choose the current actor's commands.
+func human_turn() -> bool:
+	return _actor != null and _outcome == Outcome.ONGOING and _actor.faction == Enums.Faction.PLAYER and not _actor.ai_controlled
 
 
 func has_moved() -> bool:

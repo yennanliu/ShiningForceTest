@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_i0cah"]
+[ext_resource type="Resource" path="res://data/classes/knight.tres" id="2_erhfx"]
+[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="3_qg26k"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="4_iyssh"]
+[ext_resource type="Resource" path="res://data/items/bronze_spear.tres" id="5_ptcf1"]
+
+[sub_resource type="Resource" id="Resource_v0ixs"]
+script = ExtResource("1_i0cah")
+hp = 24
+atk = 9
+def = 9
+agi = 5
+luk = 4
+
+[resource]
+script = ExtResource("3_qg26k")
+id = &"brina"
+display_name = "Brina"
+class_data = ExtResource("2_erhfx")
+base_stats = SubResource("Resource_v0ixs")
+starting_items = Array[ExtResource("4_iyssh")]([ExtResource("5_ptcf1")])

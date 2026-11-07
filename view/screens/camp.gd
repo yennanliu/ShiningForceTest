@@ -7,14 +7,27 @@ var _status: Label
 
 func _ready() -> void:
 	var c: Campaign = Game.campaign
-	var col := UI.screen(self, 60)
+	var col := UI.screen(self, 40)
 	UI.center(UI.label(col, "Camp", 64, UI.ACCENT))
 	UI.center(UI.label(col, "Next: %s" % c.chapter.title, 32))
 	UI.center(UI.label(col, "Gold %d   ·   Battles won %d   ·   Play time %s" % [
 		c.inventory.gold, c.battles_won, UI.time_text(c.play_seconds)], 22, Color(1, 1, 1, 0.7)))
 
-	var box := UI.panel(col)
-	UI.center(box.get_parent())
+	for d in c.chapter.recruits_on_start:
+		var key := StringName("met_" + String(d.id))
+		if not c.flags.get(key, false):
+			c.flags[key] = true
+			var j := Dialogue.line(StringName("join_" + String(d.id)))
+			UI.center(UI.label(col, '%s joins!  "%s"' % [d.display_name, j.text], 20, Color("9fd0ff")))
+
+	var cols := HBoxContainer.new()
+	cols.add_theme_constant_override("separation", 24)
+	UI.center(cols)
+	col.add_child(cols)
+	var box := UI.panel(cols)
+	var right := VBoxContainer.new()
+	right.add_theme_constant_override("separation", 16)
+	cols.add_child(right)
 	UI.label(box, "Deploy (max %d) — the leader always fights" % Party.MAX_DEPLOY, 24, UI.ACCENT)
 	for u in c.party.roster:
 		var cb := CheckBox.new()
@@ -25,6 +38,11 @@ func _ready() -> void:
 		cb.toggled.connect(func(_on: bool) -> void: _apply_deploy())
 		var row := HBoxContainer.new()
 		row.add_child(cb)
+		var chat := StringName("camp_%s_%s" % [u.data.id, c.chapter.id])
+		if Dialogue.has(chat):
+			UI.button(row, "Talk", func() -> void:
+				var l := Dialogue.line(chat)
+				_status.text = '%s: "%s"' % [l.speaker, l.text], 120)
 		if c.party.can_promote(u):
 			for to in u.class_data.promotes_to:
 				UI.button(row, "Promote → %s" % to.display_name, func() -> void: _promote(u, to), 300)
@@ -32,26 +50,24 @@ func _ready() -> void:
 		_checks[u.data.id] = cb
 
 	if not c.chapter.shop.is_empty():
-		var shop := UI.panel(col)
-		UI.center(shop.get_parent())
-		UI.label(shop, "Shop — items go to the first deployed unit with a free slot", 24, UI.ACCENT)
-		var srow := HBoxContainer.new()
-		srow.add_theme_constant_override("separation", 12)
-		shop.add_child(srow)
+		var shop := UI.panel(right)
+		UI.label(shop, "Shop (goes to the first unit with a free slot)", 22, UI.ACCENT)
 		for item in c.chapter.shop:
-			UI.button(srow, "%s  %dG" % [item.display_name, item.price], func() -> void: _buy(item), 260)
+			UI.button(shop, "%s  %dG" % [item.display_name, item.price], func() -> void: _buy(item), 420)
 
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 16)
-	UI.center(row)
-	col.add_child(row)
-	UI.button(row, "Start battle", func() -> void: Game.start_battle(), 300)
+	UI.button(right, "Start battle", func() -> void: Game.start_battle(), 420)
 	if c.chapter.town_name != "":
-		UI.button(row, "Visit %s" % c.chapter.town_name, func() -> void: Game.goto(Game.Screen.TOWN), 300)
+		UI.button(right, "Visit %s" % c.chapter.town_name, func() -> void: Game.goto(Game.Screen.TOWN), 420)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	right.add_child(row)
 	for slot in ["slot_1", "slot_2", "slot_3"]:
-		UI.button(row, "Save %s" % slot.trim_prefix("slot_"), func() -> void: _save(slot), 160)
-	UI.button(row, "Title", Game.quit_to_title, 160)
-	_status = UI.center(UI.label(col, "", 22, Color(1, 1, 1, 0.7))) as Label
+		UI.button(row, "Save %s" % slot.trim_prefix("slot_"), func() -> void: _save(slot), 98)
+	UI.button(row, "Title", Game.quit_to_title, 98)
+	_status = UI.center(UI.label(col, "", 22, Color(1, 1, 1, 0.8))) as Label
+	_status.autowrap_mode = TextServer.AUTOWRAP_WORD
+	_status.custom_minimum_size = Vector2(1500, 0)
+	_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 
 
 func _apply_deploy() -> void:

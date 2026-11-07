@@ -11,7 +11,7 @@
 
 [resource]
 script = ExtResource("4_krq3q")
-id = &"ch02"
+id = &"fx02"
 title = "Chapter 2: The Goblin Chief"
 battle = ExtResource("1_1t34s")
 recruits_on_start = Array[ExtResource("2_8clwe")]([ExtResource("3_vk4at")])

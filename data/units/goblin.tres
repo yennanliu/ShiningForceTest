@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_xadna"]
+[ext_resource type="Resource" path="res://data/classes/swordsman.tres" id="2_nti78"]
+[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="3_akugm"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="4_e3ugq"]
+[ext_resource type="Resource" path="res://data/items/bronze_sword.tres" id="5_0x2fa"]
+
+[sub_resource type="Resource" id="Resource_tn6al"]
+script = ExtResource("1_xadna")
+hp = 14
+atk = 8
+def = 4
+agi = 6
+luk = 3
+
+[resource]
+script = ExtResource("3_akugm")
+id = &"goblin"
+display_name = "Goblin"
+class_data = ExtResource("2_nti78")
+base_stats = SubResource("Resource_tn6al")
+starting_items = Array[ExtResource("4_e3ugq")]([ExtResource("5_0x2fa")])

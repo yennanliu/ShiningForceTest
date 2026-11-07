@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="ClassData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_qn3v0"]
+[ext_resource type="Script" path="res://data/defs/class_data.gd" id="2_1xdxe"]
+[ext_resource type="Resource" path="res://data/classes/paladin.tres" id="3_nygxs"]
+[ext_resource type="Script" path="res://data/defs/spell_data.gd" id="4_m3xv8"]
+
+[sub_resource type="Resource" id="Resource_b4p0l"]
+script = ExtResource("1_qn3v0")
+hp = 35
+atk = 20
+def = 25
+agi = 10
+luk = 8
+
+[resource]
+script = ExtResource("2_1xdxe")
+id = &"knight"
+display_name = "Knight"
+move_type = 1
+mov = 4
+weapon_types = Array[int]([3])
+growth = SubResource("Resource_b4p0l")
+promotes_to = Array[ExtResource("2_1xdxe")]([ExtResource("3_nygxs")])

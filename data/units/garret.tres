@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_uingb"]
+[ext_resource type="Resource" path="res://data/classes/warrior.tres" id="2_g32xe"]
+[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="3_crdvo"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="4_1vjuh"]
+[ext_resource type="Resource" path="res://data/items/hand_axe.tres" id="5_ye7qr"]
+[ext_resource type="Resource" path="res://data/items/herb.tres" id="6_55phf"]
+
+[sub_resource type="Resource" id="Resource_swkww"]
+script = ExtResource("1_uingb")
+hp = 24
+atk = 11
+def = 6
+agi = 5
+luk = 4
+
+[resource]
+script = ExtResource("3_crdvo")
+id = &"garret"
+display_name = "Garret"
+class_data = ExtResource("2_g32xe")
+base_stats = SubResource("Resource_swkww")
+starting_items = Array[ExtResource("4_1vjuh")]([ExtResource("5_ye7qr"), ExtResource("6_55phf")])

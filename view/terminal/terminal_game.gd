@@ -21,7 +21,7 @@ func run() -> BattleState.Outcome:
 	var empty_reads := 0
 	while state.outcome() == BattleState.Outcome.ONGOING:
 		var actor := state.current_actor()
-		if actor.faction != Enums.Faction.PLAYER:
+		if not state.human_turn():
 			_show(AutoPlay.play_turn(state))
 			continue
 		_write.call("\n" + TextView.render(state))

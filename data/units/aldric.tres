@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_h8w25"]
+[ext_resource type="Resource" path="res://data/classes/swordsman.tres" id="2_kvcll"]
+[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="3_pj23o"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="4_bg0rm"]
+[ext_resource type="Resource" path="res://data/items/bronze_sword.tres" id="5_sn714"]
+[ext_resource type="Resource" path="res://data/items/herb.tres" id="6_8fk3f"]
+
+[sub_resource type="Resource" id="Resource_y23io"]
+script = ExtResource("1_h8w25")
+hp = 20
+atk = 10
+def = 6
+agi = 8
+luk = 5
+
+[resource]
+script = ExtResource("3_pj23o")
+id = &"aldric"
+display_name = "Aldric"
+class_data = ExtResource("2_kvcll")
+base_stats = SubResource("Resource_y23io")
+starting_items = Array[ExtResource("4_bg0rm")]([ExtResource("5_sn714"), ExtResource("6_8fk3f")])

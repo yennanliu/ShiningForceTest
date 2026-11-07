@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="ClassData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_38c4v"]
+[ext_resource type="Script" path="res://data/defs/class_data.gd" id="2_kvkhu"]
+[ext_resource type="Script" path="res://data/defs/spell_data.gd" id="3_2me8t"]
+
+[sub_resource type="Resource" id="Resource_oqh7j"]
+script = ExtResource("1_38c4v")
+hp = 30
+atk = 22
+def = 10
+agi = 18
+luk = 8
+
+[resource]
+script = ExtResource("2_kvkhu")
+id = &"beast"
+display_name = "Beast"
+move_type = 2
+mov = 7
+weapon_types = Array[int]([0])
+growth = SubResource("Resource_oqh7j")

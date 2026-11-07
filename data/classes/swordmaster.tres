@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="ClassData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_xgpn3"]
+[ext_resource type="Script" path="res://data/defs/class_data.gd" id="2_q5r2s"]
+[ext_resource type="Script" path="res://data/defs/spell_data.gd" id="3_n2fei"]
+
+[sub_resource type="Resource" id="Resource_1hhv7"]
+script = ExtResource("1_xgpn3")
+hp = 35
+atk = 28
+def = 22
+agi = 18
+luk = 12
+
+[resource]
+script = ExtResource("2_q5r2s")
+id = &"swordmaster"
+display_name = "Swordmaster"
+mov = 6
+weapon_types = Array[int]([1])
+growth = SubResource("Resource_1hhv7")

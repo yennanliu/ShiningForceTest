@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="SpellData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/spell_level.gd" id="1_u0kjw"]
+[ext_resource type="Script" path="res://data/defs/spell_data.gd" id="2_qgmdd"]
+
+[sub_resource type="Resource" id="Resource_onrw8"]
+script = ExtResource("1_u0kjw")
+mp_cost = 7
+power = 14
+spell_range = Vector2i(0, 2)
+area = 1
+
+[sub_resource type="Resource" id="Resource_lt6gy"]
+script = ExtResource("1_u0kjw")
+mp_cost = 12
+power = 22
+spell_range = Vector2i(0, 3)
+area = 2
+
+[resource]
+script = ExtResource("2_qgmdd")
+id = &"aura"
+display_name = "Aura"
+heals = true
+levels = Array[ExtResource("1_u0kjw")]([SubResource("Resource_onrw8"), SubResource("Resource_lt6gy")])

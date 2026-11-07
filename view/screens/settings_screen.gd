@@ -7,7 +7,9 @@ func _ready() -> void:
 	UI.center(UI.label(col, "Settings", 64, UI.ACCENT))
 	var box := UI.panel(col)
 	UI.center(box.get_parent())
-	_slider(box, "Music volume", Settings.music_volume, func(v: float) -> void: Settings.music_volume = v)
+	_slider(box, "Music volume", Settings.music_volume, func(v: float) -> void:
+		Settings.music_volume = v
+		Audio.refresh_volume())
 	_slider(box, "Sound volume", Settings.sfx_volume, func(v: float) -> void: Settings.sfx_volume = v)
 	var fs := CheckBox.new()
 	fs.text = "Fullscreen"

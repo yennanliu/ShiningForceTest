@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ClassData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_e674p"]
+[ext_resource type="Script" path="res://data/defs/class_data.gd" id="2_idkma"]
+[ext_resource type="Resource" path="res://data/classes/bishop.tres" id="3_fdpiw"]
+[ext_resource type="Script" path="res://data/defs/spell_data.gd" id="4_hwoij"]
+[ext_resource type="Resource" path="res://data/spells/heal.tres" id="5_i3dw4"]
+
+[sub_resource type="Resource" id="Resource_ismnt"]
+script = ExtResource("1_e674p")
+hp = 22
+mp = 25
+atk = 10
+def = 10
+agi = 12
+luk = 15
+
+[resource]
+script = ExtResource("2_idkma")
+id = &"cleric"
+display_name = "Cleric"
+weapon_types = Array[int]([5])
+growth = SubResource("Resource_ismnt")
+spells = Array[ExtResource("4_hwoij")]([ExtResource("5_i3dw4")])
+promotes_to = Array[ExtResource("2_idkma")]([ExtResource("3_fdpiw")])

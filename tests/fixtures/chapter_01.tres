@@ -16,7 +16,7 @@
 
 [resource]
 script = ExtResource("8_43aih")
-id = &"ch01"
+id = &"fx01"
 title = "Chapter 1: The Border Road"
 battle = ExtResource("1_0ctyq")
 recruits_on_start = Array[ExtResource("3_bb8iv")]([ExtResource("4_8k5pa"), ExtResource("5_l4c1o"), ExtResource("6_e41vi"), ExtResource("7_lbcum")])

@@ -76,7 +76,7 @@ func test_v0_save_migrates() -> void:
 	assert_true(c != null)
 	assert_eq(c.inventory.gold, 77, "money -> inventory.gold")
 	assert_eq(c.party.leader().level, 2)
-	assert_eq(c.chapter.id, &"ch01")
+	assert_eq(c.chapter.id, &"fx01")
 	_cleanup()
 
 

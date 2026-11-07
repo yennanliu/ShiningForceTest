@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_p68bg"]
+[ext_resource type="Resource" path="res://data/classes/beast.tres" id="2_2j33h"]
+[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="3_5iowl"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="4_a3ffq"]
+
+[sub_resource type="Resource" id="Resource_f318x"]
+script = ExtResource("1_p68bg")
+hp = 13
+atk = 9
+def = 3
+agi = 9
+luk = 3
+
+[resource]
+script = ExtResource("3_5iowl")
+id = &"wolf"
+display_name = "Wolf"
+class_data = ExtResource("2_2j33h")
+base_stats = SubResource("Resource_f318x")

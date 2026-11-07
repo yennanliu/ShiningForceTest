@@ -21,6 +21,7 @@ var ring_slot := -1
 var ai: Enums.AiProfile = Enums.AiProfile.AGGRESSIVE
 var tag: StringName
 var is_leader := false
+var ai_controlled := false      # player-side guest moved by the computer
 
 
 static func from_data(d: UnitData, p_faction: Enums.Faction = Enums.Faction.PLAYER) -> Unit:
@@ -132,6 +133,7 @@ func to_dict() -> Dictionary:
 		"ai": ai,
 		"tag": String(tag),
 		"is_leader": is_leader,
+		"ai_controlled": ai_controlled,
 	}
 
 
@@ -157,6 +159,7 @@ static func from_dict(d: Dictionary) -> Unit:
 	u.ai = d.get("ai", Enums.AiProfile.AGGRESSIVE)
 	u.tag = StringName(d.get("tag", ""))
 	u.is_leader = d.get("is_leader", false)
+	u.ai_controlled = d.get("ai_controlled", false)
 	return u
 
 

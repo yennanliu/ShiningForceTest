@@ -1,6 +1,6 @@
 extends SceneTree
 ## Balance tool: AI plays both sides many times and reports stats.
-##   godot --headless --path . -s res://tools/battle_sim.gd -- --runs=200 [--map=res://data/maps/m01.tres]
+##   godot --headless --path . -s res://tools/battle_sim.gd -- --runs=200 [--chapter=1 | --map=res://...]
 ## Without --map it uses the 8x8 test fixture and the fixture party.
 
 
@@ -12,8 +12,18 @@ func _initialize() -> void:
 			runs = int(a.trim_prefix("--runs="))
 		elif a.begins_with("--map="):
 			map_path = a.trim_prefix("--map=")
+	var chapter := 0
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--chapter="):
+			chapter = int(a.trim_prefix("--chapter="))
 	Content.register_dir("res://tests/fixtures/")
 	var map: MapData = load(map_path) if map_path != "" else load("res://tests/fixtures/map_8x8.tres")
+	var campaign: Campaign = null
+	if chapter > 0:
+		campaign = Campaign.new_game(load("res://data/chapters/ch01.tres"))
+		for i in chapter - 1:
+			campaign._advance_chapter()
+		map = campaign.chapter.battle
 
 	var wins := 0
 	var rounds := 0
@@ -21,11 +31,15 @@ func _initialize() -> void:
 	var unfinished := 0
 	var max_ai_ms := 0.0
 	for seed in runs:
-		var party: Array[Unit] = []
-		for id in ["hero", "knight", "archer", "scout"]:
-			party.append(Unit.from_data(load("res://tests/fixtures/unit_%s.tres" % id)))
-		party[0].is_leader = true
-		var b := BattleState.new(map, party, seed)
+		var b: BattleState
+		if campaign != null:
+			b = campaign.start_battle(seed)
+		else:
+			var party: Array[Unit] = []
+			for id in ["hero", "knight", "archer", "scout"]:
+				party.append(Unit.from_data(load("res://tests/fixtures/unit_%s.tres" % id)))
+			party[0].is_leader = true
+			b = BattleState.new(map, party, seed)
 		b.start()
 		for turn in 200 * b.units().size():
 			if b.outcome() != BattleState.Outcome.ONGOING or b.round_number() > 200:

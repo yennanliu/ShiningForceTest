@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="ClassData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_n3wau"]
+[ext_resource type="Script" path="res://data/defs/class_data.gd" id="2_4jjdy"]
+[ext_resource type="Script" path="res://data/defs/spell_data.gd" id="3_0b86o"]
+[ext_resource type="Resource" path="res://data/spells/heal.tres" id="4_xnioi"]
+[ext_resource type="Resource" path="res://data/spells/aura.tres" id="5_oxf4t"]
+
+[sub_resource type="Resource" id="Resource_ehb4q"]
+script = ExtResource("1_n3wau")
+hp = 26
+mp = 30
+atk = 12
+def = 12
+agi = 14
+luk = 16
+
+[resource]
+script = ExtResource("2_4jjdy")
+id = &"bishop"
+display_name = "Bishop"
+weapon_types = Array[int]([5])
+growth = SubResource("Resource_ehb4q")
+spells = Array[ExtResource("3_0b86o")]([ExtResource("4_xnioi"), ExtResource("5_oxf4t")])

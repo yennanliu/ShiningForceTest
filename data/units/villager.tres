@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_jp6gh"]
+[ext_resource type="Resource" path="res://data/classes/civilian.tres" id="2_w80jl"]
+[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="3_xukml"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="4_au3o6"]
+
+[sub_resource type="Resource" id="Resource_7g3cs"]
+script = ExtResource("1_jp6gh")
+hp = 20
+atk = 1
+def = 5
+agi = 6
+luk = 5
+
+[resource]
+script = ExtResource("3_xukml")
+id = &"villager"
+display_name = "Villager"
+class_data = ExtResource("2_w80jl")
+base_stats = SubResource("Resource_7g3cs")

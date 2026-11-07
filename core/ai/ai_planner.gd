@@ -1,5 +1,6 @@
 class_name AiPlanner
 ## Simple rule-based logic for computer-controlled units (doc/02 §4.9).
+##   0. FLEE units never attack; they move as far from hostiles as possible.
 ##   1. HOLD units never move; they attack only what is already in range.
 ##   2. If any hostile can be attacked this turn, attack the one with the lowest HP
 ##      (ties: the leader, then the lowest id). Prefer attacking without moving.
@@ -14,6 +15,18 @@ static func choose(s: BattleState, u: Unit) -> Array[Command]:
 	var tiles: Array[Vector2i] = [u.pos]
 	if can_move:
 		tiles.append_array(_sorted(Pathfinder.reachable(s.grid, u).keys()))
+
+	# FLEE units (e.g. villagers) never attack: they move as far from hostiles as they can.
+	if u.ai == Enums.AiProfile.FLEE:
+		if can_move:
+			var far := u.pos
+			for t in tiles:
+				if _dist_to_nearest(s, u, t) > _dist_to_nearest(s, u, far):
+					far = t
+			if far != u.pos:
+				plan.append(MoveCommand.to_tile(u.id, far))
+		plan.append(WaitCommand.by(u.id))
+		return plan
 
 	# Rule 2: attack the weakest hostile we can reach.
 	for target in _targets(s, u):

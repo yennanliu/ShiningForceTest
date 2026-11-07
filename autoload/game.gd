@@ -12,9 +12,7 @@ const SCENES := {
 	Screen.RESULTS: "res://view/screens/results.tscn",
 	Screen.SETTINGS: "res://view/screens/settings.tscn",
 }
-## Demo content until real chapters exist (step 11).
-const CONTENT_DIR := "res://tests/fixtures/"
-const FIRST_CHAPTER := "res://tests/fixtures/chapter_01.tres"
+const FIRST_CHAPTER := "res://data/chapters/ch01.tres"
 
 signal screen_changed(screen: Screen)
 
@@ -30,11 +28,11 @@ var _rng := RandomNumberGenerator.new()
 
 
 func _ready() -> void:
-	Content.register_dir(CONTENT_DIR)
-	Dialogue.register_file(CONTENT_DIR + "dialogue_demo.json")
 	Settings.load_settings()
 	Settings.setup_input()
 	Settings.apply()
+	get_tree().root.theme = UI.make_theme()
+	Audio.play_music("camp")
 	_rng.randomize()
 
 
@@ -114,6 +112,8 @@ func quit_to_title() -> void:
 
 func goto(s: Screen) -> void:
 	screen = s
+	var boss := s == Screen.BATTLE and battle != null and battle.map.objective == Enums.Objective.DEFEAT_BOSS
+	Audio.play_music("boss" if boss else ("battle" if s == Screen.BATTLE else "camp"))
 	if change_scenes:
 		get_tree().change_scene_to_file(SCENES[s])
 	screen_changed.emit(s)

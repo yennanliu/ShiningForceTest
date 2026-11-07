@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="ClassData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/stats.gd" id="1_xrves"]
+[ext_resource type="Script" path="res://data/defs/class_data.gd" id="2_6o8rf"]
+[ext_resource type="Resource" path="res://data/classes/sniper.tres" id="3_7acyf"]
+[ext_resource type="Script" path="res://data/defs/spell_data.gd" id="4_10evu"]
+
+[sub_resource type="Resource" id="Resource_kfolu"]
+script = ExtResource("1_xrves")
+hp = 25
+atk = 22
+def = 12
+agi = 16
+luk = 12
+
+[resource]
+script = ExtResource("2_6o8rf")
+id = &"archer"
+display_name = "Archer"
+weapon_types = Array[int]([4])
+growth = SubResource("Resource_kfolu")
+promotes_to = Array[ExtResource("2_6o8rf")]([ExtResource("3_7acyf")])

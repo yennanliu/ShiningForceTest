@@ -1,0 +1,107 @@
+[gd_resource type="Resource" script_class="MapData" format=4]
+
+[ext_resource type="Script" path="res://data/defs/enemy_spawn.gd" id="1_egds1"]
+[ext_resource type="Resource" path="res://data/units/goblin.tres" id="2_rsomm"]
+[ext_resource type="Resource" path="res://data/units/goblin_archer.tres" id="3_a1gst"]
+[ext_resource type="Script" path="res://data/defs/map_data.gd" id="4_6jie2"]
+[ext_resource type="Script" path="res://data/defs/terrain_data.gd" id="5_mqwcq"]
+[ext_resource type="Resource" path="res://data/terrain/plain.tres" id="6_873lf"]
+[ext_resource type="Resource" path="res://data/terrain/forest.tres" id="7_rvxby"]
+[ext_resource type="Resource" path="res://data/terrain/hill.tres" id="8_ccg1x"]
+[ext_resource type="Resource" path="res://data/terrain/sand.tres" id="9_co8fy"]
+[ext_resource type="Resource" path="res://data/terrain/shallow.tres" id="10_7b5gd"]
+[ext_resource type="Resource" path="res://data/terrain/deep.tres" id="11_07g0p"]
+[ext_resource type="Resource" path="res://data/terrain/wall.tres" id="12_4mwqt"]
+[ext_resource type="Script" path="res://data/defs/trigger_data.gd" id="13_q3y00"]
+[ext_resource type="Script" path="res://data/defs/trigger_action.gd" id="14_jq4vl"]
+[ext_resource type="Resource" path="res://data/items/healing_seed.tres" id="15_u66kf"]
+[ext_resource type="Resource" path="res://data/items/power_ring.tres" id="16_fa8jg"]
+[ext_resource type="Resource" path="res://data/items/steel_sword.tres" id="17_yrrfe"]
+
+[sub_resource type="Resource" id="Resource_jk3dm"]
+script = ExtResource("1_egds1")
+unit = ExtResource("2_rsomm")
+at = Vector2i(10, 1)
+
+[sub_resource type="Resource" id="Resource_el2w6"]
+script = ExtResource("1_egds1")
+unit = ExtResource("2_rsomm")
+at = Vector2i(9, 3)
+
+[sub_resource type="Resource" id="Resource_bkwa8"]
+script = ExtResource("1_egds1")
+unit = ExtResource("3_a1gst")
+at = Vector2i(9, 6)
+
+[sub_resource type="Resource" id="Resource_3gm27"]
+script = ExtResource("14_jq4vl")
+key = &"ch01_intro"
+
+[sub_resource type="Resource" id="Resource_2m6lj"]
+script = ExtResource("14_jq4vl")
+key = &"ch01_chests"
+
+[sub_resource type="Resource" id="Resource_wqeb0"]
+script = ExtResource("13_q3y00")
+actions = Array[ExtResource("14_jq4vl")]([SubResource("Resource_3gm27"), SubResource("Resource_2m6lj")])
+
+[sub_resource type="Resource" id="Resource_6ak4m"]
+script = ExtResource("14_jq4vl")
+kind = 7
+item = ExtResource("15_u66kf")
+
+[sub_resource type="Resource" id="Resource_rmblr"]
+script = ExtResource("13_q3y00")
+when = 1
+area = Rect2i(1, 1, 1, 1)
+actions = Array[ExtResource("14_jq4vl")]([SubResource("Resource_6ak4m")])
+unless_flag = &"looted"
+
+[sub_resource type="Resource" id="Resource_8j2yg"]
+script = ExtResource("14_jq4vl")
+kind = 7
+item = ExtResource("16_fa8jg")
+
+[sub_resource type="Resource" id="Resource_yfgrs"]
+script = ExtResource("13_q3y00")
+when = 1
+area = Rect2i(11, 3, 1, 1)
+actions = Array[ExtResource("14_jq4vl")]([SubResource("Resource_8j2yg")])
+unless_flag = &"looted"
+
+[sub_resource type="Resource" id="Resource_5c435"]
+script = ExtResource("14_jq4vl")
+kind = 7
+item = ExtResource("17_yrrfe")
+
+[sub_resource type="Resource" id="Resource_u5smr"]
+script = ExtResource("13_q3y00")
+when = 1
+area = Rect2i(4, 6, 1, 1)
+actions = Array[ExtResource("14_jq4vl")]([SubResource("Resource_5c435")])
+unless_flag = &"looted"
+
+[sub_resource type="Resource" id="Resource_pexta"]
+script = ExtResource("14_jq4vl")
+kind = 2
+key = &"looted"
+
+[sub_resource type="Resource" id="Resource_joao2"]
+script = ExtResource("14_jq4vl")
+key = &"ch01_looted"
+
+[sub_resource type="Resource" id="Resource_48job"]
+script = ExtResource("13_q3y00")
+on_round = 6
+actions = Array[ExtResource("14_jq4vl")]([SubResource("Resource_pexta"), SubResource("Resource_joao2")])
+
+[resource]
+script = ExtResource("4_6jie2")
+id = &"m01_ruins_road"
+size = Vector2i(12, 10)
+heights = PackedByteArray("AAAAAAAAAAAAAAAAAAAAAAEBAAAAAAAAAAAAAAECAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+terrain_ids = PackedByteArray("AAABAAAAAAABAAAAAAAAAAICAAAAAAAAAAAAAAICAAABAAAAAAEAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAABgYAAAEAAAAAAAAABgAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAA")
+terrain_types = Array[ExtResource("5_mqwcq")]([ExtResource("6_873lf"), ExtResource("7_rvxby"), ExtResource("8_ccg1x"), ExtResource("9_co8fy"), ExtResource("10_7b5gd"), ExtResource("11_07g0p"), ExtResource("12_4mwqt")])
+player_spawns = Array[Vector2i]([Vector2i(1, 7), Vector2i(0, 8), Vector2i(1, 8), Vector2i(1, 9)])
+enemies = Array[ExtResource("1_egds1")]([SubResource("Resource_jk3dm"), SubResource("Resource_el2w6"), SubResource("Resource_bkwa8")])
+triggers = Array[ExtResource("13_q3y00")]([SubResource("Resource_wqeb0"), SubResource("Resource_rmblr"), SubResource("Resource_yfgrs"), SubResource("Resource_u5smr"), SubResource("Resource_48job")])

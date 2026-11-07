@@ -264,7 +264,7 @@ func _spawn_action(e: EnemySpawn) -> TriggerAction:
 
 func _chapters(m1: MapData, m2: MapData, u: Dictionary, i: Dictionary) -> void:
 	var c2 := ChapterData.new()
-	c2.id = &"ch02"
+	c2.id = &"fx02"
 	c2.title = "Chapter 2: The Goblin Chief"
 	c2.battle = m2
 	c2.reward_gold = 150
@@ -272,7 +272,7 @@ func _chapters(m1: MapData, m2: MapData, u: Dictionary, i: Dictionary) -> void:
 	c2.shop = [i.herb, i.steel_sword, i.wooden_bow]
 	_save(c2, F + "chapter_02.tres")
 	var c1 := ChapterData.new()
-	c1.id = &"ch01"
+	c1.id = &"fx01"
 	c1.title = "Chapter 1: The Border Road"
 	c1.battle = m1
 	c1.recruits_on_start = [u.hero, u.knight, u.archer, u.scout]

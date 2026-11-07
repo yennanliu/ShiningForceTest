@@ -12,11 +12,13 @@ extends Resource
 @export var terrain_types: Array[TerrainData] = []
 @export var player_spawns: Array[Vector2i] = []
 @export var enemies: Array[EnemySpawn] = []
+## Units on the player's side that the computer controls (e.g. a villager to protect).
+@export var allies: Array[EnemySpawn] = []
 @export var triggers: Array[TriggerData] = []
 @export var objective: Enums.Objective = Enums.Objective.ROUT
 ## DEFEAT_BOSS: boss tag.
 @export var objective_tag: StringName
-## REACH_AREA: target area.
+## REACH_AREA: target area (if objective_tag is set, only that unit counts).
 @export var objective_area := Rect2i()
 ## SURVIVE_ROUNDS: number of rounds.
 @export var objective_rounds := 0
