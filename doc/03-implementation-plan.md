@@ -8,7 +8,7 @@ We build the game in **12 steps**, from the inside out: rules first, then visual
 | Based on | [02 Engineering Design](02-eng-design.md) (class and file names match it) |
 | Team assumed | 2 gameplay engineers + 1 tools engineer from month 2; art and design work in parallel |
 
-**Contents:** [Overview](#overview) · [Definition of done](#definition-of-done-every-step) · Steps [0](#step-0--project-bootstrap) · [1](#step-1--data-schema-and-fixtures) · [2](#step-2--battle-model) · [3](#step-3--pathfinding) · [4](#step-4--commands-events-and-combat-rules) · [5](#step-5--enemy-ai-and-headless-battles) · [6](#step-6--grey-box-battle-view) · [7](#step-7--campaign-screen-flow-and-saves) · [8](#step-8--progression-xp-promotion-bonds-items) · [9](#step-9--map-scripting-dialogue-and-town) · [10](#step-10--hardening-settings-export-and-performance) · [11](#step-11--vertical-slice-content) · [12](#step-12--design-round-1-closer-to-the-genre-reference) · [After the slice](#after-the-slice) · [Tracking](#tracking)
+**Contents:** [Overview](#overview) · [Definition of done](#definition-of-done-every-step) · Steps [0](#step-0--project-bootstrap) · [1](#step-1--data-schema-and-fixtures) · [2](#step-2--battle-model) · [3](#step-3--pathfinding) · [4](#step-4--commands-events-and-combat-rules) · [5](#step-5--enemy-ai-and-headless-battles) · [6](#step-6--grey-box-battle-view) · [7](#step-7--campaign-screen-flow-and-saves) · [8](#step-8--progression-xp-promotion-bonds-items) · [9](#step-9--map-scripting-dialogue-and-town) · [10](#step-10--hardening-settings-export-and-performance) · [11](#step-11--vertical-slice-content) · [12](#step-12--design-round-1-closer-to-the-genre-reference) · [Presentation 13–17](#presentation-rounds-steps-1317-characters-battle-scenes-portraits) · [After the slice](#after-the-slice) · [Tracking](#tracking)
 
 ---
 
@@ -41,6 +41,12 @@ flowchart LR
 | 9 | Scripting, dialogue, town | 3 | Reinforcements, boss lines, walkable town | |
 | 10 | Hardening | 2 | Signed builds, settings, 60 fps | |
 | 11 | Slice content | 8–10 | 1 town, 1 camp, 3 battles, 8 units | **C: slice playtest** |
+| 12 | Design round 1 | 1 | Weapon matchups, poison/sleep, regen ring | |
+| 13 | Art direction + asset pipeline | 2 | Art bible, placeholder sprites/portraits/backdrops load by id | Style sign-off (owner) |
+| 14 | Portrait dialogue | 1 | Framed portrait + text box on every spoken line | |
+| 15 | Map sprites + head icons (2D) | 2 | Characters instead of circles on the battle map | |
+| 16 | Battle cut-in scene | 3 | Close-up attack/spell/heal scene with HP plates | |
+| 17 | 3D isometric map | 4–6 | Textured 3D map, sprite billboards, 4 camera angles | |
 
 ---
 
@@ -471,11 +477,195 @@ Known, not from this step: the unit panel is blank while the opening lines play 
 | Looks right | Battle screenshot: status letters and the "!" forecast are readable, nothing overlaps | ✅ screenshots above; 120 fps (vsync) on Apple M4. The hover forecast "!" is ⏳ manual (screenshots can't hover) |
 | Fun (human) | Playtesters notice and use matchups; poison/sleep feel fair | ⏳ owner playtest |
 
+## Presentation rounds (steps 13–17): characters, battle scenes, portraits
+
+The owner asked for three things the reference genre does well (screenshots shared on 2026-11-07):
+
+| # | Asked for | What it means for us | Step |
+| --- | --- | --- | --- |
+| A | Characters like *image 1*: small, big-headed sprite characters standing on a textured map, with icons above their heads | Pixel-art character sprites instead of circles; status/bond/matchup icons in a bubble above the head | 15 (2D map) → 17 (3D map) |
+| B | A battle page like *image 2*: a close-up side view of attacker vs defender, with name / level / HP plates in the corners | A short **battle cut-in scene** played for each attack, spell and heal, driven by the events we already emit | 16 |
+| C | Characters presented like *image 3*: a framed portrait next to a dialogue box | **Portrait dialogue** for battle lines, camp chats, town talk and chapter intros | 14 |
+
+**Order.** `game-manager` scored these the usual way (impact × confidence ÷ effort). Portraits come first: they're cheap and show up on every screen. Map sprites come next, then the cut-in scene, and the 3D map last because it's the biggest. Step 13 sets the style and the asset pipeline everything else uses.
+
+| Step | Feature | Impact | Conf. | Effort | Score |
+| --- | --- | --- | --- | --- | --- |
+| 13 | Art bible + asset pipeline + placeholder generators | 4 | 4 | M | 8 (prerequisite) |
+| 14 | Portrait dialogue (C) | 4 | 5 | S | **20** |
+| 15 | Sprites + head icons on the 2D map (A) | 5 | 4 | M | **10** |
+| 16 | Battle cut-in scene (B) | 5 | 3 | L | 5 |
+| 17 | 3D isometric map with sprite billboards (A, full) | 4 | 3 | L | 4 |
+
+**IP rules for this work** ([04 §4](04-research-and-references.md#4-ip-guardrails)). The screenshots are references for **format and layout only**: a sprite on a map, a two-plate battle close-up, a portrait beside a text box. These are genre conventions. We don't copy the screenshots' characters, faces, hair or costumes, their UI frame shapes, palette, fonts or backgrounds, and we don't trace anything. The reference images are never committed to the repo. Every asset gets a line in `assets/CREDITS.md`. `game-art-design` reviews each step for "too close to the reference" before it's ticked.
+
+**How art is produced.** Same pattern as the audio in step 11:
+- Claude writes deterministic **placeholder generators** (`tools/make_sprites.py`, `tools/make_portraits.py`, `tools/make_backdrops.py`). They build original pixel art from layered shapes and a palette, so every screen works end to end now.
+- **Final art** replaces the files one for one: same names, same sizes, no code change. That needs an artist (⏳ owner).
+
+---
+
+## Step 13 — Art direction and asset pipeline
+
+**Goal:** one written, original style and a pipeline that loads sprites, portraits and backdrops by id, with a fallback to today's shapes.
+
+**Tasks**
+
+- [ ] **Art bible** `doc/05-art-direction.md` (`game-art-design`). Sections:
+    - Style statement: "chunky pixel-art characters on clean, textured tiles; warm daylight palette; readable first"
+    - Palette: hex values per role
+    - Character proportions: about 2.5 heads tall, a silhouette per class (shield = knight, bow = archer, staff + hood = cleric/mage, big axe = warrior)
+    - Faction read: a blue/red ring under the feet plus a team-colored trim, never color alone
+    - Portrait framing and the cut-in layout
+    - Do / Don't with the IP rules above
+- [ ] **Decision:** 2D sprite billboards on a 3D map (closes the open question in [01 §15](01-app-design.md#15-open-questions)). `game-art-design` recommends it; ⏳ owner signs off
+- [ ] **Asset specs** (`game-2d-3d-artist`). Pixel art uses the Nearest filter; ids match `data/`:
+
+    | Asset | Size | Frames | Folder / name |
+    | --- | --- | --- | --- |
+    | Map sprite | 48×64 per frame | 4 directions × (idle 2, walk 4, attack 2, hurt 1) | `assets/textures/units/<unit_id>.png` (sheet) |
+    | Head icons | 24×24 | status P/Z, bond ♥, matchup !, leader ★ | `assets/textures/icons/head_<name>.png` |
+    | Portrait | 256×256 | neutral; optional happy / angry / hurt | `assets/textures/portraits/<unit_id>[_<mood>].png` |
+    | Battle pose (cut-in) | 192×192 per frame | idle 2, attack 4, cast 3, hurt 1, dodge 1; facing right, mirrored for the other side | `assets/textures/battle/<class_id>.png`, palette-swapped per unit |
+    | Cut-in backdrop | 1280×400, 3 parallax layers | — | `assets/textures/backdrops/<terrain_id>_<layer>.png` |
+- [ ] **Data hooks** (`game-developer`):
+    - `UnitData.portrait` (exists), new `UnitData.sprite` and `ClassData.battle_pose`
+    - `"speaker_id"` on dialogue lines, so a line finds its portrait. The display name stays for text-only views
+    - Generated content sets them, with a missing-file fallback to the current shapes
+- [ ] **Placeholder generators** (`game-2d-3d-artist`): `tools/make_sprites.py`, `make_portraits.py`, `make_backdrops.py`
+    - Deterministic, stdlib only (like `make_audio.py`)
+    - Covered by `tools/check_generated.sh`
+- [ ] `assets/CREDITS.md` with author and license per file (`game-2d-3d-artist`)
+
+**Validation**
+
+| Check | Pass when | Result |
+| --- | --- | --- |
+| Bible usable | Two people could make a new unit sprite that fits, using only doc/05 (art-design review) | |
+| Generators | Re-running them gives byte-identical files; `check_generated.sh` OK | |
+| Fallback | Deleting any asset file still runs every screen (shapes are drawn instead) | |
+| Size | All placeholder art < 5 MB | |
+| IP review | `game-art-design` confirms nothing resembles the reference screenshots' characters, frames or palette | |
+| Style sign-off | Owner approves doc/05 and one sample of each asset type | ⏳ owner |
+
+## Step 14 — Portrait dialogue (image C)
+
+**Goal:** every spoken line shows who is speaking. A framed portrait sits beside a text box with the speaker's name.
+
+**Tasks**
+
+- [ ] **Dialogue box component** `view/dialogue/dialogue_box.gd` (`game-ui-ux-designer` + `game-developer`):
+    - Portrait frame on the left for players and on the right for enemies
+    - Name tab, text that types out (speed from `Settings.anim_speed()`; skip = instant)
+    - Confirm finishes the text, a second confirm advances. Same on keyboard, gamepad and mouse
+    - Falls back to a name-only box when there's no portrait
+- [ ] Use it everywhere a line is shown:
+    - Battle `SAID` events (replaces `_speech`)
+    - Camp chats and join lines
+    - Town talk
+    - Chapter intros
+- [ ] **Battle pacing:** a line waits for input; *fast* mode waits at most 1.5 s, *skip* mode at most 0.6 s. Never blocks AI-vs-AI or headless runs
+- [ ] **Portraits** (`game-2d-3d-artist`): placeholders for the 8 recruits, the goblin chief and 4 townspeople, plus 2 moods for the 3 most-talking characters. Final portraits ⏳ artist
+- [ ] **Writing pass** (`game-manager`): every line in `data/dialogue/slice.json` gets a `speaker_id`; a lint test enforces it
+
+**Validation**
+
+| Check | Pass when | Result |
+| --- | --- | --- |
+| Every line has a face | Lint: each line's `speaker_id` is a unit id or `narrator`; a portrait exists or the fallback is used | |
+| Fits | Longest line fits the box at 1280×720 and 1920×1080 (screenshots of battle, camp, town) | |
+| Parity | Advance with Enter, A, and click; skip mode never waits for input | |
+| Headless | `tests/view` builds the box; the campaign e2e still finishes with no input | |
+| Feel (human) | Testers can say who spoke each line in chapter 1 | ⏳ owner |
+
+## Step 15 — Character sprites and head icons on the 2D map (image A, first half)
+
+**Goal:** the battle map shows characters, not circles, and stays readable at a glance.
+
+**Tasks**
+
+- [ ] **Sprite drawing** in `battle_screen._draw_unit` (`game-2d-3d-artist` + `game-developer`):
+    - Draw the sheet frame for the unit's facing (from its last move direction) on top of a faction ring under the feet
+    - Keep the HP bar under the ring and the acting-unit gold ring
+    - Idle animation runs at 2 fps and holds still when the animation setting is *skip*
+- [ ] **Walk / attack / hurt frames**, played from `MOVED` / `ATTACKED` / `DAMAGED` events. No core change
+- [ ] **Head icon bubble** (`game-ui-ux-designer`): one bubble above the head, shown in priority order sleep > poison > matchup "!" (while hovering a target) > bond ♥ (adjacent bonded ally). Replaces the P/Z badges from step 12
+- [ ] **Readability rules from doc/05** (`game-art-design`):
+    - Sprites never cover the HP bar or the cursor
+    - Units stay recognizable in grayscale, by the faction ring shape: solid for players, notched for enemies
+- [ ] **Screenshots** of chapters 1–3 for doc/03; fps bench
+
+**Validation**
+
+| Check | Pass when | Result |
+| --- | --- | --- |
+| Readable | In a 1-second glance test (5 screenshots, 3 people), faction, acting unit and low HP are named correctly ≥ 90% | |
+| Grayscale | Grayscale screenshot: player and enemy still distinguishable | |
+| Performance | ≥ 60 fps on the battle screen with 20 animated sprites (`--bench`) | |
+| Tests | `tools/test.sh` + `check_layers.sh` green; nothing in `core/` changed | |
+| Look (human) | Owner compares to the step 12 screenshot and approves | ⏳ owner |
+
+## Step 16 — Battle cut-in scene (image B)
+
+**Goal:** each attack, spell or heal can play a 1.5–3 second close-up, as in the reference genre. It never slows the game down for players who don't want it.
+
+**Tasks**
+
+- [ ] **Scene** `view/battle_scene/battle_scene.tscn` (`game-developer` + `game-ui-ux-designer`):
+    - Side view, defender on the left and attacker on the right; flipped when the enemy attacks
+    - Backdrop chosen from the **defender's terrain** (`plain`, `forest`, `hill`, `sand`, `shallow`, walls → ruins)
+    - **Plates** (our own frame from doc/05): attacker top right, defender bottom left. Name, level, HP bar and numbers; the bar drains when damage lands
+- [ ] **Driven by events only.** The battle screen gives the scene the events from one `apply()`: `ATTACKED`, `DAMAGED`, `HEALED`, `CAST`, `DIED`, `STATUS_ADDED`, `LEVELED_UP`. The scene plays them in order:
+    - hit, miss (dodge pose), crit (flash + bigger number), double attack
+    - weapon special name, then the counter-attack
+    - death fade, "LEVEL UP" at the end
+    - No core change; the RNG is never touched
+- [ ] **Settings → Battle scenes:** *On* / *Player only* / *Off*. Default: *On*. *Off* behaves exactly as today. Confirm or cancel skips to the result
+- [ ] **Assets** (`game-2d-3d-artist`):
+    - Placeholder battle poses per class (6 base + 6 promoted + 4 enemy types), palette-swapped per unit
+    - 6 placeholder backdrops
+    - Effects: slash, arrow, fire, heal sparkle (`game-artist`)
+- [ ] **Audio:** hit / crit / miss / heal sounds move from the map into the scene when it's on
+
+**Validation**
+
+| Check | Pass when | Result |
+| --- | --- | --- |
+| Faithful | For 200 seeded attacks, the scene's shown outcome (hit/miss/crit/damage/counter/death) equals the events (headless test plays the scene with animations off) | |
+| Determinism | Golden replays and the balance sim unchanged with scenes on or off | |
+| Length | ≤ 3 s per normal attack at normal speed, ≤ 1 s at fast; skip works from the first frame | |
+| Battle length | A chapter 1 human playthrough stays within 15–25 min with scenes *On* | ⏳ owner playtest |
+| Performance | ≥ 60 fps during the scene | |
+| Fun (human) | Testers keep scenes on, or switch to *Player only*, rather than *Off* | ⏳ owner playtest |
+
+## Step 17 — 3D isometric battle map with sprite billboards (image A, full)
+
+**Goal:** the "3D view" phase from *After the slice*, now with the step 15 sprites. A textured 3D map, height you can see, 4 camera angles. Same core and events as the 2D and text views.
+
+**Tasks**
+
+- [ ] **`view/battle3d/`** (`game-developer`):
+    - Map mesh from `MapData` heights and terrain, with tile textures (`game-artist`)
+    - Units as `Sprite3D` billboards with the step 15 sheets; facing is relative to the camera
+    - Ground shadow disc plus faction ring, as in the reference genre's dark shadows, but in our colors
+- [ ] **Camera:** 4 rotations (Q/E, LB/RB), 3 zoom levels, wall fade when a unit is hidden, top-down toggle ([01 §5](01-app-design.md#5-screens-and-controls))
+- [ ] **HUD reuse:** unit panel, forecast, dialogue box (step 14) and cut-in scene (step 16) work unchanged on top of the 3D view
+- [ ] **Settings → Battle view:** *3D* / *2D*. The 2D view stays as a fallback for low-end machines and tests
+
+**Validation**
+
+| Check | Pass when | Result |
+| --- | --- | --- |
+| Same battle | The same scripted battles play identically in 2D, 3D and text views (as planned in *After the slice*) | |
+| No hidden units | At all 4 angles, every unit is visible or outlined on all 3 maps (screenshots) | |
+| Performance | ≥ 60 fps at 1080p on Apple M1 / Intel Iris Xe class, Compatibility renderer | |
+| Look (human) | Owner approves the 3D look against doc/05 | ⏳ owner |
+
 ## After the slice
 
 | Phase | Months | Engineering focus | Exit validation |
 | --- | --- | --- | --- |
-| 3D view | after the slice | 3D isometric battle view (height, rotating camera, sprites on the map), using the same core and events as the 2D/text views | Same scripted battles play identically in every view |
+| 3D view | after the slice | Now planned as [step 17](#step-17--3d-isometric-battle-map-with-sprite-billboards-image-a-full) | Same scripted battles play identically in every view |
 | Production | 9–18 | Content tools, hard mode, remaining spells/items/classes, localization pipeline | All 12 chapters playable start to finish in CI (campaign e2e over every chapter) |
 | Alpha / beta | 19–22 | Bug fixing, performance, save migration tests for every released version | Crash-free ≥ 99.5%, 0 open save bugs |
 | Launch | 23–24 | Store builds, day-1 patch pipeline | Signed builds pass store review |
@@ -501,3 +691,8 @@ Each step becomes a GitHub milestone. Each task is an issue labeled with its ste
 | 10 Hardening | Claude | 2026-11-07 | ✅ Done (signing + Windows ⏳ owner) |
 | 11 Slice content (Gate C) | Claude | 2026-11-07 | ✅ Engineering + placeholder content done; final art/audio and Gate C playtest ⏳ owner |
 | 12 Design round 1 | Claude | 2026-11-07 | ✅ Done (playtest of matchups/status ⏳ owner) |
+| 13 Art direction + pipeline | game-art-design, game-2d-3d-artist | — | ⬜ Next (style sign-off ⏳ owner) |
+| 14 Portrait dialogue | game-ui-ux-designer, game-developer | — | ⬜ Planned |
+| 15 Map sprites + head icons | game-2d-3d-artist, game-developer | — | ⬜ Planned |
+| 16 Battle cut-in scene | game-developer, game-ui-ux-designer, game-artist | — | ⬜ Planned |
+| 17 3D isometric map | game-developer, game-artist | — | ⬜ Planned (final art ⏳ artist) |
