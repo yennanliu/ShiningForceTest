@@ -2,6 +2,10 @@ extends Control
 ## Results: outcome, XP, gold, who fell. Continue -> camp (or title at the end).
 
 
+## Where keyboard / gamepad focus starts (doc/03 step 18).
+var default_focus: Control
+
+
 func _ready() -> void:
 	var r: BattleResult = Game.last_result
 	var col := UI.screen(self, 100)
@@ -21,4 +25,5 @@ func _ready() -> void:
 		UI.label(box, "%-10s  XP +%d%s%s" % [name, r.xp[id], up, down], 24)
 	if r.campaign_complete:
 		UI.center(UI.label(col, "You finished the demo campaign. Thanks for playing!", 30, UI.ACCENT))
-	UI.center(UI.button(col, "Continue", Game.after_results))
+	default_focus = UI.center(UI.primary_button(col, "Continue", Game.after_results)) as Button
+	UI.focus(default_focus)

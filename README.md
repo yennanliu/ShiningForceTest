@@ -89,7 +89,8 @@ godot --headless --path . -s res://tools/play.gd       # or with Godot installed
 | Build the Linux app | `tools/docker.sh export` |
 | Balance report (AI vs AI) | `godot --headless --path . -s res://tools/battle_sim.gd -- --runs=200` |
 | Edit in the Godot editor | `godot --editor --path .` |
-| Regenerate content / audio / art | `godot --headless --path . -s res://tools/make_content.gd` · `python3 tools/make_audio.py` · `python3 tools/make_art.py` |
+| Regenerate content / audio / art / UI theme | `godot --headless --path . -s res://tools/make_content.gd` · `python3 tools/make_audio.py` · `python3 tools/make_art.py` · `godot --headless --path . -s res://tools/make_theme.gd` |
+| UI snapshots (needs a window) | `tools/ui_snapshots.sh` (compare) · `tools/ui_snapshots.sh --update` (accept a new look) |
 
 ## CI / CD
 

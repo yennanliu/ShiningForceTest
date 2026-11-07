@@ -2,6 +2,8 @@ extends Control
 ## Town (simplified to a menu): talk to townspeople and search hidden spots.
 
 var _talk: DialogueBox
+## Where keyboard / gamepad focus starts (doc/03 step 18).
+var default_focus: Control
 
 
 func _ready() -> void:
@@ -23,7 +25,10 @@ func _ready() -> void:
 	for i in c.chapter.town_finds.size():
 		var b := UI.button(search, "Search the %s" % spots[i % spots.size()], func() -> void: _search(i), 560)
 		b.disabled = c.flags.get(c.found_key(i), false)
-	UI.center(UI.button(col, "Back to camp", func() -> void: Game.goto(Game.Screen.CAMP)))
+	var back := UI.center(UI.button(col, "Back to camp", func() -> void:
+		Audio.play_sfx("cancel")
+		Game.goto(Game.Screen.CAMP))) as Button
+	default_focus = back
 	# Portrait dialogue (doc/03 step 14) under everything, so nothing gets pushed off screen.
 	_talk = DialogueBox.create(col, Vector2(1100, 210))
 	_talk.waits = false
@@ -31,6 +36,11 @@ func _ready() -> void:
 	_talk.visible = true          # keeps its space so the buttons never jump
 	_talk.modulate.a = 0.0        # invisible until someone talks or searches
 	_talk.advanced.connect(func() -> void: _talk.modulate.a = 0.0)
+	for b in talk.get_children():   # start on the first person to talk to
+		if b is Button:
+			default_focus = b
+			break
+	UI.focus(default_focus)
 
 
 func _search(i: int) -> void:

@@ -70,6 +70,18 @@ jobs:
           echo "GODOT=$PWD/Godot.app/Contents/MacOS/Godot" >> "$GITHUB_ENV"
       - run: tools/check_env.sh
       - run: tools/test.sh
+      # UI snapshots (doc/03 step 18): needs a window, which macOS runners have. Advisory until the
+      # golden images are produced on this runner (fonts and anti-aliasing can differ per GPU).
+      - name: UI snapshots (advisory)
+        continue-on-error: true
+        run: tools/ui_snapshots.sh
+      - name: Upload UI snapshots and diffs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-snapshots
+          path: build/ui
+          if-no-files-found: ignore
 
   build:
     name: Build (Linux, Windows, macOS) + smoke

@@ -164,6 +164,7 @@ func _build() -> void:
 	v.add_theme_constant_override("separation", 6)
 	text_panel.add_child(v)
 	_name = UI.label(v, "", 26, UI.ACCENT)
+	_name.theme_type_variation = &"DisplayLabel"
 	_text = UI.label(v, "", 28)
 	_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -173,15 +174,13 @@ func _build() -> void:
 	_more.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 
 
+## The portrait sits in a card frame with the pennant; the text in a Banner panel (theme).
 static func _framed(parent: Node) -> PanelContainer:
 	var p := PanelContainer.new()
 	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = UI.PANEL_BG
-	sb.border_color = UI.PANEL_BORDER
-	sb.set_border_width_all(3)
-	sb.set_corner_radius_all(10)
-	sb.set_content_margin_all(6 if parent.get_child_count() == 0 else 18)
-	p.add_theme_stylebox_override("panel", sb)
+	var is_portrait := parent.get_child_count() == 0
+	p.theme_type_variation = &"PortraitFrame" if is_portrait else &""
 	parent.add_child(p)
+	if is_portrait:
+		UI.pennant(p)
 	return p

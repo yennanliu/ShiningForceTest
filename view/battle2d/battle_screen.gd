@@ -844,18 +844,13 @@ func _build_ui() -> void:
 
 	_turn_label = _label(panel, 34)
 
-	var card := PanelContainer.new()
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color("1c2f6e")
-	sb.border_color = Color("cbb98a")
-	sb.set_border_width_all(3)
-	sb.set_corner_radius_all(10)
-	sb.set_content_margin_all(18)
-	card.add_theme_stylebox_override("panel", sb)
+	var card := PanelContainer.new()   # the Banner frame from the theme
 	panel.add_child(card)
+	UI.pennant(card)
 	var cv := VBoxContainer.new()
 	card.add_child(cv)
 	_name_label = _label(cv, 30)
+	_name_label.theme_type_variation = &"DisplayLabel"
 	var hp_row := HBoxContainer.new()
 	cv.add_child(hp_row)
 	var hp_tag := _label(hp_row, 24)
@@ -863,14 +858,6 @@ func _build_ui() -> void:
 	_hp_bar = ProgressBar.new()
 	_hp_bar.custom_minimum_size = Vector2(300, 26)
 	_hp_bar.show_percentage = false
-	var fill := StyleBoxFlat.new()
-	fill.bg_color = Color("5ad65a")
-	fill.set_corner_radius_all(4)
-	var bg := StyleBoxFlat.new()
-	bg.bg_color = Color(0, 0, 0, 0.5)
-	bg.set_corner_radius_all(4)
-	_hp_bar.add_theme_stylebox_override("fill", fill)
-	_hp_bar.add_theme_stylebox_override("background", bg)
 	hp_row.add_child(_hp_bar)
 	_hp_label = _label(hp_row, 24)
 	_stats_label = _label(cv, 22)
@@ -937,6 +924,7 @@ func _update_panel() -> void:
 		_name_label.add_theme_color_override("font_color", Color("9fd0ff") if shown.faction == Enums.Faction.PLAYER else Color("ff9f9f"))
 		_hp_bar.max_value = shown.max_hp()
 		_hp_bar.value = shown.hp
+		_hp_bar.theme_type_variation = BannerTheme.hp_variation(float(shown.hp) / shown.max_hp())
 		_hp_label.text = "  %d / %d" % [shown.hp, shown.max_hp()]
 		var w := shown.weapon()
 		_stats_label.text = "MP %d/%d   ATK %d   DEF %d   AGI %d   MOV %d   %s" % [shown.mp, shown.max_mp(), st.atk, st.def, st.agi, shown.mov(), w.display_name if w else "-"]
@@ -992,9 +980,11 @@ func _button(parent: Node, text: String, cb: Callable) -> Button:
 	b.text = text
 	b.add_theme_font_size_override("font_size", 22)
 	b.custom_minimum_size = Vector2(150, 52)
-	b.focus_mode = Control.FOCUS_NONE
+	b.focus_mode = Control.FOCUS_NONE   # the map cursor owns keys and the gamepad here
+	b.pressed.connect(func() -> void: Audio.play_sfx("confirm"))
 	b.pressed.connect(cb)
 	parent.add_child(b)
+	UI.animate(b)
 	return b
 
 

@@ -44,6 +44,15 @@ class Canvas:
             for x in range(int(min(x0, x1)), int(max(x0, x1)) + 1):
                 self.set(x, y, c)
 
+    def rounded(self, x0, y0, x1, y1, r, c):
+        """Filled rectangle with rounded corners (inclusive)."""
+        for y in range(y0, y1 + 1):
+            for x in range(x0, x1 + 1):
+                dx = max(x0 + r - x, 0, x - (x1 - r))
+                dy = max(y0 + r - y, 0, y - (y1 - r))
+                if dx * dx + dy * dy <= r * r:
+                    self.set(x, y, c)
+
     def ellipse(self, cx, cy, rx, ry, c):
         for y in range(int(cy - ry) - 1, int(cy + ry) + 2):
             for x in range(int(cx - rx) - 1, int(cx + rx) + 2):

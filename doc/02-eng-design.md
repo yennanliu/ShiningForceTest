@@ -953,6 +953,6 @@ godot --headless --path . --export-release "Linux"   build/Banner.x86_64
 
 | Workflow | Jobs |
 | --- | --- |
-| `ci.yml` (push to main, PRs) | `checks`: `check_layers.sh`, `check_env.sh` (Godot = `.godot-version`, clean import), `check_generated.sh` (re-runs make_fixtures / make_content / make_golden / make_audio.py / make_art.py; fails on any diff) · `unit`: `test.sh --dir=core` · `e2e`: `test.sh --dir=e2e` · `view`: `test.sh --dir=view` + `smoke_play.sh` · `balance` (matrix ch1–3): `battle_sim.gd --runs=300 --min=60 --max=90` · `env-macos`: native Godot on macOS, env check + full suite · `build` (after all pass): `docker.sh export-all` → artifacts |
+| `ci.yml` (push to main, PRs) | `checks`: `check_layers.sh`, `check_env.sh` (Godot = `.godot-version`, clean import), `check_generated.sh` (re-runs make_fixtures / make_content / make_golden / make_audio.py / make_art.py / make_theme.gd; fails on any diff) · `unit`: `test.sh --dir=core` · `e2e`: `test.sh --dir=e2e` · `view`: `test.sh --dir=view` + `smoke_play.sh` · `balance` (matrix ch1–3): `battle_sim.gd --runs=300 --min=60 --max=90` · `env-macos`: native Godot on macOS, env check + full suite + UI snapshots (advisory, uploads `build/ui`) · `build` (after all pass): `docker.sh export-all` → artifacts |
 | `release.yml` (tag `v*`) | tests → export-all → GitHub Release (zip/tar per platform) |
 | `nightly.yml` (daily + manual) | 1,000-run balance per chapter, full suite, generated check, smoke play, export-all |

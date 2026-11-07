@@ -186,6 +186,12 @@ func skip() -> void:
 	_woke.emit()
 
 
+## Shows the last frame again (fighters idle, plates at their final HP). For still screenshots.
+func hold() -> void:
+	visible = true
+	queue_redraw()
+
+
 func shown_hp(unit_id: int) -> int:
 	return _hp.get(unit_id, -1)
 
@@ -419,23 +425,15 @@ func _fill_plate(s: String) -> void:
 	p.stripe.color = Color("3b6fd8") if u.faction == Enums.Faction.PLAYER else Color("c8423a")
 
 
-## Same HP colors as the map (doc/05): green > 50%, yellow > 25%, red below.
+## Same HP colors as the map (doc/05): green > 50%, yellow > 25%, red below (theme variations).
 static func _color_bar(bar: ProgressBar, frac: float) -> void:
-	var fill: StyleBoxFlat = bar.get_theme_stylebox("fill")
-	fill.bg_color = Color("5ad65a") if frac > 0.5 else (Color("e8c440") if frac > 0.25 else Color("e04a3a"))
+	bar.theme_type_variation = BannerTheme.hp_variation(frac)
 
 
 ## A name / level / HP plate: our flat navy + gold frame, with a team-color stripe on the left.
 func _plate(at: Vector2) -> Dictionary:
 	var panel := PanelContainer.new()
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = UI.PANEL_BG
-	sb.border_color = UI.PANEL_BORDER
-	sb.set_border_width_all(3)
-	sb.set_corner_radius_all(10)
-	sb.set_content_margin_all(16)
-	sb.content_margin_left = 30
-	panel.add_theme_stylebox_override("panel", sb)
+	panel.theme_type_variation = &"PlateCard"   # card frame with room for the team stripe
 	panel.position = at
 	panel.custom_minimum_size = Vector2(560, 150)
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -448,7 +446,7 @@ func _plate(at: Vector2) -> Dictionary:
 	add_child(stripe)
 	var v := VBoxContainer.new()
 	panel.add_child(v)
-	var title := UI.label(v, "", 36, Color.WHITE)
+	var title := UI.label(v, "", 36, Color.WHITE)   # 36 px -> display font
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 14)
 	v.add_child(row)
@@ -456,14 +454,6 @@ func _plate(at: Vector2) -> Dictionary:
 	var bar := ProgressBar.new()
 	bar.custom_minimum_size = Vector2(260, 28)
 	bar.show_percentage = false
-	var fill := StyleBoxFlat.new()
-	fill.bg_color = Color("5ad65a")
-	fill.set_corner_radius_all(4)
-	var bg := StyleBoxFlat.new()
-	bg.bg_color = Color(0, 0, 0, 0.55)
-	bg.set_corner_radius_all(4)
-	bar.add_theme_stylebox_override("fill", fill)
-	bar.add_theme_stylebox_override("background", bg)
 	bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(bar)
 	var hp := UI.label(row, "", 34, Color.WHITE)

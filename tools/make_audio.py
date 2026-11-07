@@ -105,5 +105,10 @@ save("sfx_heal", seq([(72, 0.08), (76, 0.08), (79, 0.08), (84, 0.2)], 1, "sine",
 save("sfx_level_up", seq([(72, 0.1), (76, 0.1), (79, 0.1), (84, 0.1), (88, 0.35)], 1, "square", 0.3, 3))
 save("sfx_chest", seq([(79, 0.08), (84, 0.08), (91, 0.25)], 1, "square", 0.3, 5))
 save("sfx_select", seq([(84, 0.04)], 1, "square", 0.2, 30))
+# UI sounds (step 18): short and quiet
+save("sfx_hover", seq([(96, 0.025)], 1, "triangle", 0.12, 60))
+save("sfx_confirm", seq([(79, 0.035), (86, 0.05)], 1, "square", 0.18, 30))
+save("sfx_cancel", seq([(81, 0.035), (74, 0.05)], 1, "square", 0.16, 30))
+save("sfx_open", seq([(72, 0.03), (79, 0.03), (84, 0.06)], 1, "triangle", 0.18, 18))
 save("sfx_victory", seq([(72, 0.15), (72, 0.15), (72, 0.15), (72, 0.45), (68, 0.45), (70, 0.45), (72, 0.3), (70, 0.15), (72, 0.9)], 1, "square", 0.3, 1.5))
 save("sfx_defeat", seq([(67, 0.4), (66, 0.4), (65, 0.4), (64, 1.2)], 1, "triangle", 0.4, 1.0))
