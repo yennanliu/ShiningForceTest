@@ -8,7 +8,7 @@ An original, single-player, isometric tactical RPG for desktop, built with Godot
 | --- | --- | --- |
 | 01 | [App Design](doc/01-app-design.md) | Product vision, features, screens, scope, engineering overview |
 | 02 | [Engineering Design](doc/02-eng-design.md) | Architecture, core features, interfaces, class definitions, data formats, testing |
-| 03 | [Implementation Plan](doc/03-implementation-plan.md) | 17 steps, with tasks and validation for each |
+| 03 | [Implementation Plan](doc/03-implementation-plan.md) | 22 steps, with tasks and validation for each |
 | 04 | [Research & References](doc/04-research-and-references.md) | Genre reference analysis, IP guardrails, sources |
 | 05 | [Art Direction](doc/05-art-direction.md) | Style, palette, characters, portraits, asset specs |
 
