@@ -4,6 +4,7 @@ class_name Art
 
 const UNITS := "res://assets/textures/units/%s.png"
 const PORTRAITS := "res://assets/textures/portraits/%s.png"
+const ICONS := "res://assets/textures/icons/head_%s.png"
 
 static var _cache: Dictionary = {}
 
@@ -22,6 +23,11 @@ static func portrait(id: StringName, mood := "") -> Texture2D:
 ## Map sprite sheet (9 frames x 4 directions of 48x64). Null if none.
 static func sprite_sheet(id: StringName) -> Texture2D:
 	return _load(UNITS % id)
+
+
+## Head icon bubble (poison, sleep, adv, bond) or the leader star. Null if none.
+static func head_icon(name: String) -> Texture2D:
+	return _load(ICONS % name)
 
 
 static func _load(path: String) -> Texture2D:

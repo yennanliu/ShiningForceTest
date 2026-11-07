@@ -7,6 +7,7 @@ built from the class silhouettes and character looks in tools/art_palette.py.
 Outputs:
     assets/textures/units/<id>.png          432x256 sheet: 9 frames x 4 directions of 48x64
     assets/textures/portraits/<id>.png      256x256 (drawn on 64x64, scaled x4); <id>_<mood>.png
+    assets/textures/icons/head_<name>.png   24x24 head bubbles: poison, sleep, adv, bond; leader star
 Final art replaces these files one for one (same names and sizes).
 """
 import os
@@ -408,19 +409,67 @@ def portrait(cid, mood="neutral"):
     return bg.scaled(4)
 
 
+# --- head icons (24x24, doc/05 §7: a shape + a color, never color alone) -----------
+
+def _bubble(fill):
+    c = Canvas(24, 24)
+    c.ellipse(12, 10.5, 10, 9, fill)
+    c.poly([(9, 17), (12, 23), (15, 17)], fill)   # tail toward the head below
+    c.outline(P.OUTLINE)
+    return c
+
+
+def _symbol(draw):
+    s = Canvas(24, 24)
+    draw(s)
+    s.outline(P.OUTLINE)
+    return s
+
+
+def head_icon(name):
+    if name == "leader":   # a star, no bubble (drawn beside the HP bar)
+        def star(s):
+            s.poly([(12, 2), (14.6, 8.8), (21.8, 9.2), (16.2, 13.8), (18.1, 20.8), (12, 16.8),
+                    (5.9, 20.8), (7.8, 13.8), (2.2, 9.2), (9.4, 8.8)], P.GOLD)
+        return _symbol(star)
+    poison, sleep = hexc("#8be36b"), hexc("#8fb8ff")
+    c = _bubble(P.GOLD if name == "adv" else P.WHITE)
+    if name == "poison":       # a drop
+        sym = _symbol(lambda s: (s.ellipse(12, 12.5, 4, 4, poison), s.poly([(8.5, 11), (12, 4), (15.5, 11)], poison)))
+    elif name == "sleep":      # a Z
+        sym = _symbol(lambda s: (s.rect(7, 5, 16, 6, sleep), s.line(15, 7, 8, 14, sleep, 2), s.rect(7, 14, 16, 15, sleep)))
+    elif name == "adv":        # an exclamation mark
+        sym = _symbol(lambda s: (s.rect(11, 3, 13, 11, P.OUTLINE), s.rect(11, 14, 13, 16, P.OUTLINE)))
+    elif name == "bond":       # a heart
+        heart = hexc("#e86a8a")
+        sym = _symbol(lambda s: (s.ellipse(9, 8, 3.5, 3.5, heart), s.ellipse(15, 8, 3.5, 3.5, heart),
+                                 s.poly([(5.5, 9), (18.5, 9), (12, 16)], heart)))
+    else:
+        raise ValueError(name)
+    c.blit(sym, 0, 0)
+    return c
+
+
+HEAD_ICONS = ["poison", "sleep", "adv", "bond", "leader"]
+
+
 def main():
     units = os.path.join(ROOT, "assets", "textures", "units")
     portraits = os.path.join(ROOT, "assets", "textures", "portraits")
     os.makedirs(units, exist_ok=True)
     os.makedirs(portraits, exist_ok=True)
+    icons = os.path.join(ROOT, "assets", "textures", "icons")
+    os.makedirs(icons, exist_ok=True)
+    for name in HEAD_ICONS:
+        head_icon(name).save_png(os.path.join(icons, "head_%s.png" % name))
     for cid in P.SPRITES:
         sprite_sheet(cid).save_png(os.path.join(units, cid + ".png"))
     for cid in P.PORTRAITS:
         portrait(cid).save_png(os.path.join(portraits, cid + ".png"))
         for mood in P.MOODS.get(cid, []):
             portrait(cid, mood).save_png(os.path.join(portraits, "%s_%s.png" % (cid, mood)))
-    print("art written: %d sprite sheets, %d portraits" % (
-        len(P.SPRITES), len(P.PORTRAITS) + sum(len(v) for v in P.MOODS.values())))
+    print("art written: %d sprite sheets, %d portraits, %d head icons" % (
+        len(P.SPRITES), len(P.PORTRAITS) + sum(len(v) for v in P.MOODS.values()), len(HEAD_ICONS)))
 
 
 if __name__ == "__main__":
