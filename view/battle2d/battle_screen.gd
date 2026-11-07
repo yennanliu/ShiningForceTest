@@ -437,10 +437,12 @@ func _draw_unit(u: Unit) -> void:
 	var sx := 0.0
 	for st: String in [Unit.POISON, Unit.SLEEP]:
 		if u.status.has(st):
-			var at := c + Vector2(rad * 0.55 + sx, -rad * 0.55)
-			draw_circle(at, 9, Color(0, 0, 0, 0.75))
-			draw_string(_font, at + Vector2(-5, 6), "P" if st == Unit.POISON else "Z", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, STATUS_COLORS[st])
-			sx += 18.0
+			var br := maxf(11.0, TILE * 0.17)
+			var at := c + Vector2(rad * 0.7 + sx, -rad * 0.7)
+			draw_circle(at, br, Color(0.05, 0.05, 0.08, 0.9))
+			draw_arc(at, br, 0, TAU, 24, STATUS_COLORS[st], 2.0)
+			draw_string(_font, at + Vector2(-br, br * 0.55), "P" if st == Unit.POISON else "Z", HORIZONTAL_ALIGNMENT_CENTER, br * 2, int(br * 1.5), STATUS_COLORS[st])
+			sx += br * 2 + 2
 	var letter := TextView._letter(u).to_upper()
 	draw_string(_font, c + Vector2(-rad, 11), letter, HORIZONTAL_ALIGNMENT_CENTER, rad * 2, 32, Color.WHITE)
 	var w := TILE * 0.7

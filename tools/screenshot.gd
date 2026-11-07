@@ -2,6 +2,7 @@ extends SceneTree
 ## Saves a PNG of a screen with demo game state (needs a GPU / window).
 ##   godot --path . -s res://tools/screenshot.gd -- --screen=camp --out=camp.png
 ## Screens: title, camp, battle, results, town, settings.  Add --bench to measure FPS.
+## --demo-status (battle): poisons the acting unit and puts an enemy to sleep, to check the status badges.
 
 
 func _initialize() -> void:
@@ -27,6 +28,11 @@ func _initialize() -> void:
 	}[screen]
 	if screen == "battle":
 		game.battle = game.campaign.start_battle(11)
+		if "--demo-status" in OS.get_cmdline_user_args():
+			var ev: Array[BattleEvent] = []
+			Rules.add_status(game.battle.living(Enums.Faction.PLAYER)[0], Unit.POISON, 3, ev)
+			Rules.add_status(game.battle.living(Enums.Faction.ENEMY)[0], Unit.SLEEP, 2, ev)
+			Rules.add_status(game.battle.living(Enums.Faction.ENEMY)[0], Unit.POISON, 2, ev)
 	root.add_child(load(path).instantiate())
 	for i in 30:
 		await process_frame

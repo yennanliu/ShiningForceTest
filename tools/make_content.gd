@@ -184,7 +184,7 @@ func _units() -> void:
 	# enemies and guests
 	_unit(&"goblin", "Goblin", &"swordsman", [14, 0, 8, 4, 6, 3], [&"bronze_sword"])
 	_unit(&"goblin_archer", "Goblin Archer", &"archer", [12, 0, 7, 3, 6, 3], [&"wooden_bow"])
-	_unit(&"goblin_venomer", "Goblin Venomer", &"archer", [12, 0, 6, 3, 6, 3], [&"venom_bow"])
+	_unit(&"goblin_stinger", "Goblin Stinger", &"archer", [12, 0, 6, 3, 6, 3], [&"venom_bow"])
 	_unit(&"wolf", "Wolf", &"beast", [13, 0, 9, 3, 9, 3], [])
 	_unit(&"bandit", "Bandit", &"warrior", [16, 0, 9, 4, 7, 4], [&"hand_axe"])
 	_unit(&"goblin_chief", "Goblin Chief", &"swordsman", [34, 0, 13, 7, 7, 5], [&"steel_sword"])
@@ -193,7 +193,7 @@ func _units() -> void:
 
 # --- maps ---------------------------------------------------------------------
 
-const ENEMY_LETTERS := {"g": &"goblin", "a": &"goblin_archer", "v": &"goblin_venomer", "l": &"wolf", "b": &"bandit", "B": &"goblin_chief"}
+const ENEMY_LETTERS := {"g": &"goblin", "a": &"goblin_archer", "s": &"goblin_stinger", "l": &"wolf", "b": &"bandit", "B": &"goblin_chief"}
 
 
 ## Builds a MapData from an ASCII grid (tokens separated by spaces).
@@ -303,7 +303,7 @@ func _map_millford() -> MapData:
 		". # # . . . ^ . . g . .",
 		". . . . f . . . . . . l",
 		"P P . . . . . . f . . .",
-		"P P . . f . . . . . v .",
+		"P P . . f . . . . . s .",
 		"P P . . . . . . . . . .",
 	])
 	var m: MapData = g.map
@@ -327,7 +327,7 @@ func _map_chief() -> MapData:
 		". f . . ^ . b . . . . .",
 		". . . . . . . . . . g .",
 		". . g . f . . ^ ^ . . .",
-		". . . . . . . ^ H . v .",
+		". . . . . . . ^ H . s .",
 		"P P . . . f . . . . . .",
 		"P P . . . . . . f . . .",
 		"P P P P . . . . . . . .",
@@ -361,7 +361,7 @@ func _chapters(m1: MapData, m2: MapData, m3: MapData) -> void:
 	c3.battle = m3
 	c3.recruits_on_start = [U.garret, U.hale]
 	c3.reward_gold = 300
-	c3.shop = [I.herb, I.antidote, I.healing_seed, I.long_bow, I.lull_staff, I.power_ring, I.vigor_band]
+	c3.shop = [I.herb, I.antidote, I.healing_seed, I.long_bow, I.lull_staff, I.vigor_band]   # 6 fit the camp panel; Power Ring is a ch1 chest
 	_save(c3, D + "chapters/ch03.tres")
 	var c2 := ChapterData.new()
 	c2.id = &"ch02"

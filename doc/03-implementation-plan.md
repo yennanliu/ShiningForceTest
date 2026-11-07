@@ -444,26 +444,31 @@ Designed against (from the reference's criticisms): no warp-back heal (we keep t
 
 **Tasks**
 
-- [ ] **Matchups** (`game-developer`): `Rules.matchup(a, t)` → +1 / 0 / −1. Sword > axe > spear > sword; spears and bows beat mounted units; bows beat flying units. Advantage: +10% hit, +8% crit, special chance ×2 *(tune)*. Disadvantage: −10% hit. `forecast()` returns `adv`; the 2D forecast shows "!" (advantage) or "▼" (disadvantage)
-- [ ] **Status** (`game-developer`): `Unit.status` (`poison`, `sleep` → turns left), saved in snapshots and suspends. `POISON` special: 3 turns, loses 10% max HP (min 1) at the end of each of its turns. `SLEEP` special: the unit skips up to 2 turns and wakes when damaged. Events `STATUS_ADDED`, `STATUS_ENDED`, `TURN_SKIPPED`. New Antidote item cures poison
-- [ ] **Regen ring** (`game-developer`): `ItemData.regen`; Vigor Band (+2 DEF, +2 HP at the end of each turn)
-- [ ] **Content** (`game-developer`): goblin archers carry a Venom Bow (poison 20%) from chapter 2; Lull Staff (sleep 20%), Antidote and Vigor Band in the shops
-- [ ] **Readability** (`game-ui-ux-designer`, `game-art-design`): status letters on the map (green "P" poison, blue "Z" sleep, above the HP bar, top right of the token); unit panel lists status; forecast shows matchup
-- [ ] **Validate** (`game-qa`): tests below, golden replays, balance sim per chapter, screenshot
+- [x] **Matchups** (`game-developer`): `Rules.matchup(a, t)` → +1 / 0 / −1. Sword > axe > spear > sword; spears and bows beat mounted units; bows beat flying units. Advantage: +10% hit, +8% crit, special chance ×2 *(tune)*. Disadvantage: −10% hit. `forecast()` returns `adv`; the 2D forecast shows "!" (advantage) or "▼" (disadvantage)
+- [x] **Status** (`game-developer`): `Unit.status` (`poison`, `sleep` → turns left), saved in snapshots and suspends. `POISON` special: 3 turns, loses 10% max HP (min 1) at the end of each of its turns. `SLEEP` special: the unit skips up to 2 turns and wakes when damaged. Events `STATUS_ADDED`, `STATUS_ENDED`, `TURN_SKIPPED`. New Antidote item cures poison
+- [x] **Regen ring** (`game-developer`): `ItemData.regen`; Vigor Band (+2 DEF, +2 HP at the end of each turn)
+- [x] **Content** (`game-developer`): a new Goblin Stinger (archer with a Venom Bow, poison 20%) replaces one goblin archer in chapters 2 and 3; Antidote in the chapter 2 shop; Antidote, Lull Staff (sleep 20%) and Vigor Band in the chapter 3 shop (Power Ring left out so the camp screen fits; it's a chapter 1 chest)
+- [x] **Readability** (`game-ui-ux-designer`, `game-art-design`): status letters on the map (green "P" poison, blue "Z" sleep, above the HP bar, top right of the token); unit panel lists status; forecast shows matchup
+- [x] **Validate** (`game-qa`): tests below, golden replays, balance sim per chapter, screenshots. QA found 3 issues, all fixed: the chapter 3 shop (7 items) pushed the Save/Title buttons off screen (major); the new enemy shared the letter "V" with the villager (minor, renamed to Goblin Stinger "S"); status badges too small (minor)
+- [x] `tools/screenshot.gd --demo-status` shows the status badges on the battle screen
+
+![Status badges: poisoned leader A, poisoned and asleep wolf](images/round1_status.png) ![Chapter 3 shop](images/round1_camp_shop.png)
+
+Known, not from this step: the unit panel is blank while the opening lines play (also in the step 11 screenshot) → next round, `game-ui-ux-designer`
 
 **Validation**
 
 | Check | Pass when | Result |
 | --- | --- | --- |
-| Matchups | Triangle and mounted/flying rules exact; advantage raises hit and crit; forecast reports it | |
-| Poison | Applied by a poison special; ticks after the unit's turn; ends after 3 turns; can kill; Antidote cures | |
-| Sleep | Sleeping unit's turns are skipped (max 2); damage wakes it | |
-| Regen ring | +2 HP at the end of the wearer's turn, capped at max HP | |
-| Save / replay | Status survives suspend/resume and replays identically | |
-| Goldens | Fixture golden replays unchanged, or regenerated with a stated reason | |
-| Balance (sim) | AI-vs-AI player win rate 60–90% on chapters 1–3 (baseline before this step: 86 / 89 / 77%) | |
-| Whole suite | `tools/test.sh` all green (baseline 123), `tools/check_layers.sh` OK | |
-| Looks right | Battle screenshot: status letters and the "!" forecast are readable, nothing overlaps | |
+| Matchups | Triangle and mounted/flying rules exact; advantage raises hit and crit; forecast reports it | ✅ `test_matchup_triangle_and_mounted`, `test_advantage_raises_hit_and_crit_and_shows_in_forecast` |
+| Poison | Applied by a poison special; ticks after the unit's turn; ends after 3 turns; can kill; Antidote cures | ✅ `test_poison_special_poisons_on_hit`, `test_poison_ticks_after_turn_then_wears_off`, `test_poison_can_end_the_battle_once`, `test_antidote_cures_poison` |
+| Sleep | Sleeping unit's turns are skipped (max 2); damage wakes it | ✅ `test_sleeping_unit_skips_two_turns_then_acts`, `test_damage_wakes_a_sleeper` |
+| Regen ring | +2 HP at the end of the wearer's turn, capped at max HP | ✅ `test_regen_ring_heals_at_end_of_turn_capped` |
+| Save / replay | Status survives suspend/resume and replays identically | ✅ `test_status_round_trips_through_unit_dict`, `test_status_battles_replay_identically` (suspend = replay) |
+| Goldens | Fixture golden replays unchanged, or regenerated with a stated reason | ✅ unchanged (fixture weapons have no matchups or status specials); `tools/check_generated.sh` → `generated files: OK` |
+| Balance (sim) | AI-vs-AI player win rate 60–90% on chapters 1–3 (baseline before this step: 86 / 89 / 77%) | ✅ 86 / 90 / 79%, 0 unfinished, `balance check: OK` ×3. ⚠️ Chapter 2 sits at the 90% ceiling: retune if playtests find it easy |
+| Whole suite | `tools/test.sh` all green (baseline 123), `tools/check_layers.sh` OK | ✅ 135 passed, 0 failed; `layer check: OK`; `smoke play: OK` |
+| Looks right | Battle screenshot: status letters and the "!" forecast are readable, nothing overlaps | ✅ screenshots above; 120 fps (vsync) on Apple M4. The hover forecast "!" is ⏳ manual (screenshots can't hover) |
 | Fun (human) | Playtesters notice and use matchups; poison/sleep feel fair | ⏳ owner playtest |
 
 ## After the slice
@@ -495,4 +500,4 @@ Each step becomes a GitHub milestone. Each task is an issue labeled with its ste
 | 9 Scripting & town | Claude | 2026-11-07 | ✅ Done |
 | 10 Hardening | Claude | 2026-11-07 | ✅ Done (signing + Windows ⏳ owner) |
 | 11 Slice content (Gate C) | Claude | 2026-11-07 | ✅ Engineering + placeholder content done; final art/audio and Gate C playtest ⏳ owner |
-| 12 Design round 1 | Claude | 2026-11-07 | 🔄 In progress |
+| 12 Design round 1 | Claude | 2026-11-07 | ✅ Done (playtest of matchups/status ⏳ owner) |

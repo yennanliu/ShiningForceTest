@@ -235,9 +235,9 @@ func test_status_battles_replay_identically() -> void:
 
 func test_slice_content_uses_status_items() -> void:
 	var ch2 := Content.chapter(&"ch02")
-	var venomers := ch2.battle.enemies.filter(func(e: EnemySpawn) -> bool: return e.unit.id == &"goblin_venomer")
-	assert_eq(venomers.size(), 1, "one venomer in chapter 2")
-	assert_eq(venomers[0].unit.starting_items[0].special.effect, SpecialData.Effect.POISON)
+	var stingers := ch2.battle.enemies.filter(func(e: EnemySpawn) -> bool: return e.unit.id == &"goblin_stinger")
+	assert_eq(stingers.size(), 1, "one stinger in chapter 2")
+	assert_eq(stingers[0].unit.starting_items[0].special.effect, SpecialData.Effect.POISON)
 	assert_true(ch2.shop.has(Content.item(&"antidote")), "antidote sold when poison first appears")
 	var ch3 := Content.chapter(&"ch03")
 	for id: StringName in [&"antidote", &"lull_staff", &"vigor_band"]:

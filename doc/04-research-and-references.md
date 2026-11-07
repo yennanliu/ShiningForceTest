@@ -41,6 +41,24 @@ This doc records what we learned from the genre's reference game, Shining Force 
 | No world map | Linear towns, search spots | Keep momentum; small, dense places | Town screen |
 | Linked scenarios | Survivors and choices carry over through saves | Versioned saves with carryover in mind from day one | [02 §8.2](02-eng-design.md#82-save-file--usersavesslot_1json) |
 
+### 2b. Second study pass (step 12)
+
+Sources: the Kimimi playthrough (part 1) and a broader search. What we had not used yet, and where it went:
+
+| Reference behavior | Our version | Status |
+| --- | --- | --- |
+| "!" marks a target the attacker is strong against; such hits crit and trigger specials more often | Weapon matchups (sword > axe > spear > sword; spears/bows beat mounted; bows beat flyers), "!" in the forecast | ✅ step 12 |
+| Poison hurts after the unit's turn; specials can inflict status | Poison and sleep specials, Antidote | ✅ step 12 |
+| A ring that adds defense and heals a little every turn | Vigor Band (+2 DEF, +2 HP per turn) | ✅ step 12 |
+| Friendship grows between units that attack the same target | Focus-fire bond points (on top of our adjacency points) | Next round |
+| Thieves race for treasure; beat them to get it back | Looters carry chest items and drop them when defeated | Next round |
+| Surprise spawns on approach; capped respawn points | `UNIT_ENTERS` → `SPAWN` ambushes with a warning line; capped respawns | Next round |
+| Destructible barrels block paths | Breakable crates | Later |
+| Sticking to one weapon type unlocks stronger specials | Weapon proficiency | Later |
+| Visible enemy MP; red flag on leaders | Already in: MP in the unit panel, ★ on leaders | ✅ before step 12 |
+
+Criticisms we keep designing against: warping back to heal (we give a free full heal), losing loot to a full inventory (our loot goes to storage), and unfair ambushes (spawn behind the trigger area with a warning line).
+
 ## 3. What to design against
 
 | Criticism | Our answer |
@@ -86,6 +104,7 @@ For research only. Nothing from these ships with or is copied into our game.
 ## 6. Sources
 
 - [Sega-16 review of Scenario I](https://www.sega-16.com/2025/01/shining-force-iii-scenario-i/) (Jan 2025): release info, bond system details, criticisms
+- [Game Developer: how the friendship system orients gameplay](https://gamedeveloper.com/design/how-the-friendship-system-in-shining-force-3-orients-gameplay-without-punishing-casual-players): friendship details (second pass)
 - [Kimimi playthrough, part 1](https://kimimithegameeatingshemonster.com/2024/09/30/shining-force-iii-scenario-1-colossus-of-the-capital-a-shining-start-pt1/) (Sep 2024): pacing, home base, ruins maps, criticisms
 - [Shining Wiki entry](https://shining.fandom.com/wiki/Shining_Force_III_Scenario_1:_God_Warrior_of_the_Kingdom): could not be loaded during research
 - A ROM download site from the original reference list was left out on purpose

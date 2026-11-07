@@ -1,24 +1,23 @@
 [gd_resource type="Resource" script_class="ChapterData" format=3]
 
-[ext_resource type="Resource" path="res://data/maps/m03_chief_camp.tres" id="1_5q80u"]
-[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="2_mohtd"]
-[ext_resource type="Resource" path="res://data/units/garret.tres" id="3_kowxs"]
-[ext_resource type="Resource" path="res://data/units/hale.tres" id="4_e2n6l"]
-[ext_resource type="Script" path="res://data/defs/chapter_data.gd" id="5_bjch2"]
-[ext_resource type="Script" path="res://data/defs/item_data.gd" id="6_5kgb2"]
-[ext_resource type="Resource" path="res://data/items/herb.tres" id="7_1rf8u"]
-[ext_resource type="Resource" path="res://data/items/antidote.tres" id="8_verii"]
-[ext_resource type="Resource" path="res://data/items/healing_seed.tres" id="9_ogp7l"]
-[ext_resource type="Resource" path="res://data/items/long_bow.tres" id="10_mmtte"]
-[ext_resource type="Resource" path="res://data/items/lull_staff.tres" id="11_es4s4"]
-[ext_resource type="Resource" path="res://data/items/power_ring.tres" id="12_eea4o"]
-[ext_resource type="Resource" path="res://data/items/vigor_band.tres" id="13_my7sp"]
+[ext_resource type="Resource" path="res://data/maps/m03_chief_camp.tres" id="1_f1cly"]
+[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="2_5q80u"]
+[ext_resource type="Resource" path="res://data/units/garret.tres" id="3_mohtd"]
+[ext_resource type="Resource" path="res://data/units/hale.tres" id="4_kowxs"]
+[ext_resource type="Script" path="res://data/defs/chapter_data.gd" id="5_e2n6l"]
+[ext_resource type="Script" path="res://data/defs/item_data.gd" id="6_bjch2"]
+[ext_resource type="Resource" path="res://data/items/herb.tres" id="7_5kgb2"]
+[ext_resource type="Resource" path="res://data/items/antidote.tres" id="8_1rf8u"]
+[ext_resource type="Resource" path="res://data/items/healing_seed.tres" id="9_verii"]
+[ext_resource type="Resource" path="res://data/items/long_bow.tres" id="10_ogp7l"]
+[ext_resource type="Resource" path="res://data/items/lull_staff.tres" id="11_mmtte"]
+[ext_resource type="Resource" path="res://data/items/vigor_band.tres" id="12_es4s4"]
 
 [resource]
-script = ExtResource("5_bjch2")
+script = ExtResource("5_e2n6l")
 id = &"ch03"
 title = "Chapter 3: The Chief's Camp"
-battle = ExtResource("1_5q80u")
-recruits_on_start = Array[ExtResource("2_mohtd")]([ExtResource("3_kowxs"), ExtResource("4_e2n6l")])
+battle = ExtResource("1_f1cly")
+recruits_on_start = Array[ExtResource("2_5q80u")]([ExtResource("3_mohtd"), ExtResource("4_kowxs")])
 reward_gold = 300
-shop = Array[ExtResource("6_5kgb2")]([ExtResource("7_1rf8u"), ExtResource("8_verii"), ExtResource("9_ogp7l"), ExtResource("10_mmtte"), ExtResource("11_es4s4"), ExtResource("12_eea4o"), ExtResource("13_my7sp")])
+shop = Array[ExtResource("6_bjch2")]([ExtResource("7_5kgb2"), ExtResource("8_1rf8u"), ExtResource("9_verii"), ExtResource("10_ogp7l"), ExtResource("11_mmtte"), ExtResource("12_es4s4")])
