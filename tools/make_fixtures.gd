@@ -12,7 +12,9 @@ func _initialize() -> void:
 	var c := _classes()
 	var items := _items()
 	var units := _units(c, items)
-	_map(terrain, units)
+	var m1 := _map(terrain, units)
+	var m2 := _boss_map(m1, units)
+	_chapters(m1, m2, units)
 	print("fixtures written")
 	quit()
 
@@ -126,7 +128,7 @@ func _spawn(u: UnitData, at: Vector2i, tag: StringName = &"") -> EnemySpawn:
 ##   y3  . . . h h . . .
 ##   y4  . . . h h . . .
 ##   y5  . . f . . . . .
-func _map(t: Dictionary, u: Dictionary) -> void:
+func _map(t: Dictionary, u: Dictionary) -> MapData:
 	var m := MapData.new()
 	m.id = &"fixture_8x8"
 	m.size = Vector2i(8, 8)
@@ -152,4 +154,45 @@ func _map(t: Dictionary, u: Dictionary) -> void:
 	]
 	m.enemies[0].is_leader = true
 	m.objective = Enums.Objective.ROUT
-	_save(m, F + "map_8x8.tres")
+	return _save(m, F + "map_8x8.tres")
+
+
+## Same terrain, five enemies; win by defeating the boss.
+func _boss_map(base: MapData, u: Dictionary) -> MapData:
+	var m := MapData.new()
+	m.id = &"fixture_boss"
+	m.size = base.size
+	m.terrain_types = base.terrain_types
+	m.heights = base.heights
+	m.terrain_ids = base.terrain_ids
+	m.player_spawns = base.player_spawns
+	var boss := _spawn(u.goblin, Vector2i(7, 0), &"boss")
+	boss.level = 3
+	boss.ai = Enums.AiProfile.HOLD
+	m.enemies = [
+		boss,
+		_spawn(u.goblin, Vector2i(5, 1)),
+		_spawn(u.goblin, Vector2i(6, 2)),
+		_spawn(u.goblin_archer, Vector2i(6, 0)),
+		_spawn(u.goblin_archer, Vector2i(7, 1)),
+	]
+	m.objective = Enums.Objective.DEFEAT_BOSS
+	m.objective_tag = &"boss"
+	return _save(m, F + "map_boss.tres")
+
+
+func _chapters(m1: MapData, m2: MapData, u: Dictionary) -> void:
+	var c2 := ChapterData.new()
+	c2.id = &"ch02"
+	c2.title = "Chapter 2: The Goblin Chief"
+	c2.battle = m2
+	c2.reward_gold = 150
+	_save(c2, F + "chapter_02.tres")
+	var c1 := ChapterData.new()
+	c1.id = &"ch01"
+	c1.title = "Chapter 1: The Border Road"
+	c1.battle = m1
+	c1.recruits_on_start = [u.hero, u.knight, u.archer, u.scout]
+	c1.reward_gold = 100
+	c1.next = c2
+	_save(c1, F + "chapter_01.tres")

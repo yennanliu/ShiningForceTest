@@ -89,6 +89,22 @@ static func act_as(b: BattleState, u: Unit) -> void:
 	assert(false, "unit %d never got a turn" % u.id)
 
 
+static func chapter(n: int) -> ChapterData:
+	_register()
+	return load(DIR + "chapter_%02d.tres" % n)
+
+
+## Plays AI vs AI with increasing seeds until the battle is won. Returns the won battle.
+static func win_battle(c: Campaign, first_seed := 0) -> BattleState:
+	for s in range(first_seed, first_seed + 200):
+		var b := c.start_battle(s)
+		b.start()
+		if AutoPlay.play_to_end(b) == BattleState.Outcome.WON:
+			return b
+	assert(false, "no winning seed found")
+	return null
+
+
 static func all_paths() -> PackedStringArray:
 	var out := PackedStringArray()
 	for f in DirAccess.get_files_at(DIR):

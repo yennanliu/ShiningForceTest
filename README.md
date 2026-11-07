@@ -17,7 +17,7 @@ Start with the [doc index](doc/README.md).
 
 | You want to… | Command |
 | --- | --- |
-| **Play (2D, mouse)** | `brew install --cask godot`, then `godot --path .` |
+| **Play (2D, mouse)** | `brew install --cask godot`, then `godot --path .` (Title → Camp → Battle → Results) |
 | Play (text mode, no GPU) | `tools/docker.sh play` (or `godot --headless --path . -s res://tools/play.gd`) |
 | Run the tests | `tools/docker.sh test` (or `tools/test.sh`) |
 | Build the Linux app | `tools/docker.sh export` |

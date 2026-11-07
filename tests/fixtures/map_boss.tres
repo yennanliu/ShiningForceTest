@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="MapData" format=3]
+
+[ext_resource type="Script" path="res://data/defs/enemy_spawn.gd" id="1_62bij"]
+[ext_resource type="Resource" path="res://tests/fixtures/unit_goblin.tres" id="2_6gpl4"]
+[ext_resource type="Resource" path="res://tests/fixtures/unit_goblin_archer.tres" id="3_t6pvm"]
+[ext_resource type="Script" path="res://data/defs/map_data.gd" id="4_frlb3"]
+[ext_resource type="Script" path="res://data/defs/terrain_data.gd" id="5_cbn5b"]
+[ext_resource type="Resource" path="res://data/terrain/plain.tres" id="6_jsf18"]
+[ext_resource type="Resource" path="res://data/terrain/forest.tres" id="7_dmv68"]
+[ext_resource type="Resource" path="res://data/terrain/hill.tres" id="8_vsdbc"]
+[ext_resource type="Script" path="res://data/defs/trigger_data.gd" id="9_2cehs"]
+
+[sub_resource type="Resource" id="Resource_0aey5"]
+script = ExtResource("1_62bij")
+unit = ExtResource("2_6gpl4")
+level = 3
+at = Vector2i(7, 0)
+ai = 2
+tag = &"boss"
+
+[sub_resource type="Resource" id="Resource_3equr"]
+script = ExtResource("1_62bij")
+unit = ExtResource("2_6gpl4")
+at = Vector2i(5, 1)
+
+[sub_resource type="Resource" id="Resource_1rj6y"]
+script = ExtResource("1_62bij")
+unit = ExtResource("2_6gpl4")
+at = Vector2i(6, 2)
+
+[sub_resource type="Resource" id="Resource_lam4r"]
+script = ExtResource("1_62bij")
+unit = ExtResource("3_t6pvm")
+at = Vector2i(6, 0)
+
+[sub_resource type="Resource" id="Resource_mui4v"]
+script = ExtResource("1_62bij")
+unit = ExtResource("3_t6pvm")
+at = Vector2i(7, 1)
+
+[resource]
+script = ExtResource("4_frlb3")
+id = &"fixture_boss"
+heights = PackedByteArray(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+terrain_ids = PackedByteArray(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+terrain_types = Array[ExtResource("5_cbn5b")]([ExtResource("6_jsf18"), ExtResource("7_dmv68"), ExtResource("8_vsdbc")])
+player_spawns = Array[Vector2i]([Vector2i(0, 6), Vector2i(1, 7), Vector2i(0, 7), Vector2i(1, 6)])
+enemies = Array[ExtResource("1_62bij")]([SubResource("Resource_0aey5"), SubResource("Resource_3equr"), SubResource("Resource_1rj6y"), SubResource("Resource_lam4r"), SubResource("Resource_mui4v")])
+objective = 1
+objective_tag = &"boss"

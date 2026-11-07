@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ChapterData" format=3]
+
+[ext_resource type="Resource" path="res://tests/fixtures/map_boss.tres" id="1_5g6cw"]
+[ext_resource type="Script" path="res://data/defs/unit_data.gd" id="2_om7tp"]
+[ext_resource type="Script" path="res://data/defs/chapter_data.gd" id="3_3b3ko"]
+
+[resource]
+script = ExtResource("3_3b3ko")
+id = &"ch02"
+title = "Chapter 2: The Goblin Chief"
+battle = ExtResource("1_5g6cw")
+reward_gold = 150

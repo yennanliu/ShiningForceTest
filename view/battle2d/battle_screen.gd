@@ -44,6 +44,7 @@ var _help_label: Label
 var _log: RichTextLabel
 var _wait_btn: Button
 var _item_btn: Button
+var _continue_btn: Button
 var _banner: Label
 
 
@@ -60,23 +61,44 @@ func _ready() -> void:
 		return
 	if shot != "":
 		animate = false
-	start_battle(_seed)
+	if Game.battle != null and shot == "":
+		begin(Game.battle)
+	else:
+		start_battle(_seed)
 	if shot != "":
 		_take_screenshot(shot, demo_turns)
 
 
-## Starts a fresh battle on the demo map.
+## Starts a stand-alone demo battle (no campaign).
 func start_battle(p_seed: int) -> void:
-	_ensure_ui()
 	_seed = p_seed
-	state = BattleState.new(Fixtures.map(), Fixtures.party(), p_seed)
+	await begin(BattleState.new(Fixtures.map(), Fixtures.party(), p_seed))
+
+
+## Plays the given (not yet started) battle.
+func begin(s: BattleState) -> void:
+	_ensure_ui()
+	state = s
 	_popups.clear()
 	_log.clear()
 	_banner.visible = false
+	_continue_btn.visible = false
 	_sync_positions()
-	_log_line("[b]Battle start[/b] (seed %d). Defeat all enemies; keep the Hero alive." % p_seed)
+	var goal := "Defeat the boss" if s.map.objective == Enums.Objective.DEFEAT_BOSS else "Defeat all enemies"
+	var title: String = Game.campaign.chapter.title if Game.campaign != null and Game.campaign.chapter != null else "Demo battle"
+	_log_line("[b]%s[/b] — %s; keep the Hero alive." % [title, goal])
 	await _play(state.start())
 	await _advance()
+
+
+## After the battle: back to the campaign, or a new demo battle.
+func continue_after_battle() -> void:
+	if state.outcome() == BattleState.Outcome.ONGOING:
+		return
+	if Game.campaign != null and Game.battle == state:
+		Game.finish_battle()
+	else:
+		start_battle(_seed + 1)
 
 
 ## Player clicked a map tile.
@@ -236,7 +258,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	match event.keycode:
 		KEY_W: wait_turn()
 		KEY_I: use_item()
-		KEY_R: if state.outcome() != BattleState.Outcome.ONGOING: start_battle(_seed + 1)
+		KEY_R, KEY_ENTER: continue_after_battle()
 
 
 # --- drawing ---------------------------------------------------------------
@@ -391,6 +413,8 @@ func _build_ui() -> void:
 	panel.add_child(buttons)
 	_wait_btn = _button(buttons, "Wait  [W]", wait_turn)
 	_item_btn = _button(buttons, "Use Herb  [I]", use_item)
+	_continue_btn = _button(buttons, "Continue  [Enter]", continue_after_battle)
+	_continue_btn.visible = false
 
 	_help_label = _label(panel, 20)
 	_help_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.6))
@@ -448,7 +472,7 @@ func _update_panel() -> void:
 	_wait_btn.disabled = not mine
 	_item_btn.disabled = not mine
 	if state.outcome() != BattleState.Outcome.ONGOING:
-		_help_label.text = "Press R for a new battle."
+		_help_label.text = "Battle over. Press Continue (Enter)."
 	elif mine:
 		_help_label.text = "Click a blue tile to move, then click a red-outlined enemy to attack. Hover an enemy for the forecast. W = wait."
 	else:
@@ -459,6 +483,7 @@ func _show_banner(outcome: int) -> void:
 	_banner.text = "VICTORY" if outcome == BattleState.Outcome.WON else "DEFEAT"
 	_banner.add_theme_color_override("font_color", Color("ffd34a") if outcome == BattleState.Outcome.WON else Color("ff5a4a"))
 	_banner.visible = true
+	_continue_btn.visible = true
 
 
 func _log_line(text: String) -> void:

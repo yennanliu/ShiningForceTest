@@ -1,0 +1,15 @@
+{
+  "version": 0,
+  "money": 77,
+  "chapter": "ch01",
+  "chapter_title": "Chapter 1: The Border Road",
+  "play_seconds": 60,
+  "party": {
+    "roster": [
+      {"data": "hero", "class": "swordsman", "level": 2, "xp": 30,
+       "base": {"hp": 20, "mp": 0, "atk": 10, "def": 6, "agi": 8, "luk": 5},
+       "items": ["bronze_sword"], "weapon_slot": 0, "is_leader": true}
+    ],
+    "deployed": ["hero"]
+  }
+}
