@@ -46,6 +46,8 @@ func _ready() -> void:
 	UI.center(row)
 	col.add_child(row)
 	UI.button(row, "Start battle", func() -> void: Game.start_battle(), 300)
+	if c.chapter.town_name != "":
+		UI.button(row, "Visit %s" % c.chapter.town_name, func() -> void: Game.goto(Game.Screen.TOWN), 300)
 	for slot in ["slot_1", "slot_2", "slot_3"]:
 		UI.button(row, "Save %s" % slot.trim_prefix("slot_"), func() -> void: _save(slot), 160)
 	UI.button(row, "Title", Game.quit_to_title, 160)

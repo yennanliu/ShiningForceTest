@@ -1,0 +1,7 @@
+{
+  "boss_intro":    {"speaker": "Goblin Chief", "text": "Humans in my woods? Crush them!"},
+  "boss_angry":    {"speaker": "Goblin Chief", "text": "Grr... Guards! To me!"},
+  "boss_defeated": {"speaker": "Goblin Chief", "text": "This... isn't over..."},
+  "town_elder":    {"speaker": "Elder", "text": "Goblins block the forest road. Their chief hides in the old camp."},
+  "town_smith":    {"speaker": "Smith", "text": "A steel blade bites twice as deep. Ask the merchant at camp."}
+}

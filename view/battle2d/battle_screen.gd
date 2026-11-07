@@ -46,7 +46,9 @@ var _wait_btn: Button
 var _item_btn: Button
 var _spell_btn: Button
 var _continue_btn: Button
+var _suspend_btn: Button
 var _banner: Label
+var _speech: Label
 
 
 func _ready() -> void:
@@ -84,11 +86,15 @@ func begin(s: BattleState) -> void:
 	_log.clear()
 	_banner.visible = false
 	_continue_btn.visible = false
+	_speech.visible = false
 	_sync_positions()
 	var goal := "Defeat the boss" if s.map.objective == Enums.Objective.DEFEAT_BOSS else "Defeat all enemies"
 	var title: String = Game.campaign.chapter.title if Game.campaign != null and Game.campaign.chapter != null else "Demo battle"
 	_log_line("[b]%s[/b] — %s; keep the Hero alive." % [title, goal])
-	await _play(state.start())
+	if state.round_number() == 0:
+		await _play(state.start())
+	else:
+		_log_line("(resumed)")
 	await _advance()
 
 
@@ -227,6 +233,16 @@ func _play(events: Array[BattleEvent]) -> void:
 				if not e.data.hit:
 					_popup("miss", e.data.target_id, Color.WHITE)
 				await _pause(BEAT * 0.6)
+			BattleEvent.SPAWNED:
+				_unit_px[e.data.unit_id] = _center(e.data.at)
+				_popup("!", e.data.unit_id, Color("ffd34a"))
+				await _pause(BEAT * 2)
+			BattleEvent.SAID:
+				var l := Dialogue.line(e.data.line_id)
+				_speech.text = "%s:  %s" % [l.speaker, l.text]
+				_speech.visible = true
+				await _pause(1.8)
+				_speech.visible = false
 			BattleEvent.LEVELED_UP:
 				_popup("LEVEL UP", e.data.unit_id, Color("ffd34a"))
 				await _pause(BEAT * 2)
@@ -443,6 +459,9 @@ func _build_ui() -> void:
 	_wait_btn = _button(buttons, "Wait  [W]", wait_turn)
 	_item_btn = _button(buttons, "Use Herb  [I]", use_item)
 	_spell_btn = _button(buttons, "Spell  [S]", cast_spell)
+	_suspend_btn = _button(buttons, "Suspend", func() -> void:
+		if Game.campaign != null and Game.battle == state and not _busy:
+			Game.suspend_battle())
 	_continue_btn = _button(buttons, "Continue  [Enter]", continue_after_battle)
 	_continue_btn.visible = false
 
@@ -468,6 +487,21 @@ func _build_ui() -> void:
 	_banner.size = Vector2(map_w, 200)
 	_banner.visible = false
 	add_child(_banner)
+
+	_speech = Label.new()
+	_speech.add_theme_font_size_override("font_size", 28)
+	_speech.autowrap_mode = TextServer.AUTOWRAP_WORD
+	var ssb := StyleBoxFlat.new()
+	ssb.bg_color = Color(0.05, 0.08, 0.2, 0.92)
+	ssb.border_color = Color("cbb98a")
+	ssb.set_border_width_all(3)
+	ssb.set_corner_radius_all(10)
+	ssb.set_content_margin_all(16)
+	_speech.add_theme_stylebox_override("normal", ssb)
+	_speech.position = MAP_ORIGIN + Vector2(0, map_w + 16)
+	_speech.size = Vector2(map_w, 90)
+	_speech.visible = false
+	add_child(_speech)
 
 
 func _update_panel() -> void:
@@ -501,6 +535,8 @@ func _update_panel() -> void:
 	var mine := _player_turn() and not _busy
 	_wait_btn.disabled = not mine
 	_item_btn.disabled = not mine
+	_suspend_btn.visible = Game.campaign != null and Game.battle == state
+	_suspend_btn.disabled = not mine
 	_spell_btn.visible = actor != null and not actor.class_data.spells.is_empty()
 	_spell_btn.disabled = not mine
 	if state.outcome() != BattleState.Outcome.ONGOING:

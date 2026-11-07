@@ -10,6 +10,12 @@ extends Resource
 @export var battle: MapData
 @export var recruits_on_start: Array[UnitData] = []
 @export var reward_gold := 0
+## Town visited from camp (empty name = no town).
+@export var town_name := ""
+## One dialogue line id per townsperson.
+@export var town_talk: Array[StringName] = []
+## Hidden items in the town; each can be found once.
+@export var town_finds: Array[ItemData] = []
 ## Items for sale at camp before this chapter's battle.
 @export var shop: Array[ItemData] = []
 ## Null = campaign end.

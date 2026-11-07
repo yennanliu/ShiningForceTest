@@ -52,6 +52,11 @@ static func describe(e: BattleEvent, s: BattleState) -> String:
 			return "  %s reached level %d! %s" % [_name(s, d.unit_id), d.level, " ".join(parts)]
 		BattleEvent.BOND_CHANGED:
 			return "  %s and %s grow closer (bond %d)" % [_name(s, d.a_id), _name(s, d.b_id), d.tier]
+		BattleEvent.SPAWNED:
+			return "Reinforcements! %s appears at %s" % [_name(s, d.unit_id), _xy(d.at)]
+		BattleEvent.SAID:
+			var l := Dialogue.line(d.line_id)
+			return '%s: "%s"' % [l.speaker, l.text]
 		BattleEvent.CAST:
 			return "%s casts %s %d" % [_name(s, d.unit_id), String(d.spell_id).capitalize(), d.level]
 		BattleEvent.DAMAGED:

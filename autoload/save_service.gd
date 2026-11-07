@@ -11,8 +11,42 @@ var crash_before_rename := false
 
 
 func save_slot(slot: String, c: Campaign) -> Error:
+	return _write(slot, c.to_dict())
+
+
+## Mid-battle save: the campaign (unchanged during battle) + seed + commands.
+func save_suspend(c: Campaign, b: BattleState) -> Error:
+	return _write("suspend", {
+		"campaign": c.to_dict(),
+		"seed": b.rng.start_seed,
+		"commands": b.history.map(func(cmd: Command) -> Dictionary: return cmd.to_dict()),
+		"chapter_title": c.to_dict().chapter_title,
+	})
+
+
+func has_suspend() -> bool:
+	return not _read("suspend").is_empty()
+
+
+## {campaign, battle} with the battle rebuilt by replaying its commands; {} if none.
+func load_suspend() -> Dictionary:
+	var d := _read("suspend")
+	if d.is_empty() or int(d.get("version", 0)) > CURRENT_VERSION:
+		return {}
+	var c := Campaign.from_dict(migrate(d.campaign))
+	var b := c.start_battle(int(d.seed))
+	b.start()
+	for cmd in d.commands:
+		b.apply(Command.from_dict(cmd))
+	return {"campaign": c, "battle": b}
+
+
+func clear_suspend() -> void:
+	delete_slot("suspend")
+
+
+func _write(slot: String, data: Dictionary) -> Error:
 	DirAccess.make_dir_recursive_absolute(dir)
-	var data := c.to_dict()
 	data["version"] = CURRENT_VERSION
 	data["saved_at"] = Time.get_datetime_string_from_system(true)
 	var path := _path(slot)

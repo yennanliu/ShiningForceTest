@@ -73,14 +73,33 @@ func buy(item: ItemData) -> bool:
 	if not inventory.buy(item):
 		return false
 	inventory.storage.pop_back()
+	give(item)
+	return true
+
+
+func found_key(i: int) -> String:
+	return "found_%s_%d" % [chapter.id, i]
+
+
+## Searches hidden spot i in this chapter's town. Returns the item found, or null.
+func search(i: int) -> ItemData:
+	if i < 0 or i >= chapter.town_finds.size() or flags.get(found_key(i), false):
+		return null
+	flags[found_key(i)] = true
+	var item := chapter.town_finds[i]
+	give(item)
+	return item
+
+
+## Gives an item to the first deployed unit with a free slot, else storage.
+func give(item: ItemData) -> void:
 	for u in party.deployed_units():
 		if u.items.size() < Unit.MAX_ITEMS:
 			u.items.append(item)
 			if item.kind == ItemData.Kind.WEAPON and u.weapon_slot < 0 and item.weapon_type in u.class_data.weapon_types:
 				u.weapon_slot = u.items.size() - 1
-			return true
+			return
 	inventory.storage.append(item)
-	return true
 
 
 func _advance_chapter() -> void:

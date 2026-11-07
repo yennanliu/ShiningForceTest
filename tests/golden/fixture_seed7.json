@@ -225,6 +225,7 @@
       "archer|hero": 16,
       "archer|knight": 4
     },
+    "fired": {},
     "flags": {},
     "moved": true,
     "outcome": 1,

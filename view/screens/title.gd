@@ -9,6 +9,8 @@ func _ready() -> void:
 	UI.center(UI.label(col, "BANNER", 120, UI.ACCENT))
 	UI.center(UI.label(col, "a tactics RPG  ·  demo", 28, Color(1, 1, 1, 0.6)))
 	col.add_child(_spacer(40))
+	if SaveService.has_suspend():
+		UI.center(UI.button(col, "Resume battle", func() -> void: Game.resume_battle()))
 	UI.center(UI.button(col, "New Game", Game.new_game))
 	var cont := UI.center(UI.button(col, "Continue", _toggle_slots)) as Button
 	cont.disabled = not SaveService.has_any_save()

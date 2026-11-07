@@ -133,6 +133,8 @@ static func level_up(rng: Rng, u: Unit, out: Array[BattleEvent]) -> void:
 
 ## WON / LOST / ONGOING for the current state.
 static func check_outcome(s: BattleState) -> BattleState.Outcome:
+	if s.forced_outcome != BattleState.Outcome.ONGOING:
+		return s.forced_outcome
 	var players := s.living(Enums.Faction.PLAYER)
 	if players.is_empty():
 		return BattleState.Outcome.LOST
@@ -144,6 +146,13 @@ static func check_outcome(s: BattleState) -> BattleState.Outcome:
 			for u in s.units():
 				if u.tag == s.map.objective_tag and not u.is_alive():
 					return BattleState.Outcome.WON
+		Enums.Objective.REACH_AREA:
+			for u in players:
+				if s.map.objective_area.has_point(u.pos):
+					return BattleState.Outcome.WON
+		Enums.Objective.SURVIVE_ROUNDS:
+			if s.round_number() > s.map.objective_rounds:
+				return BattleState.Outcome.WON
 		_:
 			if s.living(Enums.Faction.ENEMY).is_empty():
 				return BattleState.Outcome.WON

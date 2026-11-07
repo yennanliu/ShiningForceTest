@@ -12,6 +12,8 @@ var queue := TurnQueue.new()
 var flags: Dictionary = {}
 var history: Array[Command] = []      # every applied command, for replays
 var bonds := Bonds.new()              # a copy of the campaign's bonds; merged back after
+var fired: Dictionary = {}            # trigger index -> round it last fired
+var forced_outcome := Outcome.ONGOING # set by WIN / LOSE trigger actions
 
 var _units: Array[Unit] = []
 var _actor: Unit
@@ -50,6 +52,7 @@ static func replay(p_map: MapData, party: Array[Unit], p_seed: int, cmds: Array,
 func start() -> Array[BattleEvent]:
 	var out: Array[BattleEvent] = []
 	_next_turn(out)
+	_ended(out)
 	return out
 
 
@@ -61,14 +64,13 @@ func apply(cmd: Command) -> Array[BattleEvent]:
 		return out
 	cmd.execute(self, out)
 	history.append(cmd)
-	_outcome = Rules.check_outcome(self)
-	if _outcome != Outcome.ONGOING:
-		out.append(BattleEvent.make(BattleEvent.BATTLE_ENDED, {"outcome": _outcome}))
-		_actor = null
+	MapScript.run(self, out)
+	if _ended(out):
 		return out
 	if cmd.ends_turn() or not _actor.is_alive():
 		out.append(BattleEvent.make(BattleEvent.TURN_ENDED, {"unit_id": _actor.id}))
 		_next_turn(out)
+		_ended(out)
 	return out
 
 
@@ -164,6 +166,7 @@ func snapshot() -> Dictionary:
 		"outcome": _outcome,
 		"flags": flags.duplicate(),
 		"bonds": bonds.to_dict(),
+		"fired": fired.duplicate(),
 		"units": _units.map(func(u: Unit) -> Dictionary: return u.to_dict()),
 	}
 
@@ -207,8 +210,19 @@ func _next_turn(out: Array[BattleEvent]) -> void:
 	if _actor == null:
 		queue.start_round(_units, rng)
 		out.append(BattleEvent.make(BattleEvent.ROUND_STARTED, {"round": queue.round_number}))
+		MapScript.run(self, out)
 		_actor = queue.next()
 	out.append(BattleEvent.make(BattleEvent.TURN_STARTED, {"unit_id": _actor.id}))
+
+
+## Checks for the end of the battle; if over, appends BATTLE_ENDED. Returns true if over.
+func _ended(out: Array[BattleEvent]) -> bool:
+	_outcome = Rules.check_outcome(self)
+	if _outcome == Outcome.ONGOING:
+		return false
+	out.append(BattleEvent.make(BattleEvent.BATTLE_ENDED, {"outcome": _outcome}))
+	_actor = null
+	return true
 
 
 func _add(u: Unit, at: Vector2i) -> void:

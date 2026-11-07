@@ -160,6 +160,7 @@
   "final": {
     "actor": 0,
     "bonds": {},
+    "fired": {},
     "flags": {},
     "moved": true,
     "outcome": 2,

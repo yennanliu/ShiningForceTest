@@ -182,6 +182,7 @@
     "bonds": {
       "archer|hero": 8
     },
+    "fired": {},
     "flags": {},
     "moved": false,
     "outcome": 2,

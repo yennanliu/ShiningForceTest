@@ -115,3 +115,4 @@ static func all_paths() -> PackedStringArray:
 
 static func _register() -> void:
 	Content.register_dir(DIR)
+	Dialogue.register_file(DIR + "dialogue_demo.json")

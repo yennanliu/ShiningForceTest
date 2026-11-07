@@ -49,4 +49,11 @@ func test_golden_replays_match() -> void:
 			continue
 		var g: Dictionary = JSON.parse_string(f.get_as_text())
 		var b := BattleState.replay(Fixtures.map(), Fixtures.party(), int(g.seed), g.commands)
-		assert_eq(Golden.normalize(b.snapshot()), Golden.normalize(g.final), "golden seed %d" % seed)
+		var got := Golden.normalize(b.snapshot())
+		var want := Golden.normalize(g.final)
+		if got != want:
+			var i := 0
+			while i < mini(got.length(), want.length()) and got[i] == want[i]:
+				i += 1
+			fail("golden seed %d differs at: ...%s... (want ...%s...). Regenerate with tools/make_golden.gd if intended." % [
+				seed, got.substr(maxi(0, i - 40), 80), want.substr(maxi(0, i - 40), 80)])

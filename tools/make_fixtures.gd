@@ -229,7 +229,37 @@ func _boss_map(base: MapData, u: Dictionary) -> MapData:
 	]
 	m.objective = Enums.Objective.DEFEAT_BOSS
 	m.objective_tag = &"boss"
+	var guard := _spawn(u.goblin, Vector2i(7, 3))
+	m.triggers = [
+		_trigger(TriggerData.When.ROUND_START, &"", [_say(&"boss_intro")]),
+		_trigger(TriggerData.When.HP_BELOW, &"boss", [_say(&"boss_angry"), _spawn_action(guard)]),
+		_trigger(TriggerData.When.UNIT_DIES, &"boss", [_say(&"boss_defeated")]),
+	]
 	return _save(m, F + "map_boss.tres")
+
+
+func _trigger(when: TriggerData.When, tag: StringName, actions: Array[TriggerAction]) -> TriggerData:
+	var t := TriggerData.new()
+	t.when = when
+	t.tag = tag
+	t.on_round = 1
+	t.hp_percent = 50
+	t.actions = actions
+	return t
+
+
+func _say(key: StringName) -> TriggerAction:
+	var a := TriggerAction.new()
+	a.kind = TriggerAction.Kind.SAY
+	a.key = key
+	return a
+
+
+func _spawn_action(e: EnemySpawn) -> TriggerAction:
+	var a := TriggerAction.new()
+	a.kind = TriggerAction.Kind.SPAWN
+	a.spawn = e
+	return a
 
 
 func _chapters(m1: MapData, m2: MapData, u: Dictionary, i: Dictionary) -> void:
@@ -248,5 +278,8 @@ func _chapters(m1: MapData, m2: MapData, u: Dictionary, i: Dictionary) -> void:
 	c1.recruits_on_start = [u.hero, u.knight, u.archer, u.scout]
 	c1.reward_gold = 100
 	c1.shop = [i.herb, i.bronze_sword, i.wooden_bow]
+	c1.town_name = "Riverside"
+	c1.town_talk = [&"town_elder", &"town_smith"]
+	c1.town_finds = [i.herb, i.steel_sword]
 	c1.next = c2
 	_save(c1, F + "chapter_01.tres")

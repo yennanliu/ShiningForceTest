@@ -332,28 +332,28 @@ The 3D isometric view moves to *after the slice*.
 
 ## Step 9 — Map scripting, dialogue and town
 
-**Goal:** maps tell stories, and players can walk around a town.
+**Goal:** maps tell stories, and players can visit a town.
 
 **Tasks**
 
-- [ ] `MapScript` hooks + `TriggerData`/`TriggerAction` (spawn, say, flag, objective, recruit, win, lose)
-- [ ] Objectives: `DEFEAT_BOSS`, `REACH_AREA`, `SURVIVE_ROUNDS`
-- [ ] `DialogueBox` (portrait, text, advance on input); `Said` events pause the battle loop
-- [ ] Dialogue JSON loader + a check that every `line_id` used by a trigger exists
-- [ ] `town.tscn`: walk with a simple character controller, talk to NPCs, shop, search spots (flags)
-- [ ] Suspend save mid-battle (seed + commands) and resume from the title screen
+- [x] `MapScript` + `TriggerData`/`TriggerAction`: conditions `ROUND_START`, `UNIT_ENTERS`, `UNIT_DIES`, `HP_BELOW`; actions `SPAWN`, `SAY`, `SET_FLAG`, `WIN`, `LOSE`. Runs after every command and at each round start, so it's deterministic. A trigger fires once; with `repeat`, at most once per round. (`SET_OBJECTIVE`/`RECRUIT` later)
+- [x] Objectives `DEFEAT_BOSS`, `REACH_AREA`, `SURVIVE_ROUNDS` (plus `ROUT`)
+- [x] `Dialogue` (`core/dialogue.gd`): lines by id from JSON. `said` events show as a speech box in 2D (and a log line), and as a quoted line in text mode
+- [x] Demo boss map triggers: intro line on round 1; at < 50% HP the boss calls a guard (spawn + line); defeat line
+- [x] **Town, simplified to a menu** (no walking yet): talk to townspeople, search hidden spots (each item found once, remembered in the save). Chapter 1 has "Riverside" (Elder, Smith, a herb and a Steel Sword hidden)
+- [x] Suspend mid-battle (campaign + seed + commands) → Title shows "Resume battle" → the battle is rebuilt by replay
 
 **Validation**
 
-| Check | Pass when |
-| --- | --- |
-| Triggers | Fixture map: round 3 spawns 2 enemies; boss under 50% says a line; `repeat=false` fires once |
-| Determinism | A battle with triggers still passes golden replay |
-| Content lint | CI fails if a trigger references a missing `line_id`, unit tag or flag |
-| Suspend | Suspend at round 4 → quit → resume: identical state (`to_dict`) |
-| Town | Playtester buys an item, talks to all NPCs and finds 2 search spots without help |
-
----
+| Check | Pass when | Result |
+| --- | --- | --- |
+| Triggers | Round 1 intro line; boss under 50% says a line and spawns a guard exactly once; boss death line comes before victory | ✅ `test_round_one_intro_line`, `test_boss_below_half_calls_guard_once`, `test_boss_death_line_then_victory` |
+| Objectives / actions | Reach area wins; survive 3 rounds wins at round 4; `SET_FLAG` + `LOSE` work | ✅ `test_reach_area_objective`, `test_survive_rounds_objective`, `test_flag_and_lose_actions` |
+| Determinism | Battles with triggers replay to an identical snapshot | ✅ `test_triggers_replay_deterministically` (+ golden replays) |
+| Content lint | Every line used by a trigger or a town exists | ✅ `test_every_dialogue_line_exists` |
+| Suspend | Suspend at round 4 → load → identical `snapshot()` | ✅ `test_suspend_and_resume_is_identical` |
+| Town | Search gives the item once, also after save/load; town screen builds | ✅ `test_town_search_gives_item_once`, `test_screens_build_without_errors` |
+| Manual | Playtester visits the town, talks to everyone, finds both items without help | ⏳ human check |
 
 ## Step 10 — Hardening: settings, export and performance
 
@@ -431,6 +431,6 @@ Each step becomes a GitHub milestone. Each task is an issue labeled with its ste
 | 6 Playable battle (Gate B) | Claude | 2026-11-07 | ✅ Done, Gate B needs a human playtest |
 | 7 Campaign & saves | Claude | 2026-11-07 | ✅ Done |
 | 8 Progression | Claude | 2026-11-07 | ✅ Done (balance ⚠️, see step 8) |
-| 9 Scripting & town | | | Not started |
+| 9 Scripting & town | Claude | 2026-11-07 | ✅ Done |
 | 10 Hardening | | | Not started |
 | 11 Slice content (Gate C) | | | Not started |

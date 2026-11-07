@@ -96,7 +96,8 @@ func test_newer_save_is_refused() -> void:
 func test_screens_build_without_errors() -> void:
 	Game.new_game()
 	Game.last_result = Game.campaign.finish_battle(Fixtures.win_battle(Game.campaign))
-	for path in ["res://view/screens/title.tscn", "res://view/screens/camp.tscn", "res://view/screens/results.tscn"]:
+	Game.campaign.chapter = Fixtures.chapter(1)   # chapter 1 has a town
+	for path in ["res://view/screens/title.tscn", "res://view/screens/camp.tscn", "res://view/screens/results.tscn", "res://view/screens/town.tscn"]:
 		var scr: Control = load(path).instantiate()
 		Engine.get_main_loop().root.add_child(scr)
 		scr._ready()
