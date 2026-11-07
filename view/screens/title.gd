@@ -18,7 +18,9 @@ func _ready() -> void:
 	_slots_box.visible = false
 	UI.center(_slots_box)
 	col.add_child(_slots_box)
+	UI.center(UI.button(col, "Settings", func() -> void: Game.goto(Game.Screen.SETTINGS)))
 	UI.center(UI.button(col, "Quit", func() -> void: get_tree().quit()))
+	UI.center(UI.label(col, "v%s" % ProjectSettings.get_setting("application/config/version", "dev"), 18, Color(1, 1, 1, 0.4)))
 
 
 func _toggle_slots() -> void:

@@ -84,3 +84,21 @@ func test_ai_is_fast() -> void:
 		worst = maxf(worst, (Time.get_ticks_usec() - t0) / 1000.0)
 		AutoPlay.play_turn(b)
 	assert_true(worst < 100.0, "worst AI think time %.1f ms" % worst)
+
+
+## Regression: a unit that acts last in a round and first in the next takes two turns in a row.
+func test_back_to_back_turns_are_not_flagged() -> void:
+	var c := Campaign.new_game(Fixtures.chapter(1))
+	var b := c.start_battle(77)
+	b.start()
+	var before := b.history.size()
+	for i in 200:
+		if b.outcome() != BattleState.Outcome.ONGOING:
+			break
+		var u := b.current_actor()
+		var ev := AutoPlay.play_turn(b)
+		var waits := ev.filter(func(e: BattleEvent) -> bool: return e.type == BattleEvent.TURN_ENDED).size()
+		if waits > 1 or (waits == 0 and b.outcome() == BattleState.Outcome.ONGOING):
+			fail("turn of unit %d produced %d turn_ended events" % [u.id, waits])
+			return
+	assert_true(b.history.size() > before)

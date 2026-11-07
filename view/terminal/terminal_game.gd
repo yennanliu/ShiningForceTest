@@ -48,7 +48,7 @@ func run() -> BattleState.Outcome:
 				_write.call("Can't do that. (h for help)")
 				continue
 			_show(events)
-			acted = state.current_actor() != actor or state.outcome() != BattleState.Outcome.ONGOING
+			acted = BattleEvent.turn_over(events)
 			if not acted:
 				_write.call("\n" + TextView.render(state))
 	return state.outcome()

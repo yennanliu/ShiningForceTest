@@ -32,6 +32,15 @@ static func make(p_type: StringName, p_data: Dictionary = {}) -> BattleEvent:
 	return e
 
 
+## True if these events end the acting unit's turn (or the battle).
+## Don't compare actors instead: the same unit can act twice in a row across a round change.
+static func turn_over(events: Array[BattleEvent]) -> bool:
+	for e in events:
+		if e.type == TURN_ENDED or e.type == BATTLE_ENDED:
+			return true
+	return false
+
+
 func to_dict() -> Dictionary:
 	var d := {"type": String(type)}
 	for k in data:

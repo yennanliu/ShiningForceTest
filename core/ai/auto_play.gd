@@ -10,11 +10,12 @@ static func play_turn(s: BattleState) -> Array[BattleEvent]:
 	if u == null:
 		return out
 	for cmd in AiPlanner.choose(s, u):
-		out.append_array(s.apply(cmd))
-		if s.current_actor() != u:
+		var ev := s.apply(cmd)
+		out.append_array(ev)
+		if BattleEvent.turn_over(ev):
 			return out
 	# Plan was invalid or did not end the turn (should not happen): end it safely.
-	if s.outcome() == BattleState.Outcome.ONGOING and s.current_actor() == u:
+	if s.outcome() == BattleState.Outcome.ONGOING:
 		push_warning("AutoPlay: plan for unit %d did not end its turn" % u.id)
 		out.append_array(s.apply(WaitCommand.by(u.id)))
 	return out

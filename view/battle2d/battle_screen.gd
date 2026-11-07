@@ -62,7 +62,7 @@ func _ready() -> void:
 		elif a.begins_with("--demo-turns="): demo_turns = int(a.trim_prefix("--demo-turns="))
 	if not auto_start:
 		return
-	if shot != "":
+	if shot != "" or Settings.anim_speed() == 0.0:
 		animate = false
 	if Game.battle != null and shot == "":
 		begin(Game.battle)
@@ -165,13 +165,12 @@ func use_item() -> void:
 # --- turn flow ----------------------------------------------------------
 
 func _do(cmd: Command) -> void:
-	var actor := state.current_actor()
 	var ev := state.apply(cmd)
 	if ev.is_empty():
 		return
 	_busy = true
 	await _play(ev)
-	if state.current_actor() != actor or state.outcome() != BattleState.Outcome.ONGOING:
+	if BattleEvent.turn_over(ev):
 		await _advance()
 	else:
 		_busy = false
@@ -184,11 +183,14 @@ func _advance() -> void:
 		_busy = true
 		var u := state.current_actor()
 		_refresh()
+		var ended := false
 		for cmd in AiPlanner.choose(state, u):
-			await _play(state.apply(cmd))
-			if state.current_actor() != u:
+			var ev := state.apply(cmd)
+			await _play(ev)
+			if BattleEvent.turn_over(ev):
+				ended = true
 				break
-		if state.outcome() == BattleState.Outcome.ONGOING and state.current_actor() == u:
+		if not ended and state.outcome() == BattleState.Outcome.ONGOING:
 			await _play(state.apply(WaitCommand.by(u.id)))
 	_busy = false
 	_refresh()
@@ -259,13 +261,13 @@ func _animate_move(id: int, path: Array) -> void:
 	for i in range(1, path.size()):
 		tw.tween_method(func(v: Vector2) -> void:
 			_unit_px[id] = v
-			queue_redraw(), _center(path[i - 1]), _center(path[i]), STEP_TIME)
+			queue_redraw(), _center(path[i - 1]), _center(path[i]), STEP_TIME / Settings.anim_speed())
 	await tw.finished
 
 
 func _pause(seconds: float) -> void:
 	if animate:
-		await get_tree().create_timer(seconds).timeout
+		await get_tree().create_timer(seconds / Settings.anim_speed()).timeout
 
 
 func _popup(text: String, unit_id: int, color: Color) -> void:
@@ -296,14 +298,36 @@ func _gui_input(event: InputEvent) -> void:
 			click_tile(t)
 
 
-func _unhandled_key_input(event: InputEvent) -> void:
-	if not (event is InputEventKey and event.pressed):
+func _unhandled_input(event: InputEvent) -> void:
+	if state == null or not event.is_pressed() or event.is_echo():
 		return
-	match event.keycode:
-		KEY_W: wait_turn()
-		KEY_I: use_item()
-		KEY_S: cast_spell()
-		KEY_R, KEY_ENTER: continue_after_battle()
+	var moves := {"cursor_up": Vector2i.UP, "cursor_down": Vector2i.DOWN, "cursor_left": Vector2i.LEFT, "cursor_right": Vector2i.RIGHT}
+	for a: String in moves:
+		if event.is_action(a):
+			move_cursor(moves[a])
+			return
+	if event.is_action("confirm"):
+		click_tile(_hover)
+	elif event.is_action("wait"):
+		wait_turn()
+	elif event.is_action("item"):
+		use_item()
+	elif event.is_action("spell"):
+		cast_spell()
+	elif event.is_action("continue"):
+		continue_after_battle()
+
+
+## Keyboard / gamepad cursor. Starts on the acting unit.
+func move_cursor(dir: Vector2i) -> void:
+	if not state.grid.in_bounds(_hover):
+		var a := state.current_actor()
+		_hover = a.pos if a != null else Vector2i.ZERO
+	var t := _hover + dir
+	if state.grid.in_bounds(t):
+		_hover = t
+		_update_panel()
+		queue_redraw()
 
 
 # --- drawing ---------------------------------------------------------------
@@ -542,7 +566,7 @@ func _update_panel() -> void:
 	if state.outcome() != BattleState.Outcome.ONGOING:
 		_help_label.text = "Battle over. Press Continue (Enter)."
 	elif mine:
-		_help_label.text = "Click a blue tile to move, then click a red-outlined enemy to attack. Hover an enemy for the forecast. W = wait."
+		_help_label.text = "Click a blue tile to move, then a red-outlined enemy to attack (or arrows/D-pad + Space/A). Hover an enemy for the forecast. W/B = wait."
 	else:
 		_help_label.text = "Enemy is moving…"
 

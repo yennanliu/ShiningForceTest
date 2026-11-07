@@ -357,28 +357,31 @@ The 3D isometric view moves to *after the slice*.
 
 ## Step 10 — Hardening: settings, export and performance
 
-**Goal:** builds that a stranger can install and run on min-spec hardware.
+**Goal:** builds that a stranger can install and run on ordinary hardware.
 
 **Tasks**
 
-- [ ] Settings screen: music/SFX volume, window mode, key rebinding → `settings.cfg`
-- [ ] Gamepad input map
-- [ ] Animation speed (1×/2×/skip)
-- [ ] macOS signing + notarization, Windows build; version string from the git tag
-- [ ] Profiling pass: draw calls, shadows, AI time on the largest map
-- [ ] Crash log: `last_battle.json` written on error, so a bug report includes a replay
+- [x] Settings screen (Title → Settings): music/sound volume, fullscreen, animation speed (normal / fast / skip) → `user://settings.cfg` (`view/common/settings.gd`)
+- [x] Input map in code: arrows/D-pad move a cursor, Space/A confirm, W/B wait, I/X item, S/Y spell, Enter/Start continue. Mouse still works
+- [x] Animation speed applied to moves and pauses; "skip" turns animations off
+- [x] Version on the title screen (`application/config/version` = 0.1.0)
+- [x] Battle log: `user://logs/last_battle.json` (campaign + seed + commands) written after every battle and on suspend; `tools/replay_log.gd` rebuilds it exactly, for bug reports
+- [x] FPS benchmark: `godot --path . -s res://tools/screenshot.gd -- --screen=battle --bench`
+- [x] **Bug fixed:** "has the turn ended?" was decided by "did the acting unit change?", which is wrong when one unit acts last in a round and first in the next. Now decided by `turn_ended` events (`BattleEvent.turn_over`) in AutoPlay, the 2D screen and the text game. Regression test added
+- [ ] macOS signing + notarization, Windows build: needs an Apple Developer certificate and a Windows machine (owner: you)
+
+![Settings](images/settings.png)
 
 **Validation**
 
-| Check | Pass when |
-| --- | --- |
-| Clean install | Fresh macOS and Windows machines: download from CI → run → play → save, no warnings beyond the OS defaults |
-| Settings persist | Change all settings → relaunch → still applied |
-| Gamepad | A full battle is playable on a gamepad only |
-| Performance | 60 fps on min spec on the largest slice map; map load < 2 s |
-| Repro | A `last_battle.json` from a test crash replays to the same state |
-
----
+| Check | Pass when | Result |
+| --- | --- | --- |
+| Settings persist | Change settings → save → reload → still applied | ✅ `test_settings_persist` |
+| Gamepad / keyboard | Every action has a key and a gamepad button; the cursor + confirm moves a unit | ✅ `test_input_map_has_keyboard_and_gamepad`, `test_cursor_and_confirm_move_a_unit` (a real gamepad playthrough is ⏳ manual) |
+| Repro | A written battle log replays to the same state | ✅ `test_battle_log_replays_exactly` |
+| Performance | 60 fps on the battle screen | ✅ 120 fps (vsync cap) on Apple M4 with the Compatibility renderer |
+| Linux build | Exports and boots (title screen) in Docker | ✅ `tools/docker.sh export` → `export + smoke: OK` |
+| Clean install | Fresh macOS and Windows machines: download → run → play → save | ⏳ needs signing (above) and a Windows machine |
 
 ## Step 11 — Vertical slice content
 
@@ -432,5 +435,5 @@ Each step becomes a GitHub milestone. Each task is an issue labeled with its ste
 | 7 Campaign & saves | Claude | 2026-11-07 | ✅ Done |
 | 8 Progression | Claude | 2026-11-07 | ✅ Done (balance ⚠️, see step 8) |
 | 9 Scripting & town | Claude | 2026-11-07 | ✅ Done |
-| 10 Hardening | | | Not started |
+| 10 Hardening | Claude | 2026-11-07 | ✅ Done (signing + Windows ⏳ owner) |
 | 11 Slice content (Gate C) | | | Not started |

@@ -2,7 +2,7 @@ extends Node
 ## Screen flow and the current Campaign (doc/02 §5.7).
 ## Title -> Camp -> Battle -> Results -> Camp ... -> Title when the campaign is complete.
 
-enum Screen { TITLE, CAMP, TOWN, BATTLE, RESULTS }
+enum Screen { TITLE, CAMP, TOWN, BATTLE, RESULTS, SETTINGS }
 
 const SCENES := {
 	Screen.TITLE: "res://view/screens/title.tscn",
@@ -10,6 +10,7 @@ const SCENES := {
 	Screen.TOWN: "res://view/screens/town.tscn",
 	Screen.BATTLE: "res://view/battle2d/battle_screen.tscn",
 	Screen.RESULTS: "res://view/screens/results.tscn",
+	Screen.SETTINGS: "res://view/screens/settings.tscn",
 }
 ## Demo content until real chapters exist (step 11).
 const CONTENT_DIR := "res://tests/fixtures/"
@@ -31,6 +32,9 @@ var _rng := RandomNumberGenerator.new()
 func _ready() -> void:
 	Content.register_dir(CONTENT_DIR)
 	Dialogue.register_file(CONTENT_DIR + "dialogue_demo.json")
+	Settings.load_settings()
+	Settings.setup_input()
+	Settings.apply()
 	_rng.randomize()
 
 
@@ -68,6 +72,7 @@ func start_battle(seed: int = -1) -> void:
 
 ## Save mid-battle and go to the title screen.
 func suspend_battle() -> Error:
+	BattleLog.write(campaign, battle)
 	var err := SaveService.save_suspend(campaign, battle)
 	if err == OK:
 		quit_to_title()
@@ -87,6 +92,7 @@ func resume_battle() -> bool:
 
 ## Called by the battle screen once the battle has ended.
 func finish_battle() -> void:
+	BattleLog.write(campaign, battle)
 	last_result = campaign.finish_battle(battle)
 	battle = null
 	SaveService.save_slot("auto", campaign)
