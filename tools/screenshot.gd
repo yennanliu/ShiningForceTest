@@ -186,6 +186,7 @@ func _auto_wait(scr: Control, seconds: float) -> void:
 
 
 var _fixed_vp: SubViewport
+var _fixed_root: Control
 
 
 ## Where screens are added: the window, or (with --fixed-size) a fixed off-screen viewport.
@@ -199,7 +200,12 @@ func _host() -> Node:
 		_fixed_vp.size_2d_override_stretch = true
 		_fixed_vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 		root.add_child(_fixed_vp)
-	return _fixed_vp
+		# A viewport doesn't pass the window's theme on, so screens go under a themed root here.
+		_fixed_root = Control.new()
+		_fixed_root.set_anchors_preset(Control.PRESET_FULL_RECT)
+		_fixed_root.theme = BannerTheme.load_or_build()
+		_fixed_vp.add_child(_fixed_root)
+	return _fixed_root
 
 
 func _capture() -> Image:
