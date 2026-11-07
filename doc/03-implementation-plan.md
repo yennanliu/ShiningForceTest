@@ -792,7 +792,7 @@ Our own direction (to be written into doc/05 in step 18): a **"Banner" frame**. 
     - Per mood: eyes, brows and mouth (5 moods)
     - `tools/render_portraits.gd` rasterizes them with Godot's SVG renderer to the same 256×256 PNG names, so every screen updated by itself. Deterministic, standard library + Godot; both are in `check_generated.sh`
     - 75 portraits, 2.9 MB
-- [x] Off-screen snapshots (follow-up from step 18): `tools/screenshot.gd --fixed-size` renders into a fixed 1280×720 viewport, so CI's small screen no longer changes the image size. The theme is now project-wide (`gui/theme/custom`), so it also applies inside that viewport. Same pixels as before (0.00% on all 9 old shots)
+- [x] Off-screen snapshots (follow-up from step 18): `tools/screenshot.gd --fixed-size` renders into a fixed 1280×720 viewport, so CI's small screen no longer changes the image size. That viewport gets the theme on a themed root Control. A project-wide theme (`gui/theme/custom`) was tried and dropped: on a fresh checkout Godot loads it before the frame textures are imported, and CI's clean-import check fails. Same pixels as before (0.00% on all 9 old shots)
 
 ![Portraits v2: 15 speakers](images/step19_portraits.png)
 ![Moods: neutral, happy, angry, hurt, determined](images/step19_moods.png)
