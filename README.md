@@ -8,8 +8,9 @@ An original, single-player, isometric tactical RPG for desktop, built with Godot
 | --- | --- | --- |
 | 01 | [App Design](doc/01-app-design.md) | Product vision, features, screens, scope, engineering overview |
 | 02 | [Engineering Design](doc/02-eng-design.md) | Architecture, core features, interfaces, class definitions, data formats, testing |
-| 03 | [Implementation Plan](doc/03-implementation-plan.md) | 12 steps, with tasks and validation for each |
+| 03 | [Implementation Plan](doc/03-implementation-plan.md) | 17 steps, with tasks and validation for each |
 | 04 | [Research & References](doc/04-research-and-references.md) | Genre reference analysis, IP guardrails, sources |
+| 05 | [Art Direction](doc/05-art-direction.md) | Style, palette, characters, portraits, asset specs |
 
 Start with the [doc index](doc/README.md).
 
@@ -81,7 +82,7 @@ godot --headless --path . -s res://tools/play.gd       # or with Godot installed
 | Build the Linux app | `tools/docker.sh export` |
 | Balance report (AI vs AI) | `godot --headless --path . -s res://tools/battle_sim.gd -- --runs=200` |
 | Edit in the Godot editor | `godot --editor --path .` |
-| Regenerate content / audio | `godot --headless --path . -s res://tools/make_content.gd` · `python3 tools/make_audio.py` |
+| Regenerate content / audio / art | `godot --headless --path . -s res://tools/make_content.gd` · `python3 tools/make_audio.py` · `python3 tools/make_art.py` |
 
 ## CI / CD
 

@@ -500,7 +500,7 @@ The owner asked for three things the reference genre does well (screenshots shar
 **IP rules for this work** ([04 §4](04-research-and-references.md#4-ip-guardrails)). The screenshots are references for **format and layout only**: a sprite on a map, a two-plate battle close-up, a portrait beside a text box. These are genre conventions. We don't copy the screenshots' characters, faces, hair or costumes, their UI frame shapes, palette, fonts or backgrounds, and we don't trace anything. The reference images are never committed to the repo. Every asset gets a line in `assets/CREDITS.md`. `game-art-design` reviews each step for "too close to the reference" before it's ticked.
 
 **How art is produced.** Same pattern as the audio in step 11:
-- Claude writes deterministic **placeholder generators** (`tools/make_sprites.py`, `tools/make_portraits.py`, `tools/make_backdrops.py`). They build original pixel art from layered shapes and a palette, so every screen works end to end now.
+- Claude writes deterministic **placeholder generators** (`tools/make_art.py`; backdrops and battle poses come with step 16). They build original pixel art from layered shapes and a palette, so every screen works end to end now.
 - **Final art** replaces the files one for one: same names, same sizes, no code change. That needs an artist (⏳ owner).
 
 ---
@@ -511,15 +511,15 @@ The owner asked for three things the reference genre does well (screenshots shar
 
 **Tasks**
 
-- [ ] **Art bible** `doc/05-art-direction.md` (`game-art-design`). Sections:
+- [x] **Art bible** [`doc/05-art-direction.md`](05-art-direction.md) (`game-art-design`). Sections:
     - Style statement: "chunky pixel-art characters on clean, textured tiles; warm daylight palette; readable first"
     - Palette: hex values per role
     - Character proportions: about 2.5 heads tall, a silhouette per class (shield = knight, bow = archer, staff + hood = cleric/mage, big axe = warrior)
     - Faction read: a blue/red ring under the feet plus a team-colored trim, never color alone
     - Portrait framing and the cut-in layout
     - Do / Don't with the IP rules above
-- [ ] **Decision:** 2D sprite billboards on a 3D map (closes the open question in [01 §15](01-app-design.md#15-open-questions)). `game-art-design` recommends it; ⏳ owner signs off
-- [ ] **Asset specs** (`game-2d-3d-artist`). Pixel art uses the Nearest filter; ids match `data/`:
+- [x] **Decision:** 2D sprite billboards on a 3D map (closes the open question in [01 §15](01-app-design.md#15-open-questions)). Owner chose it on 2026-11-07 because it is simpler: drawn frames instead of modelled, rigged and animated 3D characters, and the same sheets serve the 2D and 3D maps
+- [x] **Asset specs** (`game-2d-3d-artist`, [05 §8](05-art-direction.md#8-asset-specs)). Map sprites use the Nearest filter; portraits use Linear, because they're ×4 pixel art shown smaller than 256 px. Ids match `data/`:
 
     | Asset | Size | Frames | Folder / name |
     | --- | --- | --- | --- |
@@ -528,24 +528,28 @@ The owner asked for three things the reference genre does well (screenshots shar
     | Portrait | 256×256 | neutral; optional happy / angry / hurt | `assets/textures/portraits/<unit_id>[_<mood>].png` |
     | Battle pose (cut-in) | 192×192 per frame | idle 2, attack 4, cast 3, hurt 1, dodge 1; facing right, mirrored for the other side | `assets/textures/battle/<class_id>.png`, palette-swapped per unit |
     | Cut-in backdrop | 1280×400, 3 parallax layers | — | `assets/textures/backdrops/<terrain_id>_<layer>.png` |
-- [ ] **Data hooks** (`game-developer`):
-    - `UnitData.portrait` (exists), new `UnitData.sprite` and `ClassData.battle_pose`
-    - `"speaker_id"` on dialogue lines, so a line finds its portrait. The display name stays for text-only views
-    - Generated content sets them, with a missing-file fallback to the current shapes
-- [ ] **Placeholder generators** (`game-2d-3d-artist`): `tools/make_sprites.py`, `make_portraits.py`, `make_backdrops.py`
-    - Deterministic, stdlib only (like `make_audio.py`)
-    - Covered by `tools/check_generated.sh`
-- [ ] `assets/CREDITS.md` with author and license per file (`game-2d-3d-artist`)
+- [x] **Data hooks** (`game-developer`). *Changed from the plan:* art is found **by id** with `view/common/art.gd` (`Art.portrait(id, mood)`, `Art.sprite_sheet(id)`), not through new `UnitData` / `ClassData` fields. Townspeople aren't units, and this keeps `data/` and the `.tres` files unchanged
+    - Missing file → `null` → the caller draws the old shape or a name-only box
+    - `"speaker_id"` on every dialogue line, plus optional `"mood"` and `"side": "enemy"`. The display name stays for text-only views
+- [x] **Placeholder generator** (`game-2d-3d-artist`): one script, [`tools/make_art.py`](../tools/make_art.py), because sprites and portraits share the character drawing. Supporting files: `tools/pixel.py` (canvas + PNG writer) and `tools/art_palette.py` (doc/05 palette, one look per character)
+    - 15 sprite sheets (8 party, 6 enemy types, villager) and 21 portraits (15 speakers + 6 moods)
+    - Deterministic and standard library only, like `make_audio.py`; covered by `tools/check_generated.sh`
+    - *Moved to step 16:* backdrops and battle poses (only the cut-in scene uses them)
+- [x] [`assets/CREDITS.md`](../assets/CREDITS.md) with author and license per file (`game-2d-3d-artist`)
+- [x] `tools/screenshot.gd`: `--skip-anim` (whole dialogue lines), and an unknown `--screen` now quits with an error instead of leaving an empty window open
+
+![Placeholder sprites: front and side, party then enemies](images/step13_sprites.png)
+![Placeholder portraits](images/step13_portraits.png)
 
 **Validation**
 
 | Check | Pass when | Result |
 | --- | --- | --- |
-| Bible usable | Two people could make a new unit sprite that fits, using only doc/05 (art-design review) | |
-| Generators | Re-running them gives byte-identical files; `check_generated.sh` OK | |
-| Fallback | Deleting any asset file still runs every screen (shapes are drawn instead) | |
-| Size | All placeholder art < 5 MB | |
-| IP review | `game-art-design` confirms nothing resembles the reference screenshots' characters, frames or palette | |
+| Bible usable | Two people could make a new unit sprite that fits, using only doc/05 (art-design review) | ✅ every character comes from a doc/05 table row (class prop + look); adding one = one line in `art_palette.py`. A second person's try is ⏳ |
+| Generators | Re-running them gives byte-identical files; `check_generated.sh` OK | ✅ same md5 over two runs; `generated files: OK` |
+| Fallback | Deleting any asset file still runs every screen (shapes are drawn instead) | ✅ `test_missing_art_falls_back_to_null`, `test_free_text_without_a_portrait_hides_the_frame`. The map still draws shapes until step 15 |
+| Size | All placeholder art < 5 MB | ✅ 340 KB (`assets/textures`, with `.import` files) |
+| IP review | `game-art-design` confirms nothing resembles the reference screenshots' characters, frames or palette | ✅ characters come from our class props and looks; our flat navy/gold frame (step 11) has no bevels; no reference files in the repo. Owner re-checks at sign-off |
 | Style sign-off | Owner approves doc/05 and one sample of each asset type | ⏳ owner |
 
 ## Step 14 — Portrait dialogue (image C)
@@ -554,28 +558,30 @@ The owner asked for three things the reference genre does well (screenshots shar
 
 **Tasks**
 
-- [ ] **Dialogue box component** `view/dialogue/dialogue_box.gd` (`game-ui-ux-designer` + `game-developer`):
+- [x] **Dialogue box component** [`view/dialogue/dialogue_box.gd`](../view/dialogue/dialogue_box.gd) (`game-ui-ux-designer` + `game-developer`). Also shows a "▶ next" hint once the text is out, and `show_text()` for lines without an id (search results):
     - Portrait frame on the left for players and on the right for enemies
     - Name tab, text that types out (speed from `Settings.anim_speed()`; skip = instant)
     - Confirm finishes the text, a second confirm advances. Same on keyboard, gamepad and mouse
     - Falls back to a name-only box when there's no portrait
-- [ ] Use it everywhere a line is shown:
-    - Battle `SAID` events (replaces `_speech`)
-    - Camp chats and join lines
-    - Town talk
-    - Chapter intros
-- [ ] **Battle pacing:** a line waits for input; *fast* mode waits at most 1.5 s, *skip* mode at most 0.6 s. Never blocks AI-vs-AI or headless runs
-- [ ] **Portraits** (`game-2d-3d-artist`): placeholders for the 8 recruits, the goblin chief and 4 townspeople, plus 2 moods for the 3 most-talking characters. Final portraits ⏳ artist
-- [ ] **Writing pass** (`game-manager`): every line in `data/dialogue/slice.json` gets a `speaker_id`; a lint test enforces it
+- [x] Use it everywhere a line is shown:
+    - Battle `SAID` events (replaces `_speech`); chapter intros are round-1 `SAID` lines
+    - Camp: join lines play in a row over the header (click the box for the next one); Talk buttons
+    - Town: talk and search results, below "Back to camp" so nothing is pushed off screen
+    - In camp and town only a click *on the box* advances it, so the rest of the screen stays usable; in battle Enter / A / any click advance it
+- [x] **Battle pacing:** a line waits for input; *fast* mode waits at most 1.5 s, *skip* mode at most 0.6 s. *Changed:* normal mode also moves on by itself after 8 s, so a demo or an idle window never gets stuck. Never blocks AI-vs-AI or headless runs (`instant` when animations are off)
+- [x] **Portraits** (`game-2d-3d-artist`): placeholders for the 8 recruits, the goblin chief, the villager and 5 townspeople, plus moods for Aldric (happy, angry), Brina (happy, angry) and the chief (angry, hurt). Final portraits ⏳ artist
+- [x] **Writing pass** (`game-manager`): every line in `data/dialogue/slice.json` gets a `speaker_id`; 7 lines got a mood; the chief's 3 lines are `"side": "enemy"`. A lint test enforces it
+
+![Battle: portrait dialogue in the side panel](images/step14_battle_dialogue.png) ![Camp: join lines over the header](images/step14_camp_dialogue.png)
 
 **Validation**
 
 | Check | Pass when | Result |
 | --- | --- | --- |
-| Every line has a face | Lint: each line's `speaker_id` is a unit id or `narrator`; a portrait exists or the fallback is used | |
-| Fits | Longest line fits the box at 1280×720 and 1920×1080 (screenshots of battle, camp, town) | |
-| Parity | Advance with Enter, A, and click; skip mode never waits for input | |
-| Headless | `tests/view` builds the box; the campaign e2e still finishes with no input | |
+| Every line has a face | Lint: each line's `speaker_id` is a unit id or `narrator`; a portrait exists or the fallback is used | ✅ `test_every_line_has_a_speaker_with_a_portrait` (36 lines, 15 speakers, mood files exist) |
+| Fits | Longest line fits the box at 1280×720 and 1920×1080 (screenshots of battle, camp, town) | ✅ screenshots above (window 1280×720, canvas 1920×1080; longest line 69 chars = 2 lines); `test_camp_and_town_dialogue_fit_on_screen`. QA found and fixed 2 issues: the camp header peeked out under the box, and town's Back to camp button was pushed off screen |
+| Parity | Advance with Enter, A, and click; skip mode never waits for input | ✅ `test_confirm_finishes_typing_then_advances` (`confirm` / `continue` actions + click); skip = 0.6 s cap. Real gamepad press ⏳ manual |
+| Headless | `tests/view` builds the box; the campaign e2e still finishes with no input | ✅ 9 tests in `tests/view/test_dialogue.gd`; full suite 144 passed, 0 failed; `smoke play: OK` |
 | Feel (human) | Testers can say who spoke each line in chapter 1 | ⏳ owner |
 
 ## Step 15 — Character sprites and head icons on the 2D map (image A, first half)
@@ -691,8 +697,8 @@ Each step becomes a GitHub milestone. Each task is an issue labeled with its ste
 | 10 Hardening | Claude | 2026-11-07 | ✅ Done (signing + Windows ⏳ owner) |
 | 11 Slice content (Gate C) | Claude | 2026-11-07 | ✅ Engineering + placeholder content done; final art/audio and Gate C playtest ⏳ owner |
 | 12 Design round 1 | Claude | 2026-11-07 | ✅ Done (playtest of matchups/status ⏳ owner) |
-| 13 Art direction + pipeline | game-art-design, game-2d-3d-artist | — | ⬜ Next (style sign-off ⏳ owner) |
-| 14 Portrait dialogue | game-ui-ux-designer, game-developer | — | ⬜ Planned |
-| 15 Map sprites + head icons | game-2d-3d-artist, game-developer | — | ⬜ Planned |
+| 13 Art direction + pipeline | game-art-design, game-2d-3d-artist | 2026-11-07 | ✅ Done (style sign-off ⏳ owner) |
+| 14 Portrait dialogue | game-ui-ux-designer, game-developer | 2026-11-07 | ✅ Done (playtest ⏳ owner) |
+| 15 Map sprites + head icons | game-2d-3d-artist, game-developer | — | ⬜ Next (sheets already generated in step 13) |
 | 16 Battle cut-in scene | game-developer, game-ui-ux-designer, game-artist | — | ⬜ Planned |
 | 17 3D isometric map | game-developer, game-artist | — | ⬜ Planned (final art ⏳ artist) |
