@@ -933,11 +933,12 @@ godot --headless --path . --export-release "Windows" build/Banner.exe
 godot --headless --path . --export-release "Linux"   build/Banner.x86_64
 ```
 
+**Docker (recommended for tests and builds).** `Dockerfile` pins the Godot version from `.godot-version`. It has a `base` target (Godot only) and an `export` target (adds about 1 GB of export templates). `tools/docker.sh test|export|shell` runs tasks in it with no local Godot install. Playing and editing still use the native Godot app, because they need a GPU and a window.
+
 **CI (`.github/workflows/ci.yml`)**, on every push and pull request:
 
-1. `tools/check_layers.sh`: core stays free of Node and view references
-2. Import the project headless (`godot --headless --import`)
-3. Run all tests
-4. Export Linux + Windows (and macOS on a macOS runner)
-5. Smoke-test the Linux build
-6. Upload the builds as artifacts
+1. `tools/docker.sh test`: layer check + all tests in the container
+2. `tools/docker.sh export`: Linux export + smoke test in the container
+3. Upload the build as an artifact
+
+Windows and macOS exports are added at step 10.

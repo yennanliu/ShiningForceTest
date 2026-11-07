@@ -72,6 +72,7 @@ A step is done only when **all** of these are true:
 - [x] Add `export_presets.cfg` for macOS, Windows and Linux
 - [x] Add `.github/workflows/ci.yml`: layer check → tests → Linux export → smoke → upload artifact
 - [x] Register the empty autoloads `Game`, `SaveService`, `Audio`
+- [x] **Added:** `Dockerfile` + `tools/docker.sh` (`test` / `export` / `shell`) with Godot pinned from `.godot-version`. CI runs the same container
 
 **Validation**
 
@@ -82,7 +83,9 @@ A step is done only when **all** of these are true:
 | Runner catches failures | Temp test with a bad assert + a runtime error | Both reported as FAIL, exit 1 | ✅ |
 | Layer check bites | Temp `extends Node` and `randf()` in `core/` | Exits non-zero; passes once removed | ✅ |
 | Smoke (local) | `godot --headless --path . --quit-after 60` | Exit code 0 | ✅ |
-| CI | Push to `main` | Workflow green, Linux build artifact downloadable | see Tracking |
+| Docker tests | `tools/docker.sh test` | Same result as native | ✅ `8 passed, 0 failed` |
+| Docker export | `tools/docker.sh export` | Linux app builds and boots | ✅ `export + smoke: OK` (73 MB) |
+| CI | Push to `main` | Workflow green, Linux build artifact downloadable | ✅ |
 
 ---
 
